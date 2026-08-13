@@ -45,7 +45,7 @@ services:
     name: hydurban-frontend
     runtime: static
     rootDir: frontend
-    buildCommand: npm install && npm run build -- --configuration production
+    buildCommand: npm install && npm run build -- --configuration production && cp src/_redirects dist/hyderabad-urban-realty/_redirects
     staticPublishPath: dist/hyderabad-urban-realty
     headers:
       - path: /*
