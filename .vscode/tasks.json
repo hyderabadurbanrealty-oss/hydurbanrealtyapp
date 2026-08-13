@@ -1,0 +1,84 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "🐍 Start Python Flask Backend",
+      "type": "shell",
+      "command": "python",
+      "args": ["app.py"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend"
+      },
+      "isBackground": true,
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "servers"
+      }
+    },
+    {
+      "label": "🔧 Start .NET Backend",
+      "type": "shell",
+      "command": "dotnet",
+      "args": ["run", "--launch-profile", "http"],
+      "options": {
+        "cwd": "${workspaceFolder}/backend-dotnet"
+      },
+      "isBackground": true,
+      "problemMatcher": "$msCompile",
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "servers"
+      }
+    },
+    {
+      "label": "🎨 Start Angular Frontend",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start"],
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^(.*)$",
+          "file": 1,
+          "location": 2,
+          "message": 3
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".*",
+          "endsPattern": ".*Compiled successfully.*"
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "group": "servers"
+      }
+    },
+    {
+      "label": "🚀 Start All Services",
+      "dependsOn": [
+        "🐍 Start Python Flask Backend",
+        "🔧 Start .NET Backend",
+        "🎨 Start Angular Frontend"
+      ],
+      "problemMatcher": []
+    },
+    {
+      "label": "🛑 Stop All Services",
+      "type": "shell",
+      "command": "taskkill /F /IM python.exe /T; taskkill /F /IM dotnet.exe /T; taskkill /F /IM node.exe /T",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}

@@ -1,0 +1,196 @@
+<div class="sv-overlay" role="dialog" aria-modal="true" aria-labelledby="svTitle"
+     (click)="close()">
+  <div class="sv-card" (click)="$event.stopPropagation()">
+
+    <!-- Close -->
+    <button class="sv-close-btn" (click)="close()" aria-label="Close">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17">
+        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+      </svg>
+    </button>
+
+    <!-- LEFT — brand -->
+    <div class="sv-left">
+      <div class="sv-brand">
+        <img src="assets/blue-Logo.png" alt="Hyderabad Urban Realty" class="sv-logo-img" />
+      </div>
+      <h1 class="sv-headline" id="svTitle">Book a<br>Site Visit</h1>
+      <p class="sv-sub">Our team will confirm your appointment and guide you through the property in person.</p>
+      <ul class="sv-benefits">
+        <li><span class="sv-check">✓</span><span>Personal guided walkthrough</span></li>
+        <li><span class="sv-check">✓</span><span>On-site pricing &amp; availability</span></li>
+        <li><span class="sv-check">✓</span><span>Meet the developer's team</span></li>
+        <li><span class="sv-check">✓</span><span>No commitment required</span></li>
+      </ul>
+      <div class="sv-project-chip" *ngIf="projectName">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13">
+          <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+        </svg>
+        {{ projectName }}
+      </div>
+      <p class="sv-trust">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="13" height="13">
+          <path d="M8 1L1 4v4c0 4.1 3 7.9 7 9 4-1.1 7-4.9 7-9V4L8 1z"/>
+        </svg>
+        Free visit · No spam · No obligation
+      </p>
+    </div>
+
+    <!-- RIGHT — form -->
+    <div class="sv-right">
+      <div class="sv-form-header">
+        <div class="sv-cal-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
+            <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+          </svg>
+        </div>
+        <div>
+          <h2 class="sv-form-title">Your Details</h2>
+          <p class="sv-form-sub">All fields marked * are required</p>
+        </div>
+      </div>
+
+      <div class="sv-alert-error" *ngIf="error" role="alert">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/>
+        </svg>
+        {{ error }}
+      </div>
+      <div class="sv-alert-success" *ngIf="success" role="status">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15">
+          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+        </svg>
+        {{ success }}
+      </div>
+
+      <!-- Row 1: Name + Mobile -->
+      <div class="sv-row">
+        <div class="sv-field">
+          <label>Full Name <span class="sv-req">*</span></label>
+          <div class="sv-input-wrap">
+            <svg class="sv-input-icon" viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+            <input type="text" [(ngModel)]="form.name" placeholder="Rajesh Kumar" class="sv-input" autocomplete="name" />
+          </div>
+        </div>
+        <div class="sv-field">
+          <label>Mobile <span class="sv-req">*</span></label>
+          <div class="sv-input-wrap">
+            <svg class="sv-input-icon" viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+            <input type="tel" [(ngModel)]="form.mobile" placeholder="10-digit number" maxlength="10" class="sv-input" autocomplete="tel" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="sv-field">
+        <label>Email Address <span class="sv-req">*</span></label>
+        <div class="sv-input-wrap">
+          <svg class="sv-input-icon" viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+          <input type="email" [(ngModel)]="form.email" placeholder="rajesh@example.com" class="sv-input" autocomplete="email" />
+        </div>
+      </div>
+
+      <!-- Date + Time -->
+      <div class="sv-row">
+        <div class="sv-field">
+          <label>Preferred Date <span class="sv-req">*</span></label>
+          <div class="sv-input-wrap">
+            <svg class="sv-input-icon" viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+            <input type="date" [(ngModel)]="form.visitDate" [min]="today" class="sv-input sv-input-date" />
+          </div>
+        </div>
+        <div class="sv-field">
+          <label>Preferred Time <span class="sv-req">*</span></label>
+          <div class="sv-input-wrap">
+            <svg class="sv-input-icon" viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg>
+            <select [(ngModel)]="form.visitTime" class="sv-input sv-select">
+              <option value="">Select slot</option>
+              <option value="9:00 AM - 11:00 AM">9:00 AM – 11:00 AM</option>
+              <option value="11:00 AM - 1:00 PM">11:00 AM – 1:00 PM</option>
+              <option value="2:00 PM - 4:00 PM">2:00 PM – 4:00 PM</option>
+              <option value="4:00 PM - 6:00 PM">4:00 PM – 6:00 PM</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location search -->
+      <div class="sv-field">
+        <label>Your Location <span class="sv-optional">(optional)</span></label>
+        <div class="sv-input-wrap sv-location-wrap">
+          <svg class="sv-input-icon" viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+          <input type="text" [(ngModel)]="locationQuery"
+                 (input)="onLocationInput()"
+                 (keydown)="onLocKeydown($event)"
+                 placeholder="Type your area, e.g. Gachibowli"
+                 class="sv-input" autocomplete="off" />
+          <span class="sv-loc-spinner" *ngIf="locationSearching">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+              <circle cx="12" cy="12" r="10" opacity=".25"/>
+              <path d="M12 2a10 10 0 0110 10" stroke-linecap="round" class="sv-spin-arc"/>
+            </svg>
+          </span>
+        </div>
+        <ul class="sv-suggestions" *ngIf="locationSuggestions.length > 0" role="listbox">
+          <li *ngFor="let s of locationSuggestions; let i=index"
+              [class.sv-sug-active]="i === locationSuggestionIdx"
+              (mousedown)="pickSuggestion(i)" role="option">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13" style="flex-shrink:0;color:#94a3b8">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+            </svg>
+            <span>{{ s.display_name }}</span>
+          </li>
+        </ul>
+        <div class="sv-chosen-loc" *ngIf="form.locationAddress && locationSuggestions.length === 0">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+          </svg>
+          {{ form.locationAddress }}
+          <button type="button" class="sv-loc-clear" (click)="clearLocation()">×</button>
+        </div>
+      </div>
+
+      <!-- Message -->
+      <div class="sv-field">
+        <label>Message <span class="sv-optional">(optional)</span></label>
+        <div class="sv-input-wrap">
+          <textarea [(ngModel)]="form.message" placeholder="Any specific requirements?"
+                    rows="2" class="sv-input sv-textarea"></textarea>
+        </div>
+      </div>
+
+      <!-- Captcha -->
+      <div class="sv-captcha">
+        <div class="sv-captcha-label">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/></svg>
+          Verification
+        </div>
+        <div class="sv-captcha-row">
+          <div class="sv-captcha-challenge">
+            <span class="sv-captcha-eq">{{ captchaA }} + {{ captchaB }} = ?</span>
+            <button type="button" class="sv-captcha-refresh" (click)="refreshCaptcha()" title="New question" aria-label="Refresh captcha">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+            </button>
+          </div>
+          <div class="sv-input-wrap" style="flex:1">
+            <input type="number" [(ngModel)]="captchaAnswer" placeholder="Answer"
+                   class="sv-input sv-captcha-input" (keydown.enter)="submit()" aria-label="Captcha answer" />
+          </div>
+          <span class="sv-captcha-ok"   *ngIf="captchaAnswer !== null && captchaAnswer !== '' && +captchaAnswer === captchaA + captchaB" aria-label="Correct">✓</span>
+          <span class="sv-captcha-fail" *ngIf="captchaAnswer !== null && captchaAnswer !== '' && +captchaAnswer !== captchaA + captchaB" aria-label="Incorrect">✗</span>
+        </div>
+      </div>
+
+      <button class="sv-submit-btn" (click)="submit()" [disabled]="submitting">
+        <span *ngIf="!submitting">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>
+          Confirm Visit
+        </span>
+        <span *ngIf="submitting" class="sv-spinner-row">
+          <span class="sv-btn-spinner"></span>Scheduling…
+        </span>
+      </button>
+
+    </div>
+  </div>
+</div>

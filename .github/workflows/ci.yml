@@ -1,0 +1,103 @@
+name: CI — Build & Validate
+
+on:
+  push:
+    branches: [master, main, develop]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  # ─────────────────────────────────────────────
+  # 1. Angular Frontend
+  # ─────────────────────────────────────────────
+  frontend:
+    name: 🎨 Angular Frontend Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci --legacy-peer-deps
+
+      - name: Build (production)
+        working-directory: frontend
+        run: npm run build:prod
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 7
+
+  # ─────────────────────────────────────────────
+  # 2. Python Flask Backend
+  # ─────────────────────────────────────────────
+  python-backend:
+    name: 🐍 Python Flask Backend
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        working-directory: backend
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Syntax check all Python files
+        working-directory: backend
+        run: |
+          python -m py_compile app.py
+          python -m py_compile ProjectNameRetriever.py
+          python -m py_compile rera_detail_scraper.py
+          echo "✅ All Python files passed syntax check"
+
+  # ─────────────────────────────────────────────
+  # 3. .NET Backend
+  # ─────────────────────────────────────────────
+  dotnet-backend:
+    name: 🔧 .NET 8 Backend Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore dependencies
+        working-directory: backend-dotnet
+        run: dotnet restore
+
+      - name: Build
+        working-directory: backend-dotnet
+        run: dotnet build --no-restore --configuration Release
+
+      - name: Publish
+        working-directory: backend-dotnet
+        run: dotnet publish --no-build --configuration Release -o ./publish
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: dotnet-publish
+          path: backend-dotnet/publish/
+          retention-days: 7

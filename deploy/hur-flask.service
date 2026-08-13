@@ -1,0 +1,32 @@
+# /etc/systemd/system/hur-flask.service
+# Python Flask (Gunicorn) backend service for HyderabadUrbanReality
+
+[Unit]
+Description=HyderabadUrbanReality Flask Backend
+After=network.target
+
+[Service]
+Type=exec
+User=www-data
+WorkingDirectory=/opt/hyderabad-urban-reality/backend
+ExecStart=/opt/hyderabad-urban-reality/venv/bin/gunicorn \
+    --workers 1 \
+    --threads 4 \
+    --bind 127.0.0.1:5000 \
+    --timeout 300 \
+    --log-level info \
+    --access-logfile /var/log/hur-flask/access.log \
+    --error-logfile  /var/log/hur-flask/error.log \
+    app:app
+Restart=on-failure
+RestartSec=10
+
+# Secrets — fill these in on the server
+EnvironmentFile=-/opt/hyderabad-urban-reality/.env
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hur-flask
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,313 @@
+<div class="mi-page">
+
+  <!-- Header -->
+  <div class="mi-header">
+    <div class="mi-header-inner">
+      <div class="mi-title-block">
+        <span class="mi-badge">ANALYZE</span>
+        <h1 class="mi-title">Market Intelligence</h1>
+        <p class="mi-subtitle">
+          A definitive valuation engine for Hyderabad’s residential market.
+          Anchor price negotiations on actual transaction data.
+        </p>
+      </div>
+      <div class="mi-kpis" *ngIf="!loading">
+        <div class="kpi-card" *ngIf="sroAvailable">
+          <div class="kpi-value">₹{{ cityAvgSqft | number:'1.0-0' }}</div>
+          <div class="kpi-label">Avg / sqft &nbsp;<span
+                [class.kpi-up]="yoyChange > 0" [class.kpi-dn]="yoyChange < 0"
+                style="font-size:0.78rem;font-weight:700">{{ yoyChange > 0 ? '+' : '' }}{{ yoyChange }}% YoY</span></div>
+        </div>
+        <div class="kpi-card" *ngIf="sroAvailable">
+          <div class="kpi-value">{{ latestCount | number }}</div>
+          <div class="kpi-label">Deals · {{ _fmtQ(latestQuarter) }}</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-value">{{ allProjects.length }}</div>
+          <div class="kpi-label">RERA Projects</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="mi-loading" *ngIf="loading">
+    <div class="loader-spinner"></div>
+    <p>Aggregating RERA data…</p>
+  </div>
+
+  <div class="mi-content" *ngIf="!loading">
+
+    <!-- SRO subheader -->
+    <div class="sro-subheader">
+      <div class="sro-subheader-left">
+        <h3 class="sro-subheader-title">SRO Registration Insights</h3>
+        <p class="sro-subheader-desc">
+          Real transaction data from Sub-Registrar Office deed registrations (IGRS Telangana).
+          <span *ngIf="sroAvailable && latestQuarter" class="sro-latest-tag">Latest: {{ _fmtQ(latestQuarter) }}</span>
+        </p>
+      </div>
+
+    </div>
+
+    <div class="sro-empty" *ngIf="!sroLoading && !sroAvailable">
+      <div class="sro-empty-icon">🔒</div>
+      <h4>SRO Transaction History — Coming Soon</h4>
+      <p>Price trend, volume and deal-count charts will appear here once transaction-level data is available. The IGRS portal requires authentication to access deed-level records.</p>
+    </div>
+
+    <div class="mi-loading" *ngIf="sroLoading">
+      <div class="loader-spinner"></div>
+      <p>Loading SRO data…</p>
+    </div>
+
+    <ng-container *ngIf="!sroLoading && sroAvailable">
+
+      <!-- Entity selector -->
+      <div class="entity-selector-bar">
+        <label class="entity-label">SELECT ENTITY</label>
+        <select class="entity-select" [ngModel]="selectedEntity" (ngModelChange)="onEntityChange($event)">
+          <option value="Hyderabad">Hyderabad (City-wide)</option>
+          <option *ngFor="let loc of sroLocalities" [value]="loc">{{ loc }}</option>
+        </select>
+      </div>
+
+      <!-- Sections 01-06 grid (2 per row) -->
+      <div class="sections-grid">
+
+      <!-- Section 01: Price Trends -->
+      <section class="mi-section">
+        <div class="section-header">
+          <div class="section-num sn-indigo">01</div>
+          <div>
+            <h2 class="section-title">Price Trends</h2>
+            <p class="section-desc">Average ₹/sqft by quarter · {{ selectedEntity }}.</p>
+          </div>
+        </div>
+        <div class="trend-layout">
+          <div class="trend-chart">
+            <canvas baseChart [data]="priceTrendData" [options]="priceTrendOptions" type="line"></canvas>
+          </div>
+          <ng-container *ngTemplateOutlet="trendSnapshot"></ng-container>
+        </div>
+        <p class="data-source">Source: IGRS Telangana · Sale Deed Registrations</p>
+      </section>
+
+      <!-- Section 02: Volume Trends -->
+      <section class="mi-section">
+        <div class="section-header">
+          <div class="section-num sn-green">02</div>
+          <div>
+            <h2 class="section-title">Volume Trends</h2>
+            <p class="section-desc">Total registered transaction value (₹ Crore) per quarter · {{ selectedEntity }}.</p>
+          </div>
+        </div>
+        <div class="trend-layout">
+          <div class="trend-chart">
+            <canvas baseChart [data]="volumeTrendData" [options]="volumeTrendOptions" type="bar"></canvas>
+          </div>
+          <ng-container *ngTemplateOutlet="trendSnapshot"></ng-container>
+        </div>
+        <p class="data-source">Source: IGRS Telangana · Sale Deed Registrations</p>
+      </section>
+
+      <!-- Section 03: Count Trends -->
+      <section class="mi-section">
+        <div class="section-header">
+          <div class="section-num sn-yellow">03</div>
+          <div>
+            <h2 class="section-title">Count Trends</h2>
+            <p class="section-desc">Number of transactions registered per quarter · {{ selectedEntity }}.</p>
+          </div>
+        </div>
+        <div class="trend-layout">
+          <div class="trend-chart">
+            <canvas baseChart [data]="countTrendData" [options]="countTrendOptions" type="bar"></canvas>
+          </div>
+          <ng-container *ngTemplateOutlet="trendSnapshot"></ng-container>
+        </div>
+        <p class="data-source">Source: IGRS Telangana · Sale Deed Registrations</p>
+      </section>
+
+      <!-- Section 04: Price Rank -->
+      <section class="mi-section" *ngIf="priceRankRows.length > 0">
+        <div class="section-header">
+          <div class="section-num sn-indigo">04</div>
+          <div>
+            <h2 class="section-title">Price Rank</h2>
+            <p class="section-desc">Top localities by average ₹/sqft · {{ _fmtQ(latestQuarter) }}.</p>
+          </div>
+        </div>
+        <div class="chart-wrap" [style.height.px]="Math.max(480, (priceRankData.labels?.length || 1) * 48 + 40)">
+          <canvas baseChart [data]="priceRankData" [options]="priceRankOptions" type="bar"></canvas>
+        </div>
+        <p class="data-source">Source: IGRS Telangana · Sale Deed Registrations</p>
+      </section>
+
+      <!-- Section 05: Volume Rank -->
+      <section class="mi-section" *ngIf="volumeRankRows.length > 0">
+        <div class="section-header">
+          <div class="section-num sn-green">05</div>
+          <div>
+            <h2 class="section-title">Volume Rank</h2>
+            <p class="section-desc">Top localities by total transaction value · {{ _fmtQ(latestQuarter) }}.</p>
+          </div>
+        </div>
+        <div class="chart-wrap" [style.height.px]="Math.max(480, (volumeRankData.labels?.length || 1) * 48 + 40)">
+          <canvas baseChart [data]="volumeRankData" [options]="volumeRankOptions" type="bar"></canvas>
+        </div>
+        <p class="data-source">Source: IGRS Telangana · Sale Deed Registrations</p>
+      </section>
+
+      <!-- Section 06: Count Rank -->
+      <section class="mi-section" *ngIf="countRankRows.length > 0">
+        <div class="section-header">
+          <div class="section-num sn-yellow">06</div>
+          <div>
+            <h2 class="section-title">Count Rank</h2>
+            <p class="section-desc">Top localities by number of registered deals · {{ _fmtQ(latestQuarter) }}.</p>
+          </div>
+        </div>
+        <div class="chart-wrap" [style.height.px]="Math.max(480, (countRankData.labels?.length || 1) * 48 + 40)">
+          <canvas baseChart [data]="countRankData" [options]="countRankOptions" type="bar"></canvas>
+        </div>
+        <p class="data-source">Source: IGRS Telangana · Sale Deed Registrations</p>
+      </section>
+
+      </div><!-- /sections-grid -->
+
+    </ng-container>
+
+    <!-- Shared trend snapshot panel (used by sections 01/02/03 via ngTemplateOutlet) -->
+    <ng-template #trendSnapshot>
+      <div class="trend-stats">
+        <div class="trend-snapshot-quarter">{{ _fmtQ(latestQuarter) }}</div>
+        <div class="stat-chip">
+          <div class="stat-label">Sale Value</div>
+          <div class="stat-value">₹{{ entityLatestSqft | number:'1.0-0' }}</div>
+          <div class="stat-unit">per sqft</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-label">Volume</div>
+          <div class="stat-value">₹{{ entityLatestVolCr | number:'1.0-0' }} Cr</div>
+          <div class="stat-unit">total sales</div>
+        </div>
+        <div class="stat-chip">
+          <div class="stat-label">Sale Count</div>
+          <div class="stat-value">{{ entityLatestCount | number }}</div>
+          <div class="stat-unit">transactions</div>
+        </div>
+        <div class="stat-chip" [class.chip-up]="entityYoyChange > 0" [class.chip-dn]="entityYoyChange < 0">
+          <div class="stat-label">YoY Change</div>
+          <div class="stat-value">{{ entityYoyChange > 0 ? '+' : '' }}{{ entityYoyChange }}%</div>
+          <div class="stat-unit">vs year ago</div>
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- RERA subheader -->
+    <div class="sro-subheader" style="margin-top:2.5rem">
+      <div class="sro-subheader-left">
+        <h3 class="sro-subheader-title">RERA Supply Insights</h3>
+        <p class="sro-subheader-desc">Project pipeline and completion data from TG-RERA filings.</p>
+      </div>
+    </div>
+
+    <!-- Section 07: RERA Tracker removed -->
+
+    <!-- Circle Rates subheader -->
+    <div class="sro-subheader" style="margin-top:2.5rem">
+      <div class="sro-subheader-left">
+        <h3 class="sro-subheader-title">Government Circle Rates</h3>
+        <p class="sro-subheader-desc">
+          Official ₹/sqft benchmark values from the IGRS Ready Reckoner (Telangana).
+        </p>
+      </div>
+    </div>
+
+    <div class="mi-loading" *ngIf="rrLoading"><div class="loader-spinner"></div><p>Loading circle rates…</p></div>
+
+    <div class="sro-empty" *ngIf="!rrLoading && !rrAvailable">
+      <div class="sro-empty-icon">🏗️</div>
+      <h4>No circle rate data available</h4>
+      <p>Go to <strong>Admin → Price Projection Data</strong> and click <strong>🏦 Scrape Unit Rates</strong>.</p>
+    </div>
+
+    <ng-container *ngIf="!rrLoading && rrAvailable">
+
+      <!-- Section 09: Circle Rate Rank -->
+      <section class="mi-section">
+        <div class="section-header">
+          <div class="section-num" style="background:rgba(124,58,237,0.12);color:#7c3aed">09</div>
+          <div>
+            <h2 class="section-title">Circle Rate Rank</h2>
+            <p class="section-desc">Top 25 localities by government benchmark ₹/sqft (Ready Reckoner — IGRS Telangana).</p>
+          </div>
+        </div>
+        <div class="filter-bar" style="margin-bottom:1.25rem">
+          <div class="filter-group">
+            <label>DISTRICT</label>
+            <div class="pill-group">
+              <button class="pill" [class.active]="rrDistrict === 'All'" (click)="onRrDistrictChange('All')">All</button>
+              <button *ngFor="let d of rrDistricts" class="pill" [class.active]="rrDistrict === d" (click)="onRrDistrictChange(d)">{{ d }}</button>
+            </div>
+          </div>
+        </div>
+        <div class="rank-layout">
+          <div class="rank-chart" [style.height.px]="Math.max(300, (rrChartData.labels?.length || 1) * 40 + 80)">
+            <canvas baseChart [data]="rrChartData" [options]="rrChartOptions" type="bar"></canvas>
+          </div>
+          <div class="rank-cards">
+            <div class="rank-card" *ngFor="let row of rrRows.slice(0,5); let i = index">
+              <div class="rank-card-pos" style="color:#7c3aed">{{ i + 1 }}</div>
+              <div class="rank-card-body">
+                <div class="rank-card-loc">{{ row.mandal || row.locality }}</div>
+                <div class="rank-card-val" style="color:#6366f1" *ngIf="row.apartment_rate_sqft">
+                  🏢 ₹{{ row.apartment_rate_sqft | number:'1.0-0' }}/sqft
+                </div>
+                <div class="rank-card-val" style="color:#10b981;font-size:0.82rem" *ngIf="row.land_rate_sqft">
+                  🌿 ₹{{ row.land_rate_sqft | number:'1.0-0' }}/sqft land
+                </div>
+                <div class="rank-card-sub">{{ row.district }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="data-source">Source: IGRS Telangana Ready Reckoner · Government Circle Rates</p>
+      </section>
+
+      <!-- Section 10: Market Price vs Circle Rate (grouped bar) -->
+      <section class="mi-section" *ngIf="rrVsMarketRows.length > 0">
+        <div class="section-header">
+          <div class="section-num" style="background:rgba(124,58,237,0.12);color:#7c3aed">10</div>
+          <div>
+            <h2 class="section-title">Market Price vs Circle Rate</h2>
+            <p class="section-desc">How much are buyers paying above the government benchmark? SRO actual vs IGRS Ready Reckoner.</p>
+          </div>
+        </div>
+        <div class="rank-layout">
+          <div class="rank-chart" [style.height.px]="Math.max(300, (rrVsMarketData.labels?.length || 1) * 40 + 40)">
+            <canvas baseChart [data]="rrVsMarketData" [options]="rrVsMarketOptions" type="bar"></canvas>
+          </div>
+          <div class="rank-cards">
+            <div class="rank-card" *ngFor="let row of rrVsMarketRows.slice(0,5); let i = index">
+              <div class="rank-card-pos">{{ i + 1 }}</div>
+              <div class="rank-card-body">
+                <div class="rank-card-loc">{{ row.locality }}</div>
+                <div class="rank-card-val sn-indigo-txt">₹{{ row.market | number:'1.0-0' }}/sqft</div>
+                <div class="rank-card-sub"
+                     [class.premium-positive]="row.premium > 0"
+                     [class.premium-negative]="row.premium < 0">
+                  {{ row.premium > 0 ? '+' : '' }}{{ row.premium }}% vs circle
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p class="data-source">Source: IGRS Telangana · SRO transactions vs Ready Reckoner benchmarks</p>
+      </section>
+
+    </ng-container>
+
+  </div>
+</div>

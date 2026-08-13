@@ -1,0 +1,138 @@
+<div class="auth-page">
+
+  <!-- ── Left brand panel ─────────────────────────────────────── -->
+  <aside class="auth-brand-panel">
+    <div class="brand-top">
+      <a routerLink="/" class="brand-logo-wrap">
+        <img src="assets/blue-Logo.png" alt="Hyderabad Urban Realty" class="brand-logo-img">
+        <span class="brand-wordmark">
+          Hyderabad Urban
+          <span>Real Estate Intelligence</span>
+        </span>
+      </a>
+    </div>
+
+    <div class="brand-middle">
+      <h2 class="brand-tagline">
+        Hyderabad's Most<br>
+        <em>Trusted Property</em><br>
+        Intelligence Platform
+      </h2>
+      <p class="brand-desc">
+        Access verified RERA listings, SRO registration data, and live market
+        insights — all in one place.
+      </p>
+
+      <!-- CSS city skyline -->
+      <div class="brand-city">
+        <div class="city-building cb1"></div>
+        <div class="city-building cb2"></div>
+        <div class="city-building cb3"></div>
+        <div class="city-building cb4"></div>
+        <div class="city-building cb5"></div>
+        <div class="city-building cb6"></div>
+        <div class="city-building cb7"></div>
+        <div class="city-building cb8"></div>
+        <div class="city-building cb9"></div>
+        <div class="city-building cb10"></div>
+        <div class="city-glow"></div>
+        <div class="city-ground"></div>
+      </div>
+
+      <div class="brand-stats">
+        <div class="stat-item">
+          <span class="stat-value">12,000+</span>
+          <span class="stat-label">RERA Projects</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">₹ Live</span>
+          <span class="stat-label">Market Rates</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">SRO</span>
+          <span class="stat-label">Registry Data</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="brand-bottom">
+      <div class="brand-trust">
+        <svg class="trust-icon" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+          <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+        </svg>
+        <span>All data sourced from RERA Telangana &amp; IGRS — verified &amp; up to date</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Right form panel ──────────────────────────────────────── -->
+  <main class="auth-form-panel">
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <div class="auth-step-label">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+          Member Sign In
+        </div>
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-subtitle">Sign in to your account to continue exploring Hyderabad's property market</p>
+      </div>
+
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+
+        <div class="form-field">
+          <label for="login-email">
+            Email Address <span class="req">*</span>
+          </label>
+          <input
+            id="login-email"
+            type="email"
+            formControlName="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+            [class.invalid]="f['email'].touched && f['email'].invalid">
+          <span class="field-error" *ngIf="f['email'].touched && f['email'].errors?.['required']">Email is required</span>
+          <span class="field-error" *ngIf="f['email'].touched && f['email'].errors?.['email']">Enter a valid email address</span>
+        </div>
+
+        <div class="form-field">
+          <label for="login-password">
+            Password <span class="req">*</span>
+            <a [routerLink]="['/forgot-password']" tabindex="-1" style="font-size:12px;color:#00b8d4;font-weight:600;text-decoration:none;">
+              Forgot password?
+            </a>
+          </label>
+          <div class="input-wrap">
+            <input
+              id="login-password"
+              [type]="showPassword ? 'text' : 'password'"
+              formControlName="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              [class.invalid]="f['password'].touched && f['password'].invalid">
+            <button type="button" class="toggle-pw" (click)="showPassword = !showPassword" tabindex="-1" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+              <svg *ngIf="!showPassword" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+              <svg *ngIf="showPassword"  viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.43-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.16c0-1.66-1.34-3-3-3l-.17.01z"/></svg>
+            </button>
+          </div>
+          <span class="field-error" *ngIf="f['password'].touched && f['password'].errors?.['required']">Password is required</span>
+        </div>
+
+        <div class="form-error" *ngIf="error">{{ error }}</div>
+
+        <button type="submit" class="btn-primary full-width" [disabled]="loading">
+          <span *ngIf="!loading">
+            Sign In
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" style="margin-left:4px"><path d="M10 17l5-5-5-5v10z"/></svg>
+          </span>
+          <span *ngIf="loading" class="spinner"></span>
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        New to Hyderabad Urban Realty?
+        <a [routerLink]="['/register']">Create a free account</a>
+      </div>
+    </div>
+  </main>
+
+</div>

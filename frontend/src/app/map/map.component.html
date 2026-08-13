@@ -1,0 +1,142 @@
+<!-- ══════════════════════════════════════════════════
+     HERO  —  Enterprise layout
+     ══════════════════════════════════════════════════ -->
+<div class="hero-landing">
+  <div class="hero-overlay"></div>
+
+  <div class="hero-content">
+    <!-- Eyebrow -->
+    <div class="hero-eyebrow">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      RERA Verified Platform
+    </div>
+
+    <!-- Headline -->
+    <h1 class="hero-title">
+      Find Your Dream Home<br>in <span class="hero-accent">Hyderabad</span>
+    </h1>
+    <p class="hero-subtitle">
+      Search RERA-registered projects with full compliance data,
+      verified developer records&nbsp;&amp;&nbsp;real-time pricing
+    </p>
+
+    <!-- Search bar -->
+    <div class="search-container">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input
+          type="text"
+          placeholder="Search by project name, locality, or district…"
+          class="hero-search-input"
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput($event)"
+          (blur)="closeSuggestions()"
+          (keyup.enter)="performSearch()"
+          aria-label="Search properties" />
+        <button class="clear-btn" *ngIf="searchQuery" (click)="clearSearch()" title="Clear">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+        <button class="search-btn" (click)="performSearch()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+            <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          Search
+        </button>
+      </div>
+
+      <!-- Autocomplete -->
+      <div class="suggestions-dropdown" *ngIf="showSuggestions">
+        <div class="suggestion-item" *ngFor="let property of suggestions" (mousedown)="selectSuggestion(property)">
+          <div class="suggestion-icon">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          </div>
+          <div class="suggestion-content">
+            <div class="suggestion-title">{{ property['Project Name'] }}</div>
+            <div class="suggestion-location">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+              {{ property['Locality'] || property['Village/City/Town'] }}, {{ property['District'] }}
+            </div>
+          </div>
+          <span class="suggestion-type">{{ property['Project Type'] || 'Residential' }}</span>
+        </div>
+        <div class="suggestion-footer" *ngIf="suggestions.length === 8">Showing top 8 · type to refine</div>
+      </div>
+    </div>
+
+    <!-- Quick filters — single line -->
+    <div class="quick-filters">
+      <button class="filter-chip" (click)="quickFilter('Residential')">Residential</button>
+      <button class="filter-chip" (click)="quickFilter('Plotted Development')">Plotted</button>
+      <button class="filter-chip" (click)="quickFilter('Ranga Reddy')">Ranga Reddy</button>
+      <button class="filter-chip" (click)="quickFilter('Medchal')">Medchal</button>
+      <button class="filter-chip" (click)="quickFilter('Sangareddy')">Sangareddy</button>
+      <button class="filter-chip chip-highlight" (click)="quickFilter('New Project')">New Projects</button>
+    </div>
+  </div>
+
+  <!-- Bottom wave -->
+  <div class="hero-wave">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,28 C360,56 1080,0 1440,28 L1440,56 L0,56 Z" fill="#f8f9fc"/>
+    </svg>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════
+     STATS STRIP
+     ══════════════════════════════════════════════════ -->
+<div class="stats-section">
+  <div class="stats-container">
+
+    <div class="stat-item">
+      <div class="stat-icon-wrap" style="--c:#3b82f6">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 14l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-number">32<span class="stat-plus">+</span></div>
+        <div class="stat-label">RERA Verified Projects</div>
+      </div>
+    </div>
+
+    <div class="stat-divider"></div>
+
+    <div class="stat-item">
+      <div class="stat-icon-wrap" style="--c:#10b981">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-number">100<span class="stat-plus">%</span></div>
+        <div class="stat-label">Transparent Data</div>
+      </div>
+    </div>
+
+    <div class="stat-divider"></div>
+
+    <div class="stat-item">
+      <div class="stat-icon-wrap" style="--c:#f59e0b">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-number">8</div>
+        <div class="stat-label">Districts Covered</div>
+      </div>
+    </div>
+
+    <div class="stat-divider"></div>
+
+    <div class="stat-item">
+      <div class="stat-icon-wrap" style="--c:#8b5cf6">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-number">24<span class="stat-plus">/7</span></div>
+        <div class="stat-label">Live Data Access</div>
+      </div>
+    </div>
+
+  </div>
+</div>

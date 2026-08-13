@@ -1,0 +1,29 @@
+# /etc/systemd/system/hur-dotnet.service
+# .NET backend service for HyderabadUrbanReality
+
+[Unit]
+Description=HyderabadUrbanReality .NET Backend
+After=network.target
+
+[Service]
+Type=exec
+User=www-data
+WorkingDirectory=/opt/hyderabad-urban-reality/backend-dotnet
+ExecStart=/usr/bin/dotnet /opt/hyderabad-urban-reality/backend-dotnet/publish/HyderabadUrbanReality.dll
+Restart=on-failure
+RestartSec=10
+
+# Production environment
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=ASPNETCORE_URLS=http://127.0.0.1:5001
+# Secrets — fill these in on the server (or use EnvironmentFile below)
+# Environment=JWT_SECRET=change-me-to-a-long-random-secret
+# Environment=ADMIN_PASSWORD_HASH=bcrypt-hash-here
+EnvironmentFile=-/opt/hyderabad-urban-reality/.env
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=hur-dotnet
+
+[Install]
+WantedBy=multi-user.target

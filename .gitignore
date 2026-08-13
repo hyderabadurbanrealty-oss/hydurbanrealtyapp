@@ -1,0 +1,99 @@
+# =============================================================
+# TEMPORARY / DEBUG SCRIPTS
+# =============================================================
+tmp_*.py
+backend/igrs_diagnostics/
+
+# =============================================================
+# SCRAPED DATA & LARGE DATA FILES
+# =============================================================
+scraped_projects/
+all_project_names.json
+all_projects_data.json
+all_projects_with_districts.json
+metro_district_projects.json
+
+# =============================================================
+# SECRETS / CREDENTIALS
+# =============================================================
+backend/scrape_preferences.json
+
+# =============================================================
+# PYTHON
+# =============================================================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+captcha_fast.png
+captcha_*.png
+
+# =============================================================
+# .NET BUILD ARTIFACTS
+# =============================================================
+backend-dotnet/bin/
+backend-dotnet/obj/
+
+# =============================================================
+# NODE / ANGULAR
+# =============================================================
+node_modules/
+dist/
+frontend/.angular/
+
+# =============================================================
+# ENVIRONMENT, SECRETS & RUNTIME DATA
+# =============================================================
+.env
+.env.*
+!deploy/.env.example
+leads.json
+uploads/
+*.log
+
+# .NET environment-specific settings (may contain real secrets)
+appsettings.Production.json
+appsettings.Staging.json
+appsettings.Development.json
+
+# =============================================================
+# IDE & EDITOR (keep .vscode for shared task configs)
+# =============================================================
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# =============================================================
+# OS ARTIFACTS
+# =============================================================
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# =============================================================
+# PACKAGE / LOCK FILES
+# =============================================================
+*.nupkg
+*.snupkg
+.nyc_output/
+coverage/
+
+# =============================================================
+# TEMPORARY FILES
+# =============================================================
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+debug_*.html
+test-api.html
+
+# Environment variable files (contain secrets — never commit)
+.env
+*.env
+backend-dotnet/.env
+backend/.env

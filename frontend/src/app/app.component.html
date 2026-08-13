@@ -1,0 +1,148 @@
+<!-- Navigation (visible on all pages except auth/admin routes) -->
+<nav class="navbar" *ngIf="!isLoginOrAdminRoute()">
+  <div class="nav-container" #navWrapper>
+    <div class="nav-brand" [routerLink]="['/']" style="cursor: pointer;">
+      <img src="assets/blue-Logo.png" alt="Hyderabad Urban Realty" class="nav-logo-img">
+    </div>
+
+    <button class="mobile-menu-btn" (click)="toggleMobileMenu()" [class.open]="showMobileMenu" aria-label="Toggle navigation">
+      <span class="menu-bar"></span>
+      <span class="menu-bar"></span>
+      <span class="menu-bar"></span>
+    </button>
+
+    <div class="nav-links" [class.open]="showMobileMenu">
+      <a [routerLink]="['/']" class="nav-link" *ngIf="currentRoute !== '/'" (click)="closeMobileMenu()">Home</a>
+      <a [routerLink]="['/properties']" class="nav-link" *ngIf="!currentRoute.startsWith('/properties')" (click)="closeMobileMenu()">Properties</a>
+      <a [routerLink]="['/favorites']" class="nav-link" *ngIf="!currentRoute.startsWith('/favorites')" (click)="closeMobileMenu()">Favorites</a>
+      <a [routerLink]="['/comparison']" class="nav-link" *ngIf="!currentRoute.startsWith('/comparison')" (click)="closeMobileMenu()">Compare</a>
+      <a [routerLink]="['/market-intelligence']" class="nav-link" *ngIf="!currentRoute.startsWith('/market-intelligence')" (click)="closeMobileMenu()">Market IQ</a>
+      <a [routerLink]="['/map-view']" class="nav-link nav-link-map" *ngIf="!currentRoute.startsWith('/map-view')" (click)="closeMobileMenu()">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="margin-right:4px;vertical-align:-2px"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
+        Map View
+      </a>
+      <a [routerLink]="['/about']" class="nav-link" *ngIf="!currentRoute.startsWith('/about')" (click)="closeMobileMenu()">About</a>
+      <a [routerLink]="['/blog']" class="nav-link" *ngIf="!currentRoute.startsWith('/blog')" (click)="closeMobileMenu()">Insights</a>
+      <a [routerLink]="['/social-feeds']" class="nav-link" *ngIf="!currentRoute.startsWith('/social-feeds')" (click)="closeMobileMenu()">Social</a>
+      <a [routerLink]="['/loan-calculator']" class="nav-link" *ngIf="!currentRoute.startsWith('/loan-calculator')" (click)="closeMobileMenu()">Loan Calc</a>
+
+      <!-- Auth: Not logged in -->
+      <ng-container *ngIf="!(isLoggedIn$ | async)">
+        <a [routerLink]="['/login']" class="nav-link nav-signin-btn" (click)="closeMobileMenu()">Sign In</a>
+      </ng-container>
+
+      <!-- Auth: Logged in -->
+      <ng-container *ngIf="isLoggedIn$ | async">
+        <div class="user-menu-wrap" (click)="toggleUserMenu()">
+          <button class="user-avatar-btn" aria-label="User menu">
+            <span class="user-initial">{{ ((currentUser$ | async)?.fullName || 'U')[0].toUpperCase() }}</span>
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12" style="opacity:0.6"><path d="M7 10l5 5 5-5z"/></svg>
+          </button>
+          <div class="user-dropdown" [class.open]="showUserMenu">
+            <div class="user-dropdown-name">{{ (currentUser$ | async)?.fullName }}</div>
+            <div class="user-dropdown-email">{{ (currentUser$ | async)?.email }}</div>
+            <div class="user-dropdown-divider"></div>
+            <!-- Admin Panel link — only for admins -->
+            <a *ngIf="(currentUser$ | async)?.role === 'admin'" [routerLink]="['/admin']" class="user-dropdown-item" (click)="showUserMenu=false;closeMobileMenu()">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M12 2L3 7l9 5 9-5-9-5zM3 17l9 5 9-5M3 12l9 5 9-5"/></svg>
+              Admin Panel
+            </a>
+            <a [routerLink]="['/profile']" class="user-dropdown-item" (click)="showUserMenu=false;closeMobileMenu()">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+              My Profile
+            </a>
+            <a [routerLink]="['/saved-properties']" class="user-dropdown-item" (click)="showUserMenu=false;closeMobileMenu()">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+              Saved Properties
+            </a>
+            <a [routerLink]="['/saved-searches']" class="user-dropdown-item" (click)="showUserMenu=false;closeMobileMenu()">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z"/></svg>
+              Saved Searches
+            </a>
+            <div class="user-dropdown-divider"></div>
+            <button class="user-dropdown-item user-dropdown-signout" (click)="logout()">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+
+  <div class="mobile-menu-overlay" *ngIf="showMobileMenu" (click)="closeMobileMenu()"></div>
+</nav>
+
+<router-outlet></router-outlet>
+
+<!-- Footer (visible on non-auth pages) -->
+<footer class="footer" *ngIf="!isLoginOrAdminRoute()">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-column">
+        <a routerLink="/" class="footer-brand-link">
+          <img src="assets/blue-Logo.png" alt="Hyderabad Urban Realty" class="footer-logo-img">
+        </a>
+        <p>Your trusted partner for buying, selling &amp; investing in Hyderabad real estate.</p>
+        <p class="footer-memberships">
+          <a href="https://hraindia.org" target="_blank" rel="noopener noreferrer" class="footer-member-badge">HRA India Member</a>
+          <a href="https://www.narindia.org" target="_blank" rel="noopener noreferrer" class="footer-member-badge">NAR India Member</a>
+        </p>
+      </div>
+      <div class="footer-column">
+        <h4>Quick Links</h4>
+        <a [routerLink]="['/about']">About Us</a>
+        <a [routerLink]="['/properties']">Properties</a>
+        <a [routerLink]="['/map-view']">Map View</a>
+        <a [routerLink]="['/market-intelligence']">Market IQ</a>
+        <a [routerLink]="['/loan-calculator']">Loan Calculator</a>
+        <a [routerLink]="['/blog']">Property Insights</a>
+        <a href="#featured">Contact</a>
+      </div>
+      <div class="footer-column">
+        <h4>Contact</h4>
+        <p>📞 +91 81433 69988</p>
+        <p>📧 info@hyderabadurbanrealty.com</p>
+      </div>
+      <div class="footer-column">
+        <h4>Follow Us</h4>
+        <a [routerLink]="['/social-feeds']" class="footer-social-link sf-feeds-link">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
+          All Social Feeds
+        </a>
+        <a href="https://whatsapp.com/channel/0029VadkpHVBKfhrgy5SKY1Q" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+          <svg viewBox="0 0 32 32" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.469 2.027 7.77L0 32l8.454-2.007A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.006 22.394c-.34.957-1.99 1.826-2.738 1.942-.72.113-1.624.161-2.619-.165-1.609-.52-3.748-2.126-5.233-3.59C11.93 19.12 10.3 17.02 9.74 15.43c-.557-1.587-.128-2.888.217-3.568.347-.682.778-.86 1.039-.882.261-.022.522-.027.752-.018.239.01.56-.09.875.671.32.778 1.083 2.664 1.179 2.857.097.192.16.417.032.672-.127.255-.19.414-.38.638-.188.224-.396.5-.565.672-.188.19-.384.396-.165.776.219.38.975 1.608 2.095 2.605 1.434 1.276 2.644 1.67 3.022 1.857.377.188.598.16.822-.096.224-.255.957-1.12 1.213-1.503.255-.384.51-.32.86-.192.35.128 2.22 1.048 2.6 1.238.38.19.634.286.728.446.094.16.094.926-.246 1.882z"/></svg>
+          WhatsApp Channel
+        </a>
+        <a href="https://www.instagram.com/hyderabadurbanrealty" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          Instagram
+        </a>
+        <a href="https://x.com/hydurbanrealty" target="_blank" rel="noopener noreferrer" class="footer-social-link">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+          Follow on X
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 Hyderabad Urban Realty. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<app-chatbot></app-chatbot>
+
+<!-- ── Floating Action Stack ─────────────────────────────────────────────── -->
+<!-- WhatsApp FAB -->
+<a class="fab fab-whatsapp"
+   href="https://wa.me/918143369988"
+   target="_blank"
+   rel="noopener noreferrer"
+   aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 32 32" fill="currentColor" width="22" height="22" aria-hidden="true">
+    <path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.469 2.027 7.77L0 32l8.454-2.007A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.006 22.394c-.34.957-1.99 1.826-2.738 1.942-.72.113-1.624.161-2.619-.165-1.609-.52-3.748-2.126-5.233-3.59C11.93 19.12 10.3 17.02 9.74 15.43c-.557-1.587-.128-2.888.217-3.568.347-.682.778-.86 1.039-.882.261-.022.522-.027.752-.018.239.01.56-.09.875.671.32.778 1.083 2.664 1.179 2.857.097.192.16.417.032.672-.127.255-.19.414-.38.638-.188.224-.396.5-.565.672-.188.19-.384.396-.165.776.219.38.975 1.608 2.095 2.605 1.434 1.276 2.644 1.67 3.022 1.857.377.188.598.16.822-.096.224-.255.957-1.12 1.213-1.503.255-.384.51-.32.86-.192.35.128 2.22 1.048 2.6 1.238.38.19.634.286.728.446.094.16.094.926-.246 1.882z"/>
+  </svg>
+  <span class="fab-tooltip">WhatsApp</span>
+</a>
+
+<app-loading></app-loading>

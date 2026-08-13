@@ -1,0 +1,1344 @@
+﻿<div class="detail-container">
+  <!-- Loading State -->
+  <div class="loading-state" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Loading property details...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="error && !loading">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+    </svg>
+    <h2>Error Loading Property</h2>
+    <p>{{error}}</p>
+    <button class="back-button" (click)="back()">Back to List</button>
+  </div>
+
+  <div class="detail-card" *ngIf="property && !loading && !error">
+    <div class="detail-header">
+      <button class="back-button" (click)="back()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+          <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+        </svg>
+        Back to List
+      </button>
+    </div>
+
+    <div class="detail-hero">
+      <!-- Image Gallery (left column) -->
+      <div class="hero-gallery">
+        <!-- New DB-backed images (propertyImages) take priority over legacy -->
+        <ng-container *ngIf="propertyImages.length > 0; else legacyHero">
+          <div class="hero-main-img" (click)="openLightbox(propertyImages, currentImageIndex)">
+            <img [src]="propertyImages[currentImageIndex]?.fileUrl || propertyImages[currentImageIndex]?.file_url" [alt]="property['Project Name']" />
+            <div class="gallery-count-pill" *ngIf="propertyImages.length > 1">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+              {{ propertyImages.length }} Photos
+            </div>
+            <div class="gallery-nav" *ngIf="propertyImages.length > 1">
+              <button class="gnav-btn" (click)="previousImage(); $event.stopPropagation()">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+              </button>
+              <span class="gnav-count">{{currentImageIndex + 1}} / {{propertyImages.length}}</span>
+              <button class="gnav-btn" (click)="nextImage(); $event.stopPropagation()">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="hero-thumb-strip" *ngIf="propertyImages.length > 1">
+            <div class="thumb-tile" *ngFor="let img of propertyImages.slice(0, 5); let i = index"
+                 [class.active]="i === currentImageIndex"
+                 (click)="currentImageIndex = i">
+              <img [src]="img.fileUrl || img.file_url" [alt]="img.title || ('Photo ' + (i+1))" loading="lazy" />
+            </div>
+            <div class="thumb-more" *ngIf="propertyImages.length > 5" (click)="openLightbox(propertyImages, 5)">
+              +{{ propertyImages.length - 5 }}
+            </div>
+          </div>
+        </ng-container>
+        <!-- Legacy fallback (property.media.images[]) -->
+        <ng-template #legacyHero>
+          <div class="hero-main-img" *ngIf="getImages().length > 0" (click)="openImageModal(currentImageIndex)">
+            <img [src]="getImageUrl(getImages()[currentImageIndex])" [alt]="property['Project Name']" />
+            <div class="gallery-count-pill" *ngIf="getImages().length > 1">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+              {{ getImages().length }} Photos
+            </div>
+            <div class="gallery-nav" *ngIf="getImages().length > 1">
+              <button class="gnav-btn" (click)="previousImage(); $event.stopPropagation()">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+              </button>
+              <span class="gnav-count">{{currentImageIndex + 1}} / {{getImages().length}}</span>
+              <button class="gnav-btn" (click)="nextImage(); $event.stopPropagation()">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="hero-no-img" *ngIf="getImages().length === 0 && !mediaLoaded">
+            <div class="hero-img-skeleton"></div>
+          </div>
+          <div class="hero-no-img" *ngIf="getImages().length === 0 && mediaLoaded">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="56" height="56"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>No photos available yet</span>
+          </div>
+          <div class="hero-thumb-strip" *ngIf="getImages().length > 1">
+            <div class="thumb-tile" *ngFor="let img of getImages().slice(0, 5); let i = index"
+                 [class.active]="i === currentImageIndex"
+                 (click)="currentImageIndex = i">
+              <img [src]="getImageUrl(img)" [alt]="'Photo ' + (i + 1)" loading="lazy" />
+            </div>
+            <div class="thumb-more" *ngIf="getImages().length > 5" (click)="openImageModal(5)">
+              +{{ getImages().length - 5 }}
+            </div>
+          </div>
+        </ng-template>
+      </div>
+      <!-- Info (right column) -->
+      <div class="hero-info">
+        <h1 class="project-title-row">
+          <span>{{property['Project Name']}}</span>
+          <button
+            class="favorite-btn"
+            [class.active]="isFavorite"
+            (click)="toggleFavorite()"
+            aria-label="Toggle favorite"
+            title="{{ isFavorite ? 'Remove from Favorites' : 'Add to Favorites' }}"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
+          </button>
+          <button
+            class="save-prop-btn"
+            [class.active]="isSaved"
+            (click)="toggleSaveProperty()"
+            [disabled]="savingProperty"
+            aria-label="Save property"
+            title="{{ isSaved ? 'Remove from Saved Properties' : 'Save Property' }}"
+          >
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <path *ngIf="!isSaved" d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2zm0 14l-5-2.18L7 17V5h10v12z"/>
+              <path *ngIf="isSaved" d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+            </svg>
+            {{ isSaved ? 'Saved' : (savingProperty ? '…' : 'Save') }}
+          </button>
+        </h1>
+        <div class="save-success-toast" *ngIf="savePropertySuccess">{{ savePropertySuccess }}</div>
+        <div class="hero-location">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+            <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+          </svg>
+          {{getLocation()}}
+        </div>
+        
+        <!-- Rating Display -->
+        <div class="hero-rating" *ngIf="averageRating > 0">
+          <span class="rating-stars-large">
+            <span *ngFor="let filled of getStarArray(Math.round(averageRating))" class="star" [class.filled]="filled">★</span>
+          </span>
+          <span class="rating-text">{{averageRating}} ({{reviews.length}} reviews)</span>
+        </div>
+        
+        <div class="hero-badges">
+          <span class="badge" *ngIf="property['Project Status']">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+            </svg>
+            {{property['Project Status']}}
+          </span>
+          <span class="badge" *ngIf="property['Project Type']">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/>
+            </svg>
+            {{property['Project Type']}}
+          </span>
+          <!-- RERA Approval Badge in hero -->
+          <span
+            class="badge badge-rera-hero"
+            *ngIf="property.registrationNumber"
+            [title]="'RERA Reg. No: ' + property.registrationNumber"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="16" height="16">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" fill="#22c55e"/>
+              <polyline points="8.5 12 11 14.5 15.5 10" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="badge-rera-inner">
+              <span class="badge-rera-label">RERA Approved</span>
+              <span class="badge-rera-num">{{property.registrationNumber}}</span>
+            </span>
+          </span>
+          <!-- Completion Date Badge -->
+          <span
+            class="badge badge-completion"
+            *ngIf="property['Revised Proposed Date of Completion'] || property['Proposed Date of Completion']"
+            [title]="property['Revised Proposed Date of Completion'] ? 'Revised Completion Date' : 'Proposed Completion Date'"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+            </svg>
+            <span class="badge-completion-inner">
+              <span class="badge-completion-label">{{ property['Revised Proposed Date of Completion'] ? 'Revised Completion' : 'Completion' }}</span>
+              <span class="badge-completion-date">{{ property['Revised Proposed Date of Completion'] || property['Proposed Date of Completion'] }}</span>
+            </span>
+          </span>
+        </div>
+
+        <!-- Quick Access: Brochure, Photos, Documents -->
+        <div class="hero-quick-actions">
+          <a *ngIf="getBrochure()" [href]="getBrochureUrl()" target="_blank" class="hqa-btn hqa-primary">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"/></svg>
+            Download Brochure
+          </a>
+          <span *ngIf="!getBrochure()" class="hqa-btn hqa-disabled">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            No Brochure Yet
+          </span>
+          <button *ngIf="propertyImages.length > 0" (click)="openLightbox(propertyImages, 0); activeTab='siteimages'" class="hqa-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            All Photos ({{propertyImages.length}})
+          </button>
+          <button *ngIf="propertyImages.length === 0 && getImages().length > 0" (click)="openImageModal(0)" class="hqa-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            All Photos ({{getImages().length}})
+          </button>
+          <button *ngIf="hasDocuments()" class="hqa-btn" (click)="activeTab='documents'">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+            RERA Documents
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📏</div>
+        <div class="stat-label">Total Area</div>
+        <div class="stat-value">{{formatArea(property['Total Area(In sqmts)'])}}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📐</div>
+        <div class="stat-label">Net Area</div>
+        <div class="stat-value">{{formatArea(property['Net Area(In sqmts)'])}}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🏗️</div>
+        <div class="stat-label">Built-up Area</div>
+        <div class="stat-value">{{formatArea(property['Approved Built up Area (In Sqmts)'])}}</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-label">Approved Date</div>
+        <div class="stat-value">{{property['Approved Date'] || 'N/A'}}</div>
+      </div>
+    </div>
+
+    <!-- Sticky Tab Navigation -->
+    <nav class="detail-tabs">
+      <button class="detail-tab" [class.active]="activeTab==='overview'" (click)="activeTab='overview'">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 3L2 12h3v8h6v-5h2v5h6v-8h3z"/></svg>
+        Overview
+      </button>
+      <button class="detail-tab" [class.active]="activeTab==='pricing'" (click)="activeTab='pricing'">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><text x="12" y="19" text-anchor="middle" font-size="18" font-weight="900" font-family="system-ui,sans-serif">₹</text></svg>
+        Pricing
+      </button>
+      <button class="detail-tab" [class.active]="activeTab==='amenities'" (click)="activeTab='amenities'">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+        Amenities
+      </button>
+      <button class="detail-tab" [class.active]="activeTab==='siteimages'" (click)="activeTab='siteimages'" *ngIf="propertyImages.length > 0">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+        Gallery <span class="tab-badge">{{propertyImages.length}}</span>
+      </button>
+      <button class="detail-tab" [class.active]="activeTab==='videos'" (click)="activeTab='videos'" *ngIf="propertyVideos.length > 0">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
+        Videos <span class="tab-badge">{{propertyVideos.length}}</span>
+      </button>
+      <button class="detail-tab" [class.active]="activeTab==='floorplans'" (click)="activeTab='floorplans'; loadFloorPlans()" *ngIf="floorPlansLoaded && floorPlans.length > 0">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M3 3v18h18V3H3zm10 16H5v-4h8v4zm0-6H5v-4h8v4zm6 6h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6H5V5h14v2z"/></svg>
+        Floor Plans <span class="tab-badge fp-badge">{{floorPlans.length}}</span>
+      </button>
+      <button class="detail-tab" [class.active]="activeTab==='rera'" (click)="activeTab='rera'">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+        RERA
+      </button>
+      <button class="detail-tab" [class.active]="activeTab==='documents'" (click)="activeTab='documents'">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/></svg>
+        Docs
+      </button>
+      <button class="detail-tab" [class.active]="activeTab==='details'" (click)="activeTab='details'">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+        More
+      </button>
+      <button class="detail-tab" [class.active]="activeTab==='reviews'" (click)="activeTab='reviews'">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        Reviews
+        <span class="tab-badge" *ngIf="reviews.length > 0">{{reviews.length}}</span>
+      </button>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         UNLOCK MODAL — two-column branded, no inner scroll, captcha
+    ════════════════════════════════════════════════════════════════ -->
+    <div class="ulk-overlay" *ngIf="!isContentUnlocked" role="dialog" aria-modal="true" aria-labelledby="ulkTitle">
+      <div class="ulk-card">
+
+        <!-- LEFT PANEL — brand + benefits -->
+        <div class="ulk-left">
+          <!-- Logo / wordmark — original brand image -->
+          <div class="ulk-brand">
+            <img src="assets/blue-Logo.png" alt="Hyderabad Urban Realty" class="ulk-logo-img" />
+          </div>
+
+          <h1 class="ulk-headline" id="ulkTitle">Unlock Full<br>Property Details</h1>
+          <p class="ulk-sub">Free instant access to RERA data, pricing, neighborhood insights, and more.</p>
+
+          <ul class="ulk-benefits">
+            <li>
+              <span class="ulk-check">✓</span>
+              <span>RERA Compliance Score & Documents</span>
+            </li>
+            <li>
+              <span class="ulk-check">✓</span>
+              <span>Neighborhood Amenities & Transport</span>
+            </li>
+            <li>
+              <span class="ulk-check">✓</span>
+              <span>Pricing & Unit Configurations</span>
+            </li>
+            <li>
+              <span class="ulk-check">✓</span>
+              <span>Verified Reviews & Ratings</span>
+            </li>
+            <li>
+              <span class="ulk-check">✓</span>
+              <span>Floor Plans & Site Images</span>
+            </li>
+            <li>
+              <span class="ulk-check">✓</span>
+              <span>SRO Registration Trend Data</span>
+            </li>
+          </ul>
+
+          <p class="ulk-trust">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="14" height="14"><path d="M8 1L1 4v4c0 4.1 3 7.9 7 9 4-1.1 7-4.9 7-9V4L8 1z"/></svg>
+            Your data is safe. No spam, ever.
+          </p>
+        </div>
+
+        <!-- Close button — top-right corner of the card -->
+        <button class="ulk-close-btn" (click)="isContentUnlocked = true; restoreScroll()" aria-label="Close">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+          </svg>
+        </button>
+
+        <!-- RIGHT PANEL — form -->
+        <div class="ulk-right">
+          <div class="ulk-form-header">
+            <div class="ulk-lock-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+                <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+              </svg>
+            </div>
+            <div>
+              <h2 class="ulk-form-title">Get Free Access</h2>
+              <p class="ulk-form-sub">Fill in your details below</p>
+            </div>
+          </div>
+
+          <div class="ulk-alert-error" *ngIf="leadError" role="alert">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+            {{leadError}}
+          </div>
+
+          <!-- Row 1: Name + Mobile -->
+          <div class="ulk-row">
+            <div class="ulk-field">
+              <label for="ulkName">Full Name <span class="ulk-req">*</span></label>
+              <div class="ulk-input-wrap">
+                <svg class="ulk-input-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg>
+                <input id="ulkName" type="text" [(ngModel)]="leadForm.name"
+                       placeholder="Rajesh Kumar" class="ulk-input"
+                       autocomplete="name" />
+              </div>
+            </div>
+            <div class="ulk-field">
+              <label for="ulkMobile">Mobile <span class="ulk-req">*</span></label>
+              <div class="ulk-input-wrap">
+                <svg class="ulk-input-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+                <input id="ulkMobile" type="tel" [(ngModel)]="leadForm.mobile"
+                       placeholder="10-digit number" maxlength="10" class="ulk-input"
+                       autocomplete="tel" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 2: Email -->
+          <div class="ulk-field">
+            <label for="ulkEmail">Email Address <span class="ulk-req">*</span></label>
+            <div class="ulk-input-wrap">
+              <svg class="ulk-input-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"/><path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"/></svg>
+              <input id="ulkEmail" type="email" [(ngModel)]="leadForm.email"
+                     placeholder="rajesh@example.com" class="ulk-input"
+                     autocomplete="email" />
+            </div>
+          </div>
+
+          <!-- Row 3: Area of Interest -->
+          <div class="ulk-field">
+            <label for="ulkArea">Area of Interest <span class="ulk-req">*</span></label>
+            <div class="ulk-input-wrap">
+              <svg class="ulk-input-icon" viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+              <input id="ulkArea" type="text" [(ngModel)]="leadForm.areaOfInterest"
+                     placeholder="e.g., Gachibowli, Kondapur" class="ulk-input" />
+            </div>
+          </div>
+
+          <!-- CAPTCHA — simple math challenge -->
+          <div class="ulk-captcha">
+            <div class="ulk-captcha-label">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/></svg>
+              Verification
+            </div>
+            <div class="ulk-captcha-row">
+              <div class="ulk-captcha-challenge">
+                <span class="ulk-captcha-eq">{{ captchaA }} + {{ captchaB }} = ?</span>
+                <button type="button" class="ulk-captcha-refresh" (click)="refreshCaptcha()" title="New question" aria-label="Refresh captcha">
+                  <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+                </button>
+              </div>
+              <div class="ulk-input-wrap ulk-captcha-input-wrap">
+                <input type="number" [(ngModel)]="captchaAnswer"
+                       placeholder="Answer" class="ulk-input ulk-captcha-input"
+                       (keydown.enter)="submitLeadForm()"
+                       aria-label="Captcha answer" />
+              </div>
+              <span class="ulk-captcha-ok" *ngIf="captchaAnswer !== null && +captchaAnswer === captchaA + captchaB" aria-label="Correct">✓</span>
+              <span class="ulk-captcha-fail" *ngIf="captchaAnswer !== null && captchaAnswer !== '' && +captchaAnswer !== captchaA + captchaB" aria-label="Incorrect">✗</span>
+            </div>
+          </div>
+
+          <button class="ulk-submit-btn" (click)="submitLeadForm()" [disabled]="submittingLead">
+            <span *ngIf="!submittingLead">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/></svg>
+              Unlock Full Details — Free
+            </span>
+            <span *ngIf="submittingLead" class="ulk-spinner-row">
+              <span class="ulk-btn-spinner"></span>
+              Unlocking…
+            </span>
+          </button>
+
+          <p class="ulk-privacy">
+            <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M8 1L1 4v4c0 4.1 3 7.9 7 9 4-1.1 7-4.9 7-9V4L8 1z"/></svg>
+            By continuing you agree to our privacy policy. We will never share your info.
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Gated Content Container -->
+    <div class="gated-content-wrapper">
+      <!-- Content visible after unlock -->
+      <div class="gated-content">
+
+        <!-- ===== OVERVIEW TAB ===== -->
+        <div class="tab-pane" *ngIf="activeTab === 'overview'">
+          <!-- Neighborhood Intelligence -->
+          <app-neighborhood-intelligence [property]="property"></app-neighborhood-intelligence>
+
+          <!-- Occupancy Density Analysis -->
+          <div class="section density-section" *ngIf="property.occupancyDensity && property.occupancyDensity.available">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                <path d="M17 8C8 10 5.9 16.17 3.82 19H5c-.25.5-.42.83-.5 1h2a20.7 20.7 0 0 0 .42-.96C8.38 15.92 12 11.5 17 8zM12 2C9.24 2 7 4.24 7 7c0 2.09 1.24 3.88 3.03 4.71C11.24 12.53 12 14.15 12 16h1c0-2.24.88-4.25 2.3-5.71C16.16 9.1 17 7.64 17 7c0-2.76-2.24-5-5-5z"/>
+              </svg>
+              Occupancy Density Analysis
+            </h2>
+            <p class="section-subtitle">Calculated from RERA-filed area and unit data · Lower density = more open space per resident</p>
+            <div class="density-main">
+              <div class="density-gauge-card" [style.border-top]="'4px solid ' + property.occupancyDensity.color">
+                <div class="density-icon">{{ property.occupancyDensity.icon }}</div>
+                <div class="density-type-label">{{ property.occupancyDensity.label }}</div>
+                <div class="density-category-badge" [style.background]="property.occupancyDensity.color + '22'" [style.color]="property.occupancyDensity.color">
+                  {{ property.occupancyDensity.category }} Density
+                </div>
+                <div class="density-score-section">
+                  <div class="density-score-label">Openness Score</div>
+                  <div class="density-score-bar-wrap">
+                    <div class="density-score-bar" [style.width]="property.occupancyDensity.score + '%'" [style.background]="property.occupancyDensity.color"></div>
+                  </div>
+                  <div class="density-score-value">{{ property.occupancyDensity.score }}/100</div>
+                </div>
+                <p class="density-interpretation">{{ property.occupancyDensity.interpretation }}</p>
+              </div>
+              <div class="density-metrics-grid">
+                <div class="density-metric" *ngIf="property.occupancyDensity.far > 0">
+                  <div class="metric-icon-wrap" style="background:#eef2ff;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#4f46e5" width="20" height="20"><path d="M3 3v18h18V3H3zm8 16H5v-6h6v6zm8 0h-6v-6h6v6zm0-8H5V5h14v6z"/></svg>
+                  </div>
+                  <div class="metric-body">
+                    <div class="metric-value">{{ property.occupancyDensity.farLabel }}</div>
+                    <div class="metric-name">Floor Area Ratio</div>
+                    <div class="metric-desc">Built-up area vs land. FAR&gt;2 means multi-storey towers.</div>
+                  </div>
+                </div>
+                <div class="density-metric" *ngIf="property.occupancyDensity.unitsPerHectare > 0">
+                  <div class="metric-icon-wrap" style="background:#fef3c7;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#d97706" width="20" height="20"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+                  </div>
+                  <div class="metric-body">
+                    <div class="metric-value">{{ property.occupancyDensity.unitsPerHectare }}</div>
+                    <div class="metric-name">Units / Hectare</div>
+                    <div class="metric-desc">Dwelling units per hectare of land. &lt;30 is spacious.</div>
+                  </div>
+                </div>
+                <div class="density-metric" *ngIf="property.occupancyDensity.openSpacePercent > 0">
+                  <div class="metric-icon-wrap" style="background:#dcfce7;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#16a34a" width="20" height="20">
+                      <path d="M17 8C8 10 5.9 16.17 3.82 19H5c-.25.5-.42.83-.5 1h2a20.7 20.7 0 0 0 .42-.96C8.38 15.92 12 11.5 17 8z"/>
+                      <path d="M12 2C9.24 2 7 4.24 7 7c0 2.09 1.24 3.88 3.03 4.71C11.24 12.53 12 14.15 12 16h1c0-2.24.88-4.25 2.3-5.71C16.16 9.1 17 7.64 17 7c0-2.76-2.24-5-5-5z"/>
+                    </svg>
+                  </div>
+                  <div class="metric-body">
+                    <div class="metric-value">~{{ property.occupancyDensity.openSpacePercent }}%</div>
+                    <div class="metric-name">Est. Open Space</div>
+                    <div class="metric-desc">Estimated % of land not covered by building footprint.</div>
+                  </div>
+                </div>
+                <div class="density-metric" *ngIf="property.occupancyDensity.landAreaAcres > 0">
+                  <div class="metric-icon-wrap" style="background:#f0fdf4;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#15803d" width="20" height="20"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
+                  </div>
+                  <div class="metric-body">
+                    <div class="metric-value">{{ property.occupancyDensity.landAreaAcres }} ac</div>
+                    <div class="metric-name">Land Area</div>
+                    <div class="metric-desc">Net usable land ({{ property.occupancyDensity.landAreaSqmt | number:'1.0-0' }} sqmt).</div>
+                  </div>
+                </div>
+                <div class="density-metric" *ngIf="property.occupancyDensity.builtUpAreaSqmt > 0">
+                  <div class="metric-icon-wrap" style="background:#fce7f3;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#db2777" width="20" height="20"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+                  </div>
+                  <div class="metric-body">
+                    <div class="metric-value">{{ property.occupancyDensity.builtUpAreaSqmt | number:'1.0-0' }}</div>
+                    <div class="metric-name">Built-up Area (sqmt)</div>
+                    <div class="metric-desc">Total approved construction across all floors.</div>
+                  </div>
+                </div>
+                <div class="density-metric" *ngIf="property.occupancyDensity.totalFlats > 0">
+                  <div class="metric-icon-wrap" style="background:#ede9fe;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#7c3aed" width="20" height="20"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                  </div>
+                  <div class="metric-body">
+                    <div class="metric-value">{{ property.occupancyDensity.totalFlats }}</div>
+                    <div class="metric-name">Total Units</div>
+                    <div class="metric-desc">Dwelling units derived from RERA floor breakdown.</div>
+                  </div>
+                </div>
+
+                <!-- Booked vs Available -->
+                <div class="density-metric" *ngIf="property.occupancyDensity.totalFlats > 0 && property.occupancyDensity.bookingPercent !== undefined">
+                  <div class="metric-icon-wrap" style="background:#fef9c3;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ca8a04" width="20" height="20"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+                  </div>
+                  <div class="metric-body">
+                    <div class="metric-value">{{ property.occupancyDensity.totalBookedFlats }} / {{ property.occupancyDensity.totalFlats }}</div>
+                    <div class="metric-name">Booked Units</div>
+                    <div class="metric-desc">{{ property.occupancyDensity.bookingPercent }}% booked as per RERA filings.</div>
+                  </div>
+                </div>
+
+                <!-- Avg Unit Size -->
+                <div class="density-metric" *ngIf="property.occupancyDensity.avgUnitSizeSqft > 0">
+                  <div class="metric-icon-wrap" style="background:#e0f2fe;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#0369a1" width="20" height="20"><path d="M21 3H3C2 3 1 4 1 5v14c0 1.1.9 2 2 2h18c1 0 2-1 2-2V5c0-1-1-2-2-2zm0 16H3V5h18v14zm-9-7a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm0-4a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm7 9H6v-.75C6 14.58 8.69 13.5 12 13.5s6 1.08 6 2.75V17z"/></svg>
+                  </div>
+                  <div class="metric-body">
+                    <div class="metric-value">{{ property.occupancyDensity.avgUnitSizeSqft | number:'1.0-0' }} sqft</div>
+                    <div class="metric-name">Avg Unit Size</div>
+                    <div class="metric-desc">{{ property.occupancyDensity.avgUnitSizeSqmt | number:'1.0-1' }} sqmt avg saleable area per flat.</div>
+                  </div>
+                </div>
+
+                <!-- Total Saleable Area -->
+                <div class="density-metric" *ngIf="property.occupancyDensity.totalSaleableAreaSqmt > 0">
+                  <div class="metric-icon-wrap" style="background:#f0fdf4;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#15803d" width="20" height="20"><path d="M3 3v18h18V3H3zm8 16H5v-6h6v6zm8 0h-6v-6h6v6zm0-8H5V5h14v6z"/></svg>
+                  </div>
+                  <div class="metric-body">
+                    <div class="metric-value">{{ property.occupancyDensity.totalSaleableAreaSqmt | number:'1.0-0' }} sqmt</div>
+                    <div class="metric-name">Total Saleable Area</div>
+                    <div class="metric-desc">Sum of all saleable floor areas across all units.</div>
+                  </div>
+                </div>
+
+                <!-- Floors & Towers -->
+                <div class="density-metric" *ngIf="getMaxFloors() > 0">
+                  <div class="metric-icon-wrap" style="background:#fdf4ff;">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#9333ea" width="20" height="20"><path d="M17 11V3H7v4H3v14h8v-4h2v4h8V11h-4zm-6 4H9v-2h2v2zm0-4H9V9h2v2zm0-4H9V5h2v2zm4 8h-2v-2h2v2zm0-4h-2V9h2v2zm0-4h-2V5h2v2zm4 12h-2v-2h2v2zm0-4h-2v-2h2v2z"/></svg>
+                  </div>
+                  <div class="metric-body">
+                    <div class="metric-value">{{ getMaxFloors() }} floors · {{ getTowerCount() }} tower{{ getTowerCount() !== 1 ? 's' : '' }}</div>
+                    <div class="metric-name">Building Height</div>
+                    <div class="metric-desc">Max floors (slabs) as per RERA-approved plan.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="density-scale-bar">
+              <div class="scale-labels">
+                <span>🌿 Open / Low Density</span>
+                <span>High Density 🏙️</span>
+              </div>
+              <div class="scale-track">
+                <div class="scale-gradient"></div>
+                <div class="scale-pointer" [style.left]="(100 - property.occupancyDensity.score) + '%'"></div>
+              </div>
+            </div>
+            <p class="density-disclaimer">
+              ⚠️ Estimates are derived from RERA-filed area and unit data. Open space calculations use heuristic floor height models.
+            </p>
+          </div>
+        </div><!-- /overview tab -->
+
+        <!-- ===== RERA TAB ===== -->
+        <div class="tab-pane" *ngIf="activeTab === 'rera'">
+          <!-- RERA Compliance Dashboard -->
+          <app-rera-compliance [property]="property"></app-rera-compliance>
+
+          <!-- Legal & Compliance -->
+          <div class="section legal-section">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                <path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+              </svg>
+              Legal & Compliance
+            </h2>
+            <table class="property-table">
+              <tr *ngFor="let field of legalFields">
+                <td class="field-label">{{field.label}}</td>
+                <td class="field-value" [class.success-text]="property[field.key] === 'No'"
+                    [class.warning-text]="property[field.key] === 'Yes'">
+                  {{property[field.key] || 'N/A'}}
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div><!-- /rera tab -->
+
+        <!-- ===== PRICING TAB ===== -->
+        <div class="tab-pane" *ngIf="activeTab === 'pricing'">
+          <!-- Pricing Section -->
+          <div class="section pricing-section" *ngIf="property.pricing && property.pricing.units && property.pricing.units.length > 0">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                <text x="12" y="19" text-anchor="middle" font-size="18" font-weight="900" fill="currentColor" font-family="system-ui,sans-serif">₹</text>
+              </svg>
+              Pricing & Configurations
+            </h2>
+            <div class="pricing-grid">
+              <div class="pricing-card" *ngFor="let unit of property.pricing.units">
+                <div class="pricing-card-header">
+                  <h3>{{unit.type}}</h3>
+                  <div class="pricing-badge">₹{{unit.pricePerSqft | number}}/sqft</div>
+                </div>
+                <div class="pricing-details">
+                  <div class="pricing-row" *ngIf="unit.size">
+                    <span class="pricing-label">Size:</span>
+                    <span class="pricing-value">{{unit.size}}</span>
+                  </div>
+                  <div class="pricing-row" *ngIf="unit.minPrice || unit.maxPrice">
+                    <span class="pricing-label">Price Range:</span>
+                    <span class="pricing-value pricing-range">
+                      <span *ngIf="unit.minPrice">₹{{formatPrice(unit.minPrice)}}</span>
+                      <span *ngIf="unit.minPrice && unit.maxPrice"> - </span>
+                      <span *ngIf="unit.maxPrice">₹{{formatPrice(unit.maxPrice)}}</span>
+                    </span>
+                  </div>
+                </div>
+                <button class="btn-contact">Contact for Details</button>
+              </div>
+            </div>
+            <div class="pricing-note">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+              </svg>
+              Prices are indicative and subject to change. Contact our sales team for current pricing and offers.
+            </div>
+          </div>
+
+          <!-- Price Trend & Projection Chart -->
+          <div class="section price-trend-section" *ngIf="hasPriceHistory">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>
+              </svg>
+              Price Trend &amp; Projection
+            </h2>
+            <p class="section-subtitle">Historical price per sqft tracked by our team · dashed lines show 3-month linear projection</p>
+            <div class="price-stats-row">
+              <div class="price-stat-card" *ngFor="let stat of priceStats" [style.border-top]="'3px solid ' + stat.color">
+                <div class="stat-type-label" [style.color]="stat.color">{{ stat.type }}</div>
+                <div class="stat-current-price">₹{{ stat.current.toLocaleString('en-IN') }}<span class="stat-unit">/sqft</span></div>
+                <div class="stat-change" [class.positive]="stat.changePct > 0" [class.negative]="stat.changePct < 0" [class.flat]="stat.changePct === 0">
+                  <span *ngIf="stat.changePct > 0">▲ +{{ stat.changePct }}% since entry</span>
+                  <span *ngIf="stat.changePct < 0">▼ {{ stat.changePct }}% since entry</span>
+                  <span *ngIf="stat.changePct === 0">→ Stable price</span>
+                </div>
+              </div>
+            </div>
+            <div class="unit-filter-tabs" *ngIf="allUnitTypes.length > 1">
+              <button class="filter-tab" [class.active]="selectedUnitType === 'All'" (click)="selectUnitType('All')">All Types</button>
+              <button class="filter-tab" *ngFor="let type of allUnitTypes" [class.active]="selectedUnitType === type" (click)="selectUnitType(type)">{{ type }}</button>
+            </div>
+            <div class="price-chart-wrapper">
+              <canvas baseChart [data]="priceChartData" [options]="priceChartOptions" type="line"></canvas>
+            </div>
+            <div class="price-trend-legend">
+              <span class="trend-pill solid">
+                <svg width="28" height="10" viewBox="0 0 28 10"><line x1="0" y1="5" x2="28" y2="5" stroke="#3b82f6" stroke-width="2.5"/><circle cx="14" cy="5" r="4" fill="white" stroke="#3b82f6" stroke-width="2"/></svg>
+                Actual price
+              </span>
+              <span class="trend-pill dashed">
+                <svg width="28" height="10" viewBox="0 0 28 10"><line x1="0" y1="5" x2="28" y2="5" stroke="#3b82f6" stroke-width="2" stroke-dasharray="6,4"/></svg>
+                Projected
+              </span>
+            </div>
+          </div>
+
+          <!-- SRO Registered Transaction Trend -->
+          <div class="section sro-trend-section" *ngIf="hasSroTrend">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="24" height="24">
+                <path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/>
+              </svg>
+              Registered Transactions (SRO)
+            </h2>
+            <p class="section-subtitle">
+              Actual sale deed registrations at Sub-Registrar Office · {{ sroTrendTotalTx | number }} deals matched ·
+              <span class="sro-apts-pill" *ngFor="let a of sroTrendMatchedApts.slice(0,3)">{{ a }}</span>
+              <span *ngIf="sroTrendMatchedApts.length > 3" style="color:#64748b;font-size:0.8rem">+{{ sroTrendMatchedApts.length - 3 }} more</span>
+            </p>
+            <!-- Quarterly KPIs row -->
+            <div class="sro-kpi-row" *ngIf="sroTrendQuarters.length">
+              <div class="sro-kpi" *ngFor="let q of sroTrendQuarters.slice(-4)">
+                <div class="sro-kpi-quarter">{{ q.quarter }}</div>
+                <div class="sro-kpi-price">₹{{ q.avg_price_sqft | number:'1.0-0' }}<span>/sqft</span></div>
+                <div class="sro-kpi-count">{{ q.count }} deals</div>
+              </div>
+            </div>
+            <div class="sro-chart-wrap">
+              <canvas baseChart [data]="sroTrendChart" [options]="sroTrendOptions" type="line"></canvas>
+            </div>
+            <p class="data-source">Source: IGRS Telangana · Sale Deed Registrations (Sub-Registrar Office)</p>
+          </div>
+
+          <!-- Plot/Unit Availability -->
+          <div class="section plot-availability" *ngIf="getPlotDetails().length > 0">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/>
+              </svg>
+              Plot Availability
+            </h2>
+            <div class="availability-summary">
+              <div class="availability-card">
+                <div class="availability-number">{{getTotalPlots()}}</div>
+                <div class="availability-label">Total Plots</div>
+              </div>
+              <div class="availability-card available">
+                <div class="availability-number">{{getAvailablePlots()}}</div>
+                <div class="availability-label">Available</div>
+              </div>
+              <div class="availability-card booked">
+                <div class="availability-number">{{getBookedPlots()}}</div>
+                <div class="availability-label">Booked</div>
+              </div>
+            </div>
+            <div class="plot-list">
+              <div class="plot-item" *ngFor="let plot of getPlotDetails(); let i = index"
+                   [class.booked]="plot['Number of Plots Booked / Alloted / Sold'] > 0">
+                <div class="plot-header">
+                  <span class="plot-count">{{plot['Proposed Number of Plots']}} Plot(s)</span>
+                  <span class="plot-area">{{formatArea(plot['Area of Plot(In sqmts)'])}}</span>
+                </div>
+                <div class="plot-status">
+                  <span *ngIf="plot['Number of Plots Booked / Alloted / Sold'] > 0" class="status-badge booked-badge">
+                    {{plot['Number of Plots Booked / Alloted / Sold']}} Booked
+                  </span>
+                  <span *ngIf="plot['Mortgage Area (Select if the particular Apartment/s is under Mortgage Area)'] === 'Yes'"
+                        class="status-badge mortgage-badge">Mortgaged</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No pricing data empty state -->
+          <div class="tab-empty-state" *ngIf="(!property.pricing || !property.pricing.units || property.pricing.units.length === 0) && !hasPriceHistory && !hasSroTrend && getPlotDetails().length === 0">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48"><text x="12" y="19" text-anchor="middle" font-size="18" font-weight="900" font-family="system-ui,sans-serif">₹</text></svg>
+            <p>Pricing information not yet available for this project.</p>
+          </div>
+        </div><!-- /pricing tab -->
+
+        <!-- ===== AMENITIES TAB ===== -->
+        <div class="tab-pane" *ngIf="activeTab === 'amenities'">
+          <div class="section amenities-section" *ngIf="getDevelopmentWork().length > 0">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                <path d="M12 2l-5.5 9h11z M17.5 11L12 20l5.5-9z M7.5 11h9v2h-9z"/>
+              </svg>
+              Infrastructure & Amenities
+            </h2>
+            <div class="amenities-grid">
+              <div class="amenity-item" *ngFor="let amenity of getDevelopmentWork()"
+                   [class.available]="amenity['Available'] === 'YES'"
+                   [class.unavailable]="amenity['Available'] === 'NO'">
+                <div class="amenity-icon">
+                  <svg *ngIf="amenity['Available'] === 'YES'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                  </svg>
+                  <svg *ngIf="amenity['Available'] === 'NO'" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+                  </svg>
+                </div>
+                <div class="amenity-details">
+                  <div class="amenity-name">{{amenity['Common areas And Facilities, Amenities']?.replace(':', '')}}</div>
+                  <div class="amenity-completion" *ngIf="amenity['Available'] === 'YES'">
+                    <div class="progress-bar">
+                      <div class="progress-fill" [style.width.%]="getCompletionPercentage(amenity['Percent'])"></div>
+                    </div>
+                    <span class="progress-text">{{amenity['Percent']}}% Complete</span>
+                  </div>
+                  <div class="amenity-info" *ngIf="amenity['Details']">{{amenity['Details']}}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-empty-state" *ngIf="getDevelopmentWork().length === 0">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48"><path d="M12 2l-5.5 9h11z"/></svg>
+            <p>Amenities information not yet available for this project.</p>
+          </div>
+        </div><!-- /amenities tab -->
+
+        <!-- ===== DETAILS TAB ===== -->
+        <div class="tab-pane" *ngIf="activeTab === 'details'">
+          <div class="details-two-col">
+            <!-- Left column -->
+            <div class="details-col">
+              <div class="section">
+                <h2 class="section-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/>
+                  </svg>
+                  Project Information
+                </h2>
+                <table class="property-table">
+                  <tr *ngFor="let field of projectFields">
+                    <td class="field-label">{{field.label}}</td>
+                    <td class="field-value">{{property[field.key] || 'N/A'}}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div class="section">
+                <h2 class="section-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <path d="M12 2l-5.5 9h11z"/>
+                  </svg>
+                  Developer Information
+                </h2>
+                <table class="property-table">
+                  <tr *ngFor="let field of developerFields">
+                    <td class="field-label">{{field.label}}</td>
+                    <td class="field-value">{{property[field.key] || 'N/A'}}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div class="section">
+                <h2 class="section-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                  </svg>
+                  Location Details
+                </h2>
+                <table class="property-table">
+                  <tr *ngFor="let field of locationFields">
+                    <td class="field-label">{{field.label}}</td>
+                    <td class="field-value">{{property[field.key] || 'N/A'}}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <!-- Right column -->
+            <div class="details-col">
+              <div class="section">
+                <h2 class="section-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/>
+                  </svg>
+                  Land Details
+                </h2>
+                <table class="property-table">
+                  <tr *ngFor="let field of landFields">
+                    <td class="field-label">{{field.label}}</td>
+                    <td class="field-value">{{property[field.key] || 'N/A'}}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <div class="section">
+                <h2 class="section-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <path d="M4 10v7h3v-7H4zm6 0v7h3v-7h-3zM2 22h19v-3H2v3zm14-12v7h3v-7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/>
+                  </svg>
+                  Banking Details
+                </h2>
+                <table class="property-table">
+                  <tr *ngFor="let field of bankFields">
+                    <td class="field-label">{{field.label}}</td>
+                    <td class="field-value">{{property[field.key] || 'N/A'}}</td>
+                  </tr>
+                </table>
+              </div>
+
+              <!-- Key Team Members -->
+              <div class="section team-section" *ngIf="getMembers().length > 0">
+                <h2 class="section-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                  </svg>
+                  Key Team Members
+                </h2>
+                <div class="members-grid">
+                  <div class="member-card" *ngFor="let member of getMembers()">
+                    <div class="member-avatar">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                      </svg>
+                    </div>
+                    <div class="member-info">
+                      <div class="member-name">{{member['Member Name']}}</div>
+                      <div class="member-role">{{member['Designation']}}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Professionals -->
+              <div class="section professionals-section" *ngIf="getProfessionals().length > 0">
+                <h2 class="section-title">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                    <path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/>
+                  </svg>
+                  Project Professionals
+                </h2>
+                <div class="professionals-list">
+                  <div class="professional-item" *ngFor="let prof of getProfessionals()">
+                    <div class="professional-type">{{prof['Professional Type']}}</div>
+                    <div class="professional-name">{{prof['Professional Name']}}</div>
+                    <div class="professional-cert" *ngIf="prof['TelanganaRERA Certificate No.'] !== 'NA'">
+                      RERA Cert: {{prof['TelanganaRERA Certificate No.']}}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- IGRS/SRO Sale Registrations -->
+          <div class="section sro-booking-section" *ngIf="sroUnits">
+
+            <!-- Not found state -->
+            <div *ngIf="!sroUnits.found" class="sro-not-found">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+              <p>No government sale registration records found for this project.</p>
+              <span class="sro-source-note">Source: IGRS Telangana sub-registrar office records</span>
+            </div>
+
+            <!-- Found state -->
+            <ng-container *ngIf="sroUnits.found">
+              <h2 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                  <path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/>
+                </svg>
+                IGRS Sale Registrations
+              </h2>
+
+              <!-- 3-card row — purely IGRS data, no RERA -->
+              <div class="sro-inventory-row">
+                <div class="sro-inv-card sold-card">
+                  <span class="sro-inv-num">{{sroUnits.unique_flats_registered}}</span>
+                  <span class="sro-inv-label">Flats Sold</span>
+                  <span class="sro-inv-sub">govt. deed registered (IGRS)</span>
+                </div>
+                <div class="sro-inv-card avail-card">
+                  <span class="sro-inv-num" *ngIf="property['totalFlats']">{{getSroAvailableFlats()}}</span>
+                  <span class="sro-inv-num" *ngIf="!property['totalFlats']">—</span>
+                  <span class="sro-inv-label">Approx. Available</span>
+                  <span class="sro-inv-sub" *ngIf="property['totalFlats']">{{property['totalFlats']}} planned − {{sroUnits.unique_flats_registered}} sold</span>
+                  <span class="sro-inv-sub" *ngIf="!property['totalFlats']">RERA total data unavailable</span>
+                </div>
+                <div class="sro-inv-card value-card">
+                  <span class="sro-inv-num">₹{{sroUnits.total_value_cr | number:'1.1-1'}} Cr</span>
+                  <span class="sro-inv-label">Total Registered Value</span>
+                  <span class="sro-inv-sub">all IGRS deeds combined</span>
+                </div>
+              </div>
+
+              <!-- Recent activity pill -->
+              <div class="sro-recent-pill" *ngIf="sroUnits.recent_quarter">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+                <strong>{{sroUnits.recent_count}}</strong> sale deeds registered in {{sroUnits.recent_quarter}}
+              </div>
+
+              <!-- Matched apartment names -->
+              <div class="sro-matched-apts" *ngIf="sroUnits.matched_apartments?.length > 0">
+                <span class="sro-matched-label">Matched as:</span>
+                <span class="sro-apt-chip" *ngFor="let apt of sroUnits.matched_apartments">{{apt}}</span>
+              </div>
+
+              <div class="sro-source-note">Source: IGRS Telangana SRO registration records. "Sold" = government deed-registered flats (may include resales).</div>
+            </ng-container>
+          </div>
+        </div><!-- /details tab -->
+
+        <!-- ===== REVIEWS TAB ===== -->
+        <div class="tab-pane" *ngIf="activeTab === 'reviews'">
+          <div class="section reviews-section">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+              </svg>
+              Ratings & Reviews
+            </h2>
+            <div class="rating-summary">
+              <div class="rating-overview">
+                <div class="average-rating">
+                  <div class="rating-number">{{averageRating > 0 ? (averageRating | number:'1.1-1') : '—'}}</div>
+                  <div class="stars-display">
+                    <div class="stars-row">
+                      <span class="star" *ngFor="let filled of getStarArray(Math.round(averageRating))" [class.filled]="filled">★</span>
+                    </div>
+                    <div class="rating-count">Based on {{reviews.length}} review{{reviews.length !== 1 ? 's' : ''}}</div>
+                  </div>
+                </div>
+                <button class="btn-write-review" (click)="showReviewForm = !showReviewForm">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                  </svg>
+                  Write a Review
+                </button>
+              </div>
+              <div class="review-form-container" *ngIf="showReviewForm">
+                <div class="review-form">
+                  <h3>Share Your Experience</h3>
+                  <div class="alert alert-error" *ngIf="reviewError">{{reviewError}}</div>
+                  <div class="alert alert-success" *ngIf="reviewSuccess">{{reviewSuccess}}</div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label>Your Name *</label>
+                      <input type="text" [(ngModel)]="reviewForm.name" placeholder="John Doe" class="form-input" required />
+                    </div>
+                    <div class="form-group">
+                      <label>Email Address *</label>
+                      <input type="email" [(ngModel)]="reviewForm.email" placeholder="john@example.com" class="form-input" required />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Contact Number *</label>
+                    <input type="tel" [(ngModel)]="reviewForm.contact" placeholder="10-digit mobile number" maxlength="10" class="form-input" required />
+                  </div>
+                  <div class="form-group">
+                    <label>Your Rating *</label>
+                    <div class="star-rating">
+                      <span *ngFor="let star of [1,2,3,4,5]"
+                            class="star-input"
+                            [class.selected]="star <= reviewForm.rating"
+                            (click)="setRating(star)">★</span>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Your Review *</label>
+                    <textarea [(ngModel)]="reviewForm.review"
+                              placeholder="Share your thoughts about this property..."
+                              rows="5"
+                              class="form-textarea"
+                              required></textarea>
+                  </div>
+                  <div class="form-actions">
+                    <button class="btn-cancel" (click)="showReviewForm = false" [disabled]="submittingReview">Cancel</button>
+                    <button class="btn-submit" (click)="submitReview()" [disabled]="submittingReview">
+                      {{submittingReview ? 'Submitting...' : 'Submit Review'}}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="reviews-list">
+              <div *ngIf="reviews.length === 0" class="empty-reviews">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+                  <path d="M22 4h-2c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2H2v2h2v13c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V6h2V4zM6 19V6h12v13H6zm4-9h4v6h-4z"/>
+                </svg>
+                <p>No reviews yet. Be the first to review this property!</p>
+              </div>
+              <div class="review-card" *ngFor="let review of reviews">
+                <div class="review-header">
+                  <div class="reviewer-info">
+                    <div class="reviewer-avatar">{{review.name.charAt(0).toUpperCase()}}</div>
+                    <div>
+                      <div class="reviewer-name">{{review.name}}</div>
+                      <div class="review-date">{{review.date | date:'MMM d, yyyy'}}</div>
+                    </div>
+                  </div>
+                  <div class="review-rating">
+                    <span class="star" *ngFor="let filled of getStarArray(review.rating)" [class.filled]="filled">★</span>
+                  </div>
+                </div>
+                <div class="review-content"><p>{{review.review}}</p></div>
+                <div class="review-footer" *ngIf="review.verified">
+                  <span class="verified-badge">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                    </svg>
+                    Verified Review
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div><!-- /reviews tab -->
+
+        <!-- ===== DOCUMENTS TAB ===== -->
+        <div class="tab-pane" *ngIf="activeTab === 'documents'">
+          <div class="section documents-section" *ngIf="hasDocuments()">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+                <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+              </svg>
+              Documents & Downloads
+            </h2>
+            <div class="documents-grid">
+              <div class="document-item" *ngFor="let doc of getDocuments() | keyvalue"
+                   [class.available]="isDocumentAvailable($any(doc.value))"
+                   [class.unavailable]="!isDocumentAvailable($any(doc.value))">
+                <div class="document-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                    <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                  </svg>
+                </div>
+                <div class="document-details">
+                  <div class="document-name">{{doc.key}}</div>
+                  <button *ngIf="isDocumentAvailable($any(doc.value))" class="btn btn-sm btn-download"
+                          (click)="downloadDocument($any(doc.key))">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                      <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"/>
+                    </svg>
+                    Download
+                  </button>
+                  <span *ngIf="!isDocumentAvailable($any(doc.value))" class="not-available">Not Available</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-empty-state" *ngIf="!hasDocuments()">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6z"/></svg>
+            <p>No documents available for this project yet.</p>
+          </div>
+        </div><!-- /documents tab -->
+
+        <!-- ===== FLOOR PLANS TAB ===== -->
+        <div class="tab-pane" *ngIf="activeTab === 'floorplans'">
+          <!-- Loading -->
+          <div class="fp-loading" *ngIf="floorPlansLoading">
+            <div class="spinner"></div>
+            <p>Loading floor plans...</p>
+          </div>
+
+          <!-- Plans available -->
+          <div class="section fp-section" *ngIf="!floorPlansLoading && floorPlans.length > 0">
+
+            <!-- ── Hero image (first page of first doc) ── -->
+            <div class="fp-hero-wrap" (click)="openFloorPlanModal(fpHeroEntry.docName, 0, fpHeroEntry.pages)">
+              <img class="fp-hero-img" [src]="fpHeroImage" [alt]="fpHeroDocName" />
+              <div class="fp-hero-badge">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M3 3v18h18V3H3zm10 16H5v-4h8v4zm0-6H5v-4h8v4zm6 6h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6H5V5h14v2z"/></svg>
+                {{fpHeroDocName}} &nbsp;·&nbsp; RERA
+              </div>
+              <div class="fp-hero-zoom-hint">Click to view &amp; zoom</div>
+            </div>
+
+            <!-- ── Toggle for all docs ── -->
+            <button class="fp-all-toggle" (click)="allDocsExpanded = !allDocsExpanded">
+              <span>View all RERA documents</span>
+              <span class="fp-all-meta">{{floorPlans.length}} doc{{floorPlans.length !== 1 ? 's' : ''}} · {{fpTotalPages}} pages</span>
+              <svg class="fp-toggle-arrow" [class.open]="allDocsExpanded" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+            </button>
+
+            <!-- ── Full doc grid (collapsed by default) ── -->
+            <div class="fp-all-docs" *ngIf="allDocsExpanded">
+              <div *ngFor="let entry of floorPlans" class="fp-entry">
+                <div class="fp-entry-header">
+                  <div class="fp-entry-label">{{entry.docName}}</div>
+                  <span class="fp-page-count">{{entry.pages.length}} page{{entry.pages.length !== 1 ? 's' : ''}}</span>
+                </div>
+                <div class="fp-image-grid">
+                  <div class="fp-image-tile" *ngFor="let imgUrl of entry.pages; let pi = index"
+                       (click)="openFloorPlanModal(entry.docName, pi, entry.pages)">
+                    <img [src]="imgUrl" [alt]="entry.docName + ' page ' + (pi+1)" loading="lazy" />
+                    <div class="fp-image-overlay">
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/><path d="M12 10h-2v2H9v-2H7V9h2V7h1v2h2v1z"/></svg>
+                      <span>Tap to zoom</span>
+                    </div>
+                    <div class="fp-page-label">Page {{pi + 1}}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Empty state -->
+          <div class="tab-empty-state" *ngIf="!floorPlansLoading && floorPlans.length === 0">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48"><path d="M3 3v18h18V3H3zm10 16H5v-4h8v4zm0-6H5v-4h8v4zm6 6h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6H5V5h14v2z"/></svg>
+            <p>Floor plans haven't been downloaded yet for this project.</p>
+            <p style="font-size:13px;color:#999;">Run <code>python download_project_docs.py "{{property['Project Name']}}"</code> in the backend folder to fetch them from RERA.</p>
+          </div>
+        </div><!-- /floorplans tab -->
+
+        <!-- ===== SITE IMAGES TAB ===== -->
+        <div class="tab-pane" *ngIf="activeTab === 'siteimages'">
+          <div class="section">
+            <h2 class="section-title">
+              Site Gallery
+              <span style="font-size:13px;font-weight:500;color:#64748b;text-transform:none;letter-spacing:0;margin-left:8px;">
+                {{propertyImages.length}} photo{{propertyImages.length !== 1 ? 's' : ''}}
+              </span>
+            </h2>
+            <div *ngIf="propertyImages.length === 0" class="tab-empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              <p>No site images have been uploaded for this property yet.</p>
+            </div>
+            <div class="media-image-grid" *ngIf="propertyImages.length > 0">
+              <div *ngFor="let img of propertyImages; let i=index" class="media-image-card" (click)="openLightbox(propertyImages, i)">
+                <img [src]="img.fileUrl || img.file_url" [alt]="img.title" class="media-img" loading="lazy">
+                <div class="media-img-overlay">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+                  <span>View</span>
+                </div>
+                <p class="media-img-title" *ngIf="img.title">{{img.title}}</p>
+              </div>
+            </div>
+          </div>
+        </div><!-- /siteimages tab -->
+
+        <!-- ===== VIDEOS TAB ===== -->
+        <div class="tab-pane" *ngIf="activeTab === 'videos'">
+          <div class="section">
+            <h2 class="section-title">Property Videos</h2>
+            <div *ngIf="propertyVideos.length === 0" class="tab-empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+              <p>No videos have been added for this property yet.</p>
+            </div>
+            <div class="media-video-grid" *ngIf="propertyVideos.length > 0">
+              <div *ngFor="let v of propertyVideos" class="media-video-card">
+                <div class="video-embed-wrap">
+                  <iframe [src]="getYouTubeEmbed(v.fileUrl || v.file_url) | safe" frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen class="video-iframe"></iframe>
+                </div>
+                <p class="media-video-title">{{v.title}}</p>
+              </div>
+            </div>
+          </div>
+        </div><!-- /videos tab -->
+
+        <!-- ===== FLOOR PLAN FULL-SCREEN LIGHTBOX ===== -->
+        <!-- ===== SITE IMAGE LIGHTBOX ===== -->
+        <div class="fp-lb-overlay" *ngIf="showImageLightbox" (click)="closeLightbox()">
+          <div class="fp-lb-header" (click)="$event.stopPropagation()">
+            <div class="fp-lb-title">{{lightboxImages[lightboxIndex]?.title}} · {{lightboxIndex+1}}/{{lightboxImages.length}}</div>
+            <button class="fp-lb-btn" (click)="closeLightbox()">✕</button>
+          </div>
+          <div class="fp-lb-img-wrap" (click)="$event.stopPropagation()">
+            <img [src]="lightboxImages[lightboxIndex]?.fileUrl || lightboxImages[lightboxIndex]?.file_url" [alt]="lightboxImages[lightboxIndex]?.title" style="max-width:90vw;max-height:80vh;object-fit:contain;border-radius:8px;">
+          </div>
+          <button class="fp-lb-prev" (click)="$event.stopPropagation();lightboxPrev()" *ngIf="lightboxImages.length > 1">‹</button>
+          <button class="fp-lb-next" (click)="$event.stopPropagation();lightboxNext()" *ngIf="lightboxImages.length > 1">›</button>
+        </div>
+        <!-- ===== FLOOR PLAN FULL-SCREEN LIGHTBOX ===== -->
+        <div class="fp-lb-overlay" *ngIf="fpModalOpen" (click)="closeFpModal()" (wheel)="onFpWheel($event)">
+          <!-- Header -->
+          <div class="fp-lb-header" (click)="$event.stopPropagation()">
+            <div class="fp-lb-title">{{fpModalDocName}} &nbsp;·&nbsp; Page {{fpModalIndex + 1}} / {{fpModalPages.length}}</div>
+            <div class="fp-lb-controls">
+              <button class="fp-lb-btn" (click)="fpZoomOut()" title="Zoom out">−</button>
+              <span class="fp-lb-zoom-pct">{{fpZoomPct}}%</span>
+              <button class="fp-lb-btn" (click)="fpZoomIn()" title="Zoom in">+</button>
+              <button class="fp-lb-btn" (click)="fpZoomReset()" title="Reset zoom">⊡</button>
+              <button class="fp-lb-btn fp-lb-close-btn" (click)="closeFpModal()" title="Close">✕</button>
+            </div>
+          </div>
+          <!-- Scrollable image canvas -->
+          <div class="fp-lb-canvas" (click)="$event.stopPropagation()">
+            <button class="fp-lb-nav fp-lb-prev" (click)="fpPrev(); $event.stopPropagation()" [class.hidden]="fpModalIndex === 0">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            </button>
+            <div class="fp-lb-img-wrap" [style.zoom]="fpScale">
+              <img [src]="fpModalPages[fpModalIndex]" [alt]="fpModalDocName" class="fp-lb-img" (load)="fpZoomReset()" />
+            </div>
+            <button class="fp-lb-nav fp-lb-next" (click)="fpNext(); $event.stopPropagation()" [class.hidden]="fpModalIndex === fpModalPages.length - 1">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </button>
+          </div>
+          <!-- Thumbnails strip -->
+          <div class="fp-lb-thumbs" (click)="$event.stopPropagation()">
+            <img *ngFor="let t of fpModalPages; let ti = index"
+                 [src]="t" [class.active]="ti === fpModalIndex"
+                 (click)="fpGoTo(ti)" class="fp-lb-thumb" />
+          </div>
+        </div>
+
+        <!-- Contact Section (always visible at bottom of any tab) -->
+        <div class="contact-section">
+          <h2 class="section-title">Interested in this property?</h2>
+          <p style="margin-bottom: 24px; color: #666;">Get in touch with our experts for site visits, pricing, and more details.</p>
+          <div class="contact-actions">
+            <button class="btn btn-primary btn-large" (click)="contactAgent()">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" style="margin-right: 8px;">
+                <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
+              </svg>
+              Contact Agent
+            </button>
+            <button class="btn btn-secondary btn-large" (click)="openScheduleVisit()">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" style="margin-right: 8px;">
+                <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+              </svg>
+              Schedule Visit
+            </button>
+          </div>
+        </div>
+
+      </div><!-- Close gated-content -->
+    </div><!-- Close gated-content-wrapper -->
+  </div>
+
+  <div *ngIf="!property" class="loading-container">
+    <div class="spinner"></div>
+    <p>Loading property details...</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════════
+<!-- Schedule Visit Modal — shared component -->
+<app-schedule-visit-modal
+  *ngIf="showScheduleVisitForm"
+  [projectName]="property?.['Project Name'] || ''"
+  [projectId]="property?.id || ''"
+  (closed)="closeScheduleVisit()">
+</app-schedule-visit-modal>

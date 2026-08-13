@@ -1,0 +1,313 @@
+<div class="comparison-page">
+
+  <!-- ── Hero Header ── -->
+  <div class="hero-header">
+    <div class="hero-bg-grid"></div>
+    <div class="hero-content">
+      <div class="hero-badge">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M9 19v-6a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2zm0 0V9a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v10m-6 0a2 2 0 0 0 2 2h2a2 2 0 0 0 2-2m0 0V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-2a2 2 0 0 1-2-2z"/></svg>
+        Advanced Comparison
+      </div>
+      <h1>Compare Properties<br><span class="hero-accent">Side by Side</span></h1>
+      <p>Select up to 3 RERA-verified properties to compare price trends, density, compliance and more</p>
+
+      <!-- Search Bar -->
+      <div class="search-container">
+        <svg class="search-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (input)="onSearchInput()"
+          (focus)="showDropdown = searchTerm.length > 0"
+          placeholder="Search by project name, locality or district..."
+          class="search-input"
+        />
+        <span class="search-count-badge" *ngIf="selectedProperties.length > 0">
+          {{ selectedProperties.length }}/3 selected
+        </span>
+        <div class="search-dropdown" *ngIf="showDropdown && filteredProperties.length > 0">
+          <div
+            *ngFor="let property of filteredProperties"
+            class="dropdown-item"
+            (click)="addToComparison(property)"
+          >
+            <div class="dropdown-item-dot" [style.background]="getNextColor()"></div>
+            <div class="dropdown-item-body">
+              <strong>{{ property.projectName }}</strong>
+              <span>{{ property.locality }}{{ property.district ? ', ' + property.district : '' }}</span>
+            </div>
+            <span class="dropdown-item-type">{{ property.projectType || property['Project Type'] || 'Residential' }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Empty State ── -->
+  <div class="empty-state" *ngIf="selectedProperties.length === 0">
+    <div class="empty-illustration">
+      <div class="empty-card empty-card-1"></div>
+      <div class="empty-card empty-card-2"></div>
+      <div class="empty-card empty-card-3"></div>
+    </div>
+    <h2>Start Comparing Properties</h2>
+    <p>Search and select up to 3 properties using the search bar above</p>
+    <div class="empty-tips">
+      <span>💡 Try searching "Gachibowli", "Kondapur" or a developer name</span>
+    </div>
+  </div>
+
+  <!-- ── Main Comparison Area ── -->
+  <div class="comparison-main" *ngIf="selectedProperties.length > 0">
+
+    <!-- Property Cards Row -->
+    <div class="property-cards-row">
+      <div class="prop-card prop-card-empty" *ngFor="let slot of getEmptySlots()" (click)="focusSearch()">
+        <div class="empty-slot-inner">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="32" height="32"><circle cx="12" cy="12" r="10"/><path d="M12 8v8M8 12h8"/></svg>
+          <span>Add Property</span>
+        </div>
+      </div>
+      <div class="prop-card" *ngFor="let p of selectedProperties; let i = index"
+           [class.prop-card-0]="i===0" [class.prop-card-1]="i===1" [class.prop-card-2]="i===2">
+        <button class="prop-remove-btn" (click)="removeFromComparison(i)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M18 6 6 18M6 6l12 12"/></svg>
+        </button>
+        <div class="prop-card-badge" [style.background]="getPropertyColor(i) + '22'" [style.color]="getPropertyColor(i)">P{{ i + 1 }}</div>
+        <h3 class="prop-name">{{ p.projectName }}</h3>
+        <p class="prop-developer">{{ p.promoterName || p['Name'] || 'Developer' }}</p>
+        <div class="prop-tags">
+          <span class="prop-tag" *ngIf="p.district">{{ p.district }}</span>
+          <span class="prop-tag" *ngIf="p.projectType || p['Project Type']">{{ p.projectType || p['Project Type'] }}</span>
+        </div>
+        <button class="prop-view-btn" (click)="viewDetails(p.id || p.projectId)" [style.background]="getPropertyColor(i)">
+          View Details →
+        </button>
+      </div>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div class="tab-nav">
+      <button class="tab-btn" [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Overview
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'density'" (click)="activeTab = 'density'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Density Analysis
+      </button>
+      <button class="tab-btn" [class.active]="activeTab === 'price'" (click)="activeTab = 'price'">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+        Price Trends
+      </button>
+      <div class="tab-action-right">
+        <button class="clear-all-btn" (click)="clearComparison()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+          Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- ── TAB: OVERVIEW ── -->
+    <div class="tab-content" *ngIf="activeTab === 'overview'">
+      <div class="overview-grid">
+
+        <div class="compare-section-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Project Info
+        </div>
+
+        <div class="compare-row" *ngFor="let field of infoFields">
+          <div class="compare-row-label">{{ field.label }}</div>
+          <div class="compare-row-values">
+            <div class="compare-cell" *ngFor="let p of selectedProperties; let i = index"
+                 [class.winner]="isWinner(p, field) && selectedProperties.length > 1">
+              <div class="compare-cell-bar-wrap" *ngIf="field.type === 'number' || field.type === 'area'">
+                <div class="compare-cell-bar"
+                     [style.width]="getBarWidth(p, field) + '%'"
+                     [style.background]="getPropertyColor(i)"></div>
+              </div>
+              <span class="compare-cell-val" [ngSwitch]="field.type">
+                <ng-container *ngSwitchCase="'rating'">
+                  <span class="mini-stars">
+                    <span *ngFor="let s of getRatingStars(p[field.key])" class="mstar" [class.mfull]="s==='full'">★</span>
+                  </span>
+                  {{ p[field.key] || 0 }}
+                </ng-container>
+                <ng-container *ngSwitchCase="'area'">{{ formatArea(p[field.key]) }}</ng-container>
+                <ng-container *ngSwitchDefault>{{ p[field.key] || 'N/A' }}</ng-container>
+              </span>
+              <span class="winner-badge" *ngIf="isWinner(p, field) && selectedProperties.length > 1">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                Best
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="compare-section-title" style="margin-top:24px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Location &amp; Registration
+        </div>
+
+        <div class="compare-row" *ngFor="let field of locationFields">
+          <div class="compare-row-label">{{ field.label }}</div>
+          <div class="compare-row-values">
+            <div class="compare-cell" *ngFor="let p of selectedProperties">
+              <span class="compare-cell-val">{{ getFieldValue(p, field) || 'N/A' }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="compare-section-title" style="margin-top:24px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          Area &amp; Scale
+        </div>
+
+        <div class="compare-row" *ngFor="let field of areaFields">
+          <div class="compare-row-label">{{ field.label }}</div>
+          <div class="compare-row-values">
+            <div class="compare-cell" *ngFor="let p of selectedProperties; let i = index"
+                 [class.winner]="isWinner(p, field) && selectedProperties.length > 1">
+              <div class="compare-cell-bar-wrap" *ngIf="field.type === 'area'">
+                <div class="compare-cell-bar"
+                     [style.width]="getBarWidth(p, field) + '%'"
+                     [style.background]="getPropertyColor(i)"></div>
+              </div>
+              <span class="compare-cell-val">
+                <ng-container *ngIf="field.type === 'area'">{{ formatArea(getFieldValue(p, field)) }}</ng-container>
+                <ng-container *ngIf="field.type !== 'area'">{{ getFieldValue(p, field) || 'N/A' }}</ng-container>
+              </span>
+              <span class="winner-badge" *ngIf="isWinner(p, field) && selectedProperties.length > 1">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                Largest
+              </span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── TAB: DENSITY ANALYSIS ── -->
+    <div class="tab-content" *ngIf="activeTab === 'density'">
+
+      <div class="no-density-notice" *ngIf="!anyHasDensity()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <p>No density data available for selected properties.<br>Area data is required from RERA filings to calculate density.</p>
+      </div>
+
+      <div class="density-compare-grid" *ngIf="anyHasDensity()">
+
+        <div class="density-cards-row">
+          <div class="density-prop-card" *ngFor="let p of selectedProperties; let i = index"
+               [style.border-top]="'4px solid ' + getDensityColor(p)">
+            <div class="density-prop-label" [style.color]="getPropertyColor(i)">P{{ i+1 }}: {{ p.projectName }}</div>
+            <ng-container *ngIf="p.occupancyDensity && p.occupancyDensity.available; else noDensityCard">
+              <div class="density-icon-big">{{ p.occupancyDensity.icon }}</div>
+              <div class="density-label-main">{{ p.occupancyDensity.label }}</div>
+              <div class="density-cat-pill" [style.background]="getDensityColor(p) + '22'" [style.color]="getDensityColor(p)">
+                {{ p.occupancyDensity.category }} Density
+              </div>
+              <div class="density-score-track">
+                <div class="dtrack-header">
+                  <span class="dtrack-label">Openness Score</span>
+                  <span class="dtrack-val" [style.color]="getDensityColor(p)">{{ p.occupancyDensity.score }}/100</span>
+                </div>
+                <div class="dtrack-bar-bg">
+                  <div class="dtrack-bar" [style.width]="p.occupancyDensity.score + '%'" [style.background]="getDensityColor(p)"></div>
+                </div>
+              </div>
+              <p class="density-interp">{{ p.occupancyDensity.interpretation }}</p>
+            </ng-container>
+            <ng-template #noDensityCard>
+              <div class="no-density-card-small">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="28" height="28"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                <span>No area data</span>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+
+        <div class="density-metric-section">
+          <div class="dmetric-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+            Metric Comparison
+          </div>
+          <ng-container *ngFor="let dm of densityMetricFields">
+            <div class="dmetric-row" *ngIf="anyHasDensityField(dm.key)">
+              <div class="dmetric-label">{{ dm.label }}<span class="dmetric-hint"> · {{ dm.hint }}</span></div>
+              <div class="dmetric-bars">
+                <div class="dmetric-bar-row" *ngFor="let p of selectedProperties; let i = index">
+                  <div class="dmetric-bar-label" [style.color]="getPropertyColor(i)">P{{ i+1 }}</div>
+                  <div class="dmetric-bar-track">
+                    <div class="dmetric-bar-fill"
+                         [style.width]="getDensityBarWidth(p, dm.key) + '%'"
+                         [style.background]="getPropertyColor(i)"></div>
+                  </div>
+                  <div class="dmetric-bar-value">{{ getDensityFieldDisplay(p, dm.key) }}</div>
+                </div>
+              </div>
+            </div>
+          </ng-container>
+        </div>
+
+        <div class="density-scale-compare">
+          <div class="dscale-title">Openness Score — where each property falls</div>
+          <div class="dscale-prop-rows">
+            <ng-container *ngFor="let p of selectedProperties; let i = index">
+              <div class="dscale-prop-row" *ngIf="p.occupancyDensity?.available">
+                <div class="dscale-prop-id" [style.color]="getPropertyColor(i)">P{{ i+1 }}</div>
+                <div class="dscale-row-track">
+                  <div class="dscale-row-gradient"></div>
+                  <div class="dscale-row-dot"
+                       [style.left]="(100 - p.occupancyDensity.score) + '%'"
+                       [style.background]="getPropertyColor(i)"
+                       [style.box-shadow]="'0 0 0 3px ' + getPropertyColor(i) + '33'"></div>
+                </div>
+                <div class="dscale-row-score" [style.color]="getPropertyColor(i)">{{ p.occupancyDensity.score }}</div>
+              </div>
+            </ng-container>
+          </div>
+          <div class="dscale-row-labels">
+            <span>🌿 Most Open</span>
+            <span>Most Dense 🏙️</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── TAB: PRICE TRENDS ── -->
+    <div class="tab-content" *ngIf="activeTab === 'price'">
+      <div class="price-no-data" *ngIf="!hasComparisonChart">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48"><path d="M3 3v18h18"/><path d="M18 9l-5 5-4-4-3 3"/></svg>
+        <p>No price history has been recorded for the selected properties yet.<br>Prices are entered by our team as they are updated.</p>
+      </div>
+      <div class="price-chart-container" *ngIf="hasComparisonChart">
+        <div class="price-chart-topbar">
+          <div class="comp-color-keys">
+            <div class="color-key" *ngFor="let p of selectedProperties; let i = index">
+              <span class="color-dot" [style.background]="getPropertyColor(i)"></span>
+              <span>{{ p.projectName }}</span>
+            </div>
+          </div>
+          <div class="chart-legend-pills">
+            <span class="trend-pill">
+              <svg width="24" height="10" viewBox="0 0 24 10"><line x1="0" y1="5" x2="24" y2="5" stroke="#64748b" stroke-width="2.5"/><circle cx="12" cy="5" r="3.5" fill="white" stroke="#64748b" stroke-width="2"/></svg>
+              Actual
+            </span>
+            <span class="trend-pill dashed">
+              <svg width="24" height="10" viewBox="0 0 24 10"><line x1="0" y1="5" x2="24" y2="5" stroke="#64748b" stroke-width="2" stroke-dasharray="5,4"/></svg>
+              Projected
+            </span>
+          </div>
+        </div>
+        <div class="comparison-chart-wrapper">
+          <canvas baseChart [data]="comparisonChartData" [options]="comparisonChartOptions" type="line"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

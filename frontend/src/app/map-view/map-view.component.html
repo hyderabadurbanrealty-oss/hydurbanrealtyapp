@@ -1,0 +1,341 @@
+<div class="map-view-page">
+
+  <!-- ════════════════════════════════════════════════════════
+       NON-BLOCKING GEOCODING TOAST (bottom-right corner)
+       ════════════════════════════════════════════════════════ -->
+  <div class="geocoding-toast" *ngIf="geocoding">
+    <div class="gt-row">
+      <div class="gt-spinner"></div>
+      <span class="gt-text">
+        Locating properties…
+        <strong>{{ geocodingProgress }}/{{ geocodingTotal }}</strong>
+        <span class="gt-cache-hits" *ngIf="geocodeCacheHits > 0">
+          · {{ geocodeCacheHits }} from cache
+        </span>
+      </span>
+    </div>
+    <div class="gt-bar">
+      <div class="gt-fill" [style.width.%]="progressPercent"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════════════════════════
+       SIDEBAR
+       ════════════════════════════════════════════════════════ -->
+  <aside class="map-sidebar" [class.collapsed]="!sidebarOpen">
+
+    <!-- ── Header ── -->
+    <div class="sidebar-header">
+      <div class="sidebar-title-row">
+        <div class="sidebar-title-block">
+          <h2 class="sidebar-title">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" class="title-icon">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            </svg>
+            Property Map
+          </h2>
+          <span class="sidebar-count">
+            <strong>{{ filteredProperties.length }}</strong> of {{ mappedProperties.length }} geocoded
+          </span>
+        </div>
+        <button class="sidebar-collapse-btn" (click)="toggleSidebar()"
+                [attr.aria-label]="sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+            <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Search -->
+      <div class="search-wrap">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="currentColor" width="15" height="15">
+          <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <input type="text" class="search-input"
+               placeholder="Search name, locality, district, PIN…"
+               [value]="searchQuery"
+               (input)="onSearchChange($any($event.target).value)"
+               autocomplete="off"
+               aria-label="Search properties">
+        <button class="search-clear" *ngIf="searchQuery"
+                (click)="onSearchChange('')" aria-label="Clear search">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Filter chips header -->
+      <div class="filter-section-label">Filters</div>
+
+      <div class="filter-grid">
+        <div class="filter-field">
+          <label class="filter-label">District</label>
+          <select class="filter-select" [(ngModel)]="selectedDistrict" (change)="applyFilters()">
+            <option value="">All Districts</option>
+            <option *ngFor="let d of districts" [value]="d">{{ d }}</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label class="filter-label">Status</label>
+          <select class="filter-select" [(ngModel)]="selectedStatus" (change)="applyFilters()">
+            <option value="">All Statuses</option>
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label class="filter-label">Type</label>
+          <select class="filter-select" [(ngModel)]="selectedType" (change)="applyFilters()">
+            <option value="">All Types</option>
+            <option *ngFor="let t of types" [value]="t">{{ t }}</option>
+          </select>
+        </div>
+
+        <div class="filter-field">
+          <label class="filter-label">Sort by</label>
+          <select class="filter-select" [(ngModel)]="sortBy" (change)="applyFilters()">
+            <option value="name">Name (A–Z)</option>
+            <option value="district">District</option>
+            <option value="status">Status</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Active filter chips -->
+      <div class="active-chips" *ngIf="hasActiveFilters">
+        <button class="chip chip-active" *ngIf="selectedDistrict" (click)="selectedDistrict=''; applyFilters()">
+          {{ selectedDistrict }} ×
+        </button>
+        <button class="chip chip-active" *ngIf="selectedStatus" (click)="selectedStatus=''; applyFilters()">
+          {{ selectedStatus }} ×
+        </button>
+        <button class="chip chip-active" *ngIf="selectedType" (click)="selectedType=''; applyFilters()">
+          {{ selectedType }} ×
+        </button>
+        <button class="chip chip-active" *ngIf="searchQuery" (click)="onSearchChange('')">
+          "{{ searchQuery }}" ×
+        </button>
+        <button class="chip chip-clear" (click)="clearFilters()">Clear all</button>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="sidebar-toolbar">
+        <button class="toolbar-btn" (click)="flyToAll()" title="Fit all markers">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+            <path d="M15 3l2.3 2.3-2.89 2.87 1.42 1.42L18.7 6.7 21 9V3zM3 9l2.3-2.3 2.87 2.89 1.42-1.42L6.7 5.3 9 3H3zm6 12l-2.3-2.3 2.89-2.87-1.42-1.42L5.3 17.3 3 15v6zm12-6l-2.3 2.3-2.87-2.89-1.42 1.42 2.89 2.87L15 21h6z"/>
+          </svg>
+          Fit All
+        </button>
+        <span class="toolbar-divider"></span>
+        <span class="toolbar-count">{{ filteredProperties.length }} results</span>
+      </div>
+    </div>
+
+    <!-- ── Property List ── -->
+    <div class="property-list">
+
+      <div class="empty-state" *ngIf="filteredProperties.length === 0 && !dataLoading && !geocoding">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="44" height="44">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+        </svg>
+        <p>No properties match your filters</p>
+        <button class="toolbar-btn" (click)="clearFilters()">Reset Filters</button>
+      </div>
+
+      <!-- Loading skeleton -->
+      <ng-container *ngIf="dataLoading">
+        <div class="skeleton-card" *ngFor="let i of [1,2,3,4,5,6]">
+          <div class="skel skel-avatar"></div>
+          <div class="skel-body">
+            <div class="skel skel-line skel-line-lg"></div>
+            <div class="skel skel-line skel-line-sm"></div>
+          </div>
+        </div>
+      </ng-container>
+
+      <div
+        *ngFor="let p of filteredProperties; trackBy: trackById"
+        class="property-card"
+        [class.selected]="selectedProperty?.id === p.id"
+        [id]="'prop-' + p.id"
+        (click)="flyToProperty(p, $event)"
+        role="button"
+        [attr.aria-label]="'View ' + (p['Project Name'] || 'property') + ' on map'"
+        tabindex="0"
+        (keydown.enter)="flyToProperty(p, $event)"
+        (keydown.space)="flyToProperty(p, $event)">
+
+        <!-- Pin color indicator -->
+        <div class="prop-pin-bar" [ngStyle]="{'background': getStatusColor(p['Project Status'])}"></div>
+
+        <div class="prop-avatar" [class]="getAvatarClass(p)">
+          {{ getProjectInitial(p) }}
+        </div>
+
+        <div class="prop-info">
+          <div class="prop-name" [title]="p['Project Name'] || ''">
+            {{ p['Project Name'] || 'Unnamed Project' }}
+          </div>
+          <div class="prop-location">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10" style="flex-shrink:0">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            </svg>
+            <span class="loc-text">
+              {{ p['Locality'] || p['Village/City/Town'] || p['Mandal'] || '—' }}
+              <span *ngIf="p['District']">, {{ p['District'] }}</span>
+            </span>
+          </div>
+          <div class="prop-meta-row">
+            <span class="prop-status" [class]="getStatusClass(p['Project Status'])">
+              {{ p['Project Status'] || 'Unknown' }}
+            </span>
+            <span class="prop-type" *ngIf="p['Project Type']">{{ p['Project Type'] }}</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="prop-actions">
+          <button class="prop-action-btn" title="Zoom to location"
+                  (click)="flyToProperty(p, $event)">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            </svg>
+          </button>
+          <a [routerLink]="['/property', p.id]" class="prop-action-btn prop-action-link"
+             title="View full details"
+             (click)="$event.stopPropagation()">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+              <path d="M10 17l5-5-5-5v10z"/>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Legend ── -->
+    <div class="sidebar-legend">
+      <span class="legend-title">Pin Guide</span>
+      <div class="legend-items">
+        <div class="legend-item">
+          <span class="legend-dot" style="background:#10b981"></span> Completed
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:#3b82f6"></span> Ongoing
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:#f59e0b"></span> New
+        </div>
+        <div class="legend-item">
+          <span class="legend-dot" style="background:#18215c"></span> Other
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Sidebar collapsed tab ── -->
+  <button class="sidebar-expand-tab" *ngIf="!sidebarOpen" (click)="toggleSidebar()"
+          aria-label="Open property list">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+      <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/>
+    </svg>
+    <span>{{ filteredProperties.length }} Properties</span>
+  </button>
+
+  <!-- ════════════════════════════════════════════════════════
+       MAP PANEL
+       ════════════════════════════════════════════════════════ -->
+  <div class="map-panel">
+
+    <!-- Map container -->
+    <div id="map-container" class="map-container"></div>
+
+    <!-- ── Location permission banner ── -->
+    <div class="location-banner" *ngIf="locationState === 'prompt'">
+      <div class="lb-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+        </svg>
+      </div>
+      <div class="lb-text">
+        <strong>Show properties near you?</strong>
+        <span>We'll zoom to your city — no data is stored.</span>
+      </div>
+      <div class="lb-actions">
+        <button class="lb-btn lb-allow" (click)="requestLocation()">
+          Allow Location
+        </button>
+        <button class="lb-btn lb-dismiss" (click)="dismissLocation()">
+          Not now
+        </button>
+      </div>
+    </div>
+
+    <!-- Requesting spinner -->
+    <div class="location-banner lb-requesting" *ngIf="locationState === 'requesting'">
+      <div class="lb-spinner"></div>
+      <span>Detecting your location…</span>
+    </div>
+
+    <!-- Granted confirmation -->
+    <div class="location-banner lb-granted" *ngIf="locationState === 'granted'">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+      </svg>
+      <span>Showing properties near <strong>{{ userCity }}</strong></span>
+      <button class="lb-close" (click)="locationState = 'denied'" aria-label="Dismiss">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+          <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- ── Top bar: style switcher + stats ── -->
+    <div class="map-top-bar">
+      <div class="map-stats-chip">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+          <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+        </svg>
+        <span *ngIf="!geocoding">{{ filteredProperties.length }} properties mapped</span>
+        <span *ngIf="geocoding">{{ mappedProperties.length }} placed · {{ geocodingProgress }}/{{ geocodingTotal }} located</span>
+      </div>
+
+      <div class="style-switcher" role="group" aria-label="Map style">
+        <button class="style-btn" [class.active]="activeStyle === 'street'"
+                (click)="setStyle('street')">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
+          Street
+        </button>
+        <button class="style-btn" [class.active]="activeStyle === 'satellite'"
+                (click)="setStyle('satellite')">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/></svg>
+          Satellite
+        </button>
+        <button class="style-btn" [class.active]="activeStyle === 'dark'"
+                (click)="setStyle('dark')">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9c0-.46-.04-.92-.1-1.36-.98 1.37-2.58 2.26-4.4 2.26-2.98 0-5.4-2.42-5.4-5.4 0-1.81.89-3.42 2.26-4.4-.44-.06-.9-.1-1.36-.1z"/></svg>
+          Dark
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Hint bar (shows before any property is loaded) ── -->
+    <div class="map-hint" *ngIf="!dataLoading && !geocoding && filteredProperties.length > 0 && !selectedProperty">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+      </svg>
+      Click a pin to see details · Double-click to open property page
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Schedule Visit Modal — triggered from map popup -->
+<app-schedule-visit-modal
+  *ngIf="showVisitModal"
+  [projectName]="visitProjectName"
+  [projectId]="visitProjectId"
+  (closed)="showVisitModal = false">
+</app-schedule-visit-modal>

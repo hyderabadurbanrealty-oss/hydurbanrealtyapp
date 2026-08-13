@@ -1,0 +1,31 @@
+<div class="auth-page">
+  <div class="auth-card" style="text-align:center">
+    <div class="auth-logo">
+      <a routerLink="/"><img src="assets/blue-Logo.png" alt="Hyderabad Urban Realty" class="auth-logo-img"></a>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="status === 'loading'" style="padding:24px 0">
+      <span class="spinner" style="width:32px;height:32px;border-width:3px;border-color:rgba(24,33,92,0.2);border-top-color:var(--primary)"></span>
+      <p style="margin-top:16px;color:#64748b">Verifying your email…</p>
+    </div>
+
+    <!-- Success -->
+    <div *ngIf="status === 'success'" class="success-box">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      <h3>Email Verified!</h3>
+      <p>Your email address has been verified. You can now access all features.</p>
+      <a [routerLink]="['/login']" class="btn-primary full-width mt-16">Sign In</a>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="status === 'error'">
+      <div style="color:#ef4444;margin-bottom:16px">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      </div>
+      <h3 class="auth-title" style="color:#dc2626">Verification Failed</h3>
+      <p style="color:#374151;margin-bottom:24px">{{ errorMessage }}</p>
+      <a [routerLink]="['/login']" class="btn-secondary full-width" style="margin-bottom:12px">Sign In</a>
+    </div>
+  </div>
+</div>

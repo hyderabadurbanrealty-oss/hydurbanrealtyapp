@@ -1,0 +1,376 @@
+<!-- Toast -->
+<div class="home-toast" *ngIf="toastMessage" [class]="'home-toast toast-' + toastType">
+  <svg *ngIf="toastType==='success'" viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+  <svg *ngIf="toastType==='error'"   viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+  <svg *ngIf="toastType==='info'"    viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+  {{ toastMessage }}
+</div>
+
+<!-- Compare Panel (bottom sheet) -->
+<div class="home-compare-panel" [class.open]="showComparePanel">
+  <div class="cp-header">
+    <div class="cp-title">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M10 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h5v2h2V1h-2v2zm0 15H5l5-6v6zm9-15h-5v2h5v13l-5-6v6h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+      Compare
+      <span class="cp-badge">{{ compareList.length }}/{{ COMPARE_MAX }}</span>
+    </div>
+    <button class="cp-clear" (click)="compareService.clear()" title="Clear all">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+  </div>
+  <div class="cp-items">
+    <div *ngFor="let p of compareList" class="cp-item">
+      <div class="cp-thumb">
+        <img *ngIf="getThumbnail(p)" [src]="getThumbnail(p)" [alt]="getCompareItemName(p)" (error)="$any($event.target).style.display='none'" />
+        <svg *ngIf="!getThumbnail(p)" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+      </div>
+      <div class="cp-info">
+        <div class="cp-name">{{ getCompareItemName(p) }}</div>
+        <div class="cp-loc">{{ getCompareItemLocation(p) }}</div>
+      </div>
+      <button class="cp-remove" (click)="removeFromCompare(p, $event)">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+      </button>
+    </div>
+    <div *ngFor="let s of getCompareSlots()" class="cp-item cp-item-empty">
+      <div class="cp-thumb" style="background:#f3f4f6; color:#d1d5db;">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+      </div>
+      <div class="cp-info"><div class="cp-name" style="opacity:0.4;font-style:italic">Add a property</div></div>
+    </div>
+  </div>
+  <div class="cp-footer">
+    <button class="btn-compare-now" [disabled]="compareList.length < 2" (click)="goToComparePage()">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+      Compare Now
+      <span *ngIf="compareList.length < 2" class="btn-compare-hint">({{ 2 - compareList.length }} more needed)</span>
+    </button>
+  </div>
+</div>
+
+<!-- Hero Section with Map Component -->
+<app-map [properties]="properties" [pulse]="pulseMap" [searchTerm]="q" (pick)="onPick($event)" (search)="onSearch($event)"></app-map>
+
+<!-- Featured Properties Section -->
+<section id="featured" class="featured-section">
+  <div class="container">
+    <div class="section-header">
+      <h2 class="section-title-main">Featured RERA Properties</h2>
+      <p class="section-subtitle">Explore verified real estate projects in Hyderabad</p>
+    </div>
+
+    <!-- Filters -->
+    <div class="property-filters">
+      <div class="filter-left">
+        <div class="search-wrapper-featured">
+          <input type="text" placeholder="Search by name, location, type, or status" [(ngModel)]="q" (input)="filter()" class="search-input-featured" />
+          <button class="clear-btn-featured" *ngIf="q" (click)="clearSearch()" title="Clear search">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+              <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="filter-right">
+        <select [(ngModel)]="sortBy" (change)="sortProperties()" class="sort-select-featured">
+          <option value="name">Sort: Name</option>
+          <option value="area">Sort: Area (Largest)</option>
+          <option value="date">Sort: Date (Newest)</option>
+        </select>
+        <div class="results-count">{{filtered.length}} Properties</div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading properties...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-state">
+      {{error}}
+    </div>
+
+    <!-- Property Grid -->
+    <div class="property-grid" *ngIf="!loading && !error">
+      <div *ngFor="let p of filtered.slice(0, 6)"
+           class="property-card-modern"
+           [class.in-compare]="isInCompare(p)"
+           (click)="openDetails(p)">
+
+        <!-- Image zone -->
+        <div class="property-image">
+          <img *ngIf="getThumbnail(p)"
+               [src]="getThumbnail(p)"
+               [alt]="p['Project Name']"
+               class="prop-thumb-img"
+               loading="lazy"
+               (error)="$any($event.target).style.display='none'" />
+          <div class="image-placeholder" [class.has-img]="getThumbnail(p)">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+          </div>
+          <div *ngIf="p['Project Status']" class="status-badge-overlay"
+               [ngClass]="getStatusBadgeClass(p['Project Status'])">
+            {{ getStatusLabel(p['Project Status']) }}
+          </div>
+          <div class="photo-pill" *ngIf="getThumbnail(p)">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="10" height="10"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+            Photos
+          </div>
+          <!-- Quick actions overlay -->
+          <div class="card-quick-actions" (click)="$event.stopPropagation()">
+            <button class="qbtn fav-btn" [class.active]="isFavorite(p)"
+                    (click)="toggleFavorite(p, $event)"
+                    [title]="isFavorite(p) ? 'Remove from favorites' : 'Add to favorites'">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">
+                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+              </svg>
+            </button>
+            <button class="qbtn cmp-btn" [class.active]="isInCompare(p)"
+                    [class.disabled]="!isInCompare(p) && !compareService.canAdd()"
+                    (click)="toggleCompare(p, $event)"
+                    [title]="isInCompare(p) ? 'Remove from compare' : 'Add to compare'">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">
+                <path d="M10 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h5v2h2V1h-2v2zm0 15H5l5-6v6zm9-15h-5v2h5v13l-5-6v6h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="property-content">
+          <div class="card-title-row">
+            <h3 class="property-title">{{p['Project Name'] || 'Untitled Project'}}</h3>
+            <span *ngIf="p['Project Type']" class="type-tag">{{p['Project Type']}}</span>
+          </div>
+          <div class="property-location-text">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
+            </svg>
+            {{p['Locality'] || p['locality'] || p['Village/City/Town'] || 'N/A'}}, {{p['District'] || p['district'] || 'N/A'}}
+          </div>
+
+          <div class="property-rating" *ngIf="p.averageRating">
+            <span class="rating-stars">
+              <span *ngFor="let i of [1,2,3,4,5]" class="star" [class.filled]="i <= Math.round(p.averageRating)">★</span>
+            </span>
+            <span class="rating-value">{{p.averageRating}}</span>
+            <span class="rating-count" *ngIf="p.totalReviews">({{p.totalReviews}})</span>
+          </div>
+
+          <div class="property-meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">Area</span>
+              <span class="meta-value">{{formatArea(p['Total Area(In sqmts)'])}}</span>
+            </div>
+            <div class="meta-item" *ngIf="p['Plan Approval Number']">
+              <span class="meta-value rera-tag">✓ RERA</span>
+            </div>
+          </div>
+
+          <!-- CTA row -->
+          <div class="card-cta-row">
+            <button class="btn-view-details" (click)="openDetails(p); $event.stopPropagation()">
+              View Details
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+              </svg>
+            </button>
+            <button class="btn-whatsapp" (click)="openEnquiry(p, $event)"
+                    [title]="auth.isLoggedIn() ? 'WhatsApp enquiry' : 'Login to enquire'">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">
+                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+              </svg>
+              {{ auth.isLoggedIn() ? 'Enquire' : 'Login' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Compare active bar -->
+        <div class="compare-active-bar" *ngIf="isInCompare(p)">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          In Compare
+        </div>
+      </div>
+    </div>
+
+    <div class="view-all-container" *ngIf="!loading && !error && filtered.length > 6">
+      <button class="btn-view-all" (click)="viewAllProperties()">
+        View All {{filtered.length}} Properties
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- District Density Visualization Section -->
+<section class="district-density-section" *ngIf="!loading && !error">
+  <div class="container">
+    <div class="locality-section-header">
+      <div class="locality-header-left">
+        <span class="locality-eyebrow">RERA Verified Data</span>
+        <h2 class="locality-title">Property Distribution by Locality</h2>
+        <p class="locality-subtitle">RERA project density across Hyderabad localities</p>
+      </div>
+      <div class="locality-header-right">
+        <div class="locality-legend">
+          <div class="ll-item">
+            <span class="ll-dot ll-high"></span>
+            <span>High Density (10+)</span>
+          </div>
+          <div class="ll-item">
+            <span class="ll-dot ll-medium"></span>
+            <span>Medium (5–9)</span>
+          </div>
+          <div class="ll-item">
+            <span class="ll-dot ll-low"></span>
+            <span>Low (1–4)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="locality-grid">
+      <div *ngFor="let district of districtData; let i = index"
+           class="lc"
+           [class.lc-high]="district.count >= 10"
+           [class.lc-medium]="district.count >= 5 && district.count < 10"
+           [class.lc-low]="district.count < 5"
+           (click)="exploreLocality(district.name)"
+           role="button"
+           [attr.aria-label]="'Explore ' + district.name">
+
+        <!-- Density accent bar -->
+        <div class="lc-accent-bar"></div>
+
+        <div class="lc-body">
+          <!-- Header row: rank + name -->
+          <div class="lc-header">
+            <span class="lc-rank">#{{i + 1}}</span>
+            <div class="lc-density-pill"
+                 [class.lc-pill-high]="district.count >= 10"
+                 [class.lc-pill-medium]="district.count >= 5 && district.count < 10"
+                 [class.lc-pill-low]="district.count < 5">
+              <span *ngIf="district.count >= 10">High</span>
+              <span *ngIf="district.count >= 5 && district.count < 10">Medium</span>
+              <span *ngIf="district.count < 5">Low</span>
+            </div>
+          </div>
+
+          <!-- Locality name -->
+          <h3 class="lc-name">{{district.name}}</h3>
+
+          <!-- Key metrics row -->
+          <div class="lc-metrics">
+            <div class="lc-metric">
+              <div class="lc-metric-value">{{district.count}}</div>
+              <div class="lc-metric-label">Projects</div>
+            </div>
+            <div class="lc-metric-divider"></div>
+            <div class="lc-metric">
+              <div class="lc-metric-value lc-pct">{{district.percentage}}%</div>
+              <div class="lc-metric-label">Share</div>
+            </div>
+            <div class="lc-metric-divider" *ngIf="district.totalArea"></div>
+            <div class="lc-metric" *ngIf="district.totalArea">
+              <div class="lc-metric-value lc-area">{{formatAreaInKm(district.totalArea)}}</div>
+              <div class="lc-metric-label">km² Area</div>
+            </div>
+          </div>
+
+          <!-- Bar indicator -->
+          <div class="lc-bar-track">
+            <div class="lc-bar-fill" [style.width]="district.percentage + '%'"></div>
+          </div>
+
+          <!-- Explore CTA -->
+          <button class="lc-explore-btn" (click)="exploreLocality(district.name); $event.stopPropagation()">
+            Explore Projects
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+              <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- Details Drawer -->
+<div class="drawer" [class.open]="drawerOpen">
+  <div class="drawer-inner">
+    <button class="drawer-close" (click)="closeDrawer()">✕</button>
+    <ng-container *ngIf="selected">
+      <div class="drawer-header">
+        <div class="property-thumbnail-large">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+            <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+          </svg>
+        </div>
+        <div style="flex:1">
+          <h3 style="margin:0;color:var(--primary);font-size:20px">{{selected['Project Name']}}</h3>
+          <div class="drawer-location">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+            </svg>
+            {{selected['Locality'] || selected['Village/City/Town']}}, {{selected['District']}}
+          </div>
+          <div *ngIf="selected['Project Status']" class="status-badge" [ngClass]="getStatusBadgeClass(selected['Project Status'])" style="margin-top:8px;display:inline-block">
+            {{selected['Project Status']}}
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-section">
+        <h4 class="section-title">Project Overview</h4>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Type</div>
+            <div class="info-value">{{selected['Project Type'] || 'N/A'}}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Total Area</div>
+            <div class="info-value">{{formatArea(selected['Total Area(In sqmts)'])}}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Net Area</div>
+            <div class="info-value">{{formatArea(selected['Net Area(In sqmts)'])}}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Built-up Area</div>
+            <div class="info-value">{{formatArea(selected['Approved Built up Area (In Sqmts)'])}}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="drawer-actions">
+        <button class="btn btn-primary" style="flex:1" (click)="navigateToDetails(selected.id)">
+          Full Details
+        </button>
+        <button class="btn btn-secondary" (click)="closeDrawer()">Close</button>
+      </div>
+    </ng-container>
+    
+    <!-- All Properties List View -->
+    <ng-container *ngIf="!selected">
+      <h3 style="margin:0 0 20px;color:var(--primary)">All Properties ({{filtered.length}})</h3>
+      <div class="drawer-properties-list">
+        <div *ngFor="let p of filtered" class="drawer-property-card" (click)="selected = p">
+          <strong class="property-name">{{p['Project Name'] || 'Untitled Project'}}</strong>
+          <div class="property-location">{{p['Locality'] || p['Village/City/Town'] || 'N/A'}}, {{p['District'] || 'N/A'}}</div>
+          <div class="property-meta-row">
+            <span>{{formatArea(p['Total Area(In sqmts)'])}}</span>
+            <span>•</span>
+            <span>{{p['Project Type'] || 'N/A'}}</span>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+</div>
+
+<!-- Sticky contact bar REMOVED — replaced by floating action buttons in app shell -->
+

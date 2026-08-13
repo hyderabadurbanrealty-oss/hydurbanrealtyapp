@@ -1,0 +1,798 @@
+/* ════════════════════════════════════════════════════════
+   FINANCING CALCULATOR
+   Design language: professional advisory tool
+   Palette: near-white canvas · ink typography · single
+   blue accent · no gradients in content areas
+   ════════════════════════════════════════════════════════ */
+
+:host { display: block; }
+
+/* ── Page wrapper ──────────────────────────────────────── */
+.lc-page {
+  background: #f7f8fa;
+  min-height: 100vh;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #1a202c;
+}
+
+/* ── Page header ───────────────────────────────────────── */
+.lc-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e8ecf2;
+}
+
+.lc-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 32px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  padding-top: 36px;
+  padding-bottom: 24px;
+}
+
+.lc-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #596475;
+  margin-bottom: 10px;
+}
+.lc-breadcrumb a { color: #596475; text-decoration: none; }
+.lc-breadcrumb a:hover { color: #1a202c; }
+.lc-breadcrumb span { color: #596475; }
+
+.lc-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0d1f3c;
+  margin: 0 0 6px;
+  letter-spacing: -0.4px;
+}
+
+.lc-subtitle {
+  font-size: 14px;
+  color: #4a5568;
+  margin: 0;
+}
+
+/* Header stats — understated */
+.lc-header-stats {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  border: 1px solid #e8ecf2;
+  border-radius: 8px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.lc-stat {
+  padding: 10px 20px;
+  text-align: center;
+}
+
+.lc-stat-val {
+  display: block;
+  font-size: 18px;
+  font-weight: 700;
+  color: #0d1f3c;
+  line-height: 1.1;
+}
+
+.lc-stat-lbl {
+  display: block;
+  font-size: 11px;
+  color: #596475;
+  margin-top: 3px;
+  white-space: nowrap;
+}
+
+.lc-stat-sep {
+  width: 1px;
+  height: 36px;
+  background: #e8ecf2;
+}
+
+/* Mode tabs */
+.lc-tabs-row {
+  padding-top: 0;
+  padding-bottom: 0;
+  border-top: 1px solid #f1f5f9;
+}
+
+.lc-tabs {
+  display: flex;
+  gap: 0;
+}
+
+.lc-tab {
+  padding: 14px 22px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4a5568;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+}
+
+.lc-tab:hover { color: #0d1f3c; }
+
+.lc-tab.active {
+  color: #0d3b73;
+  border-bottom-color: #0d3b73;
+}
+
+.lc-tab-tag {
+  font-size: 10px;
+  font-weight: 700;
+  background: #e0f0ff;
+  color: #0d3b73;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Workspace ─────────────────────────────────────────── */
+.lc-workspace {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 32px 0;
+}
+
+/* Two-column layout: panel | results */
+.lc-layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* NRI has country row above the grid */
+.lc-nri-wrap { display: flex; flex-direction: column; gap: 16px; }
+
+/* ── Panel (inputs side) ───────────────────────────────── */
+.lc-panel {
+  background: #ffffff;
+  border: 1px solid #e8ecf2;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.lc-panel-section { padding: 24px; }
+
+.lc-panel-divider {
+  height: 1px;
+  background: #f1f5f9;
+}
+
+.lc-section-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: #596475;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 18px;
+}
+
+.lc-panel-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.lc-panel-title-row .lc-section-label { margin-bottom: 0; }
+
+.lc-scheme-tag {
+  font-size: 11px;
+  font-weight: 700;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* ── Form fields ───────────────────────────────────────── */
+.lc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 20px;
+}
+.lc-field:last-child { margin-bottom: 0; }
+
+.lc-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lc-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.lc-live-val {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0d3b73;
+}
+
+/* Input with currency symbol */
+.lc-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.lc-sym {
+  position: absolute;
+  left: 11px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #596475;
+  pointer-events: none;
+  z-index: 1;
+  line-height: 1;
+}
+
+.lc-input {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #0d1f3c;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -moz-appearance: textfield;
+}
+.lc-input::-webkit-outer-spin-button,
+.lc-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.lc-input:focus {
+  border-color: #0d3b73;
+  box-shadow: 0 0 0 3px rgba(13,59,115,0.07);
+}
+
+/* Currency symbol pushes text right */
+.lc-input-sym { padding-left: 28px; }
+
+/* Slider */
+.lc-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 3px;
+  border-radius: 3px;
+  background: #e2e8f0;
+  outline: none;
+  cursor: pointer;
+}
+.lc-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #0d3b73;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(13,59,115,0.3);
+  cursor: pointer;
+}
+.lc-slider-a::-webkit-slider-thumb { background: #0d3b73; }
+.lc-slider-b::-webkit-slider-thumb { background: #b45309; }
+.lc-slider-c::-webkit-slider-thumb { background: #15803d; }
+
+.lc-slider-ends {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: #596475;
+}
+
+.lc-meta {
+  font-size: 11px;
+  color: #596475;
+  line-height: 1.4;
+}
+
+/* Property-value apply button */
+.lc-set-btn {
+  width: 100%;
+  padding: 9px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0d3b73;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+.lc-set-btn:hover { background: #eff6ff; border-color: #bfdbfe; }
+
+.lc-row-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── Results panel ─────────────────────────────────────── */
+.lc-results {
+  background: #ffffff;
+  border: 1px solid #e8ecf2;
+  border-radius: 10px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Primary output row */
+.lc-output-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 32px;
+  align-items: start;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.lc-output-primary { display: flex; flex-direction: column; gap: 4px; }
+
+.lc-output-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #596475;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.lc-output-value {
+  font-size: 40px;
+  font-weight: 800;
+  color: #0d1f3c;
+  line-height: 1;
+  letter-spacing: -1.5px;
+}
+
+.lc-output-sub {
+  font-size: 12px;
+  color: #596475;
+}
+
+/* Key-value pairs */
+.lc-output-secondary { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+
+.lc-kv {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f8fafc;
+}
+.lc-kv:last-child { border-bottom: none; }
+
+.lc-kv-k { font-size: 12px; color: #4a5568; font-weight: 500; }
+.lc-kv-v { font-size: 13px; font-weight: 700; color: #0d1f3c; }
+.lc-kv-warn .lc-kv-v, .lc-kv-v.lc-kv-warn { color: #b45309; }
+.lc-kv-total { border-top: 1px solid #e8ecf2; padding-top: 10px; margin-top: 4px; }
+.lc-kv-total .lc-kv-k { font-weight: 700; color: #0d1f3c; }
+.lc-kv-total .lc-kv-v { font-size: 15px; }
+
+/* Chart row — donut + legend */
+.lc-chart-row {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.lc-donut-wrap {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+}
+
+.lc-donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+.lc-donut-pct { display: block; font-size: 22px; font-weight: 800; color: #0d1f3c; line-height: 1; }
+.lc-donut-sub { display: block; font-size: 10px; color: #596475; margin-top: 2px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+
+.lc-donut-legend { display: flex; flex-direction: column; gap: 16px; flex: 1; }
+
+.lc-legend-item { display: flex; align-items: flex-start; gap: 10px; }
+.lc-legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; margin-top: 2px; }
+.lc-dot-primary  { background: #0d3b73; }
+.lc-dot-interest { background: #b45309; }
+.lc-dot-free     { background: #e2e8f0; }
+.lc-legend-label { font-size: 12px; color: #4a5568; font-weight: 500; }
+.lc-legend-val   { font-size: 13px; font-weight: 700; color: #0d1f3c; margin-top: 1px; }
+
+/* Amortisation */
+.lc-amort-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.lc-amort-header .lc-section-label { margin-bottom: 0; flex: 1; }
+
+.lc-toggle-pair {
+  display: flex;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  overflow: hidden;
+}
+.lc-toggle-pair button {
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  border: none;
+  background: #fff;
+  color: #596475;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.lc-toggle-pair button.on { background: #0d3b73; color: #fff; }
+
+.lc-amort-toggle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0d3b73;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.lc-amort-toggle:hover { text-decoration: underline; }
+
+.lc-amort-body { border-top: 1px solid #f1f5f9; padding-top: 16px; }
+.lc-amort-chart { height: 220px; }
+
+/* Table — shared */
+.lc-table-wrap { max-height: 340px; overflow-y: auto; }
+.lc-table, .lc-cmp-table, .lc-data-table, .lc-rates-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.lc-table th, .lc-cmp-table th, .lc-rates-table th {
+  text-align: left;
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #596475;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  border-bottom: 1px solid #e8ecf2;
+  background: #f8fafc;
+  position: sticky;
+  top: 0;
+}
+.lc-table td, .lc-cmp-table td, .lc-rates-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #374151;
+  font-weight: 500;
+}
+.lc-table tr:last-child td,
+.lc-cmp-table tr:last-child td,
+.lc-rates-table tr:last-child td { border-bottom: none; }
+.lc-td-yr { font-weight: 700; color: #0d1f3c; }
+.lc-td-p  { color: #0d3b73; font-weight: 600; }
+.lc-td-i  { color: #b45309; font-weight: 600; }
+
+/* Affordability */
+.lc-ineligible {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 7px;
+  font-size: 13px;
+  color: #92400e;
+}
+
+.lc-util-section { display: flex; flex-direction: column; gap: 12px; }
+.lc-util-bar {
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  display: flex;
+  overflow: hidden;
+}
+.lc-util-seg { height: 100%; transition: width 0.3s ease; }
+.lc-util-existing { background: #0d3b73; }
+.lc-util-new      { background: #b45309; opacity: 0.7; }
+.lc-util-legend   { display: flex; flex-direction: column; gap: 8px; }
+
+/* ── NRI ───────────────────────────────────────────────── */
+.lc-country-row { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.lc-country-btn {
+  padding: 6px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 5px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a5568;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.lc-country-btn:hover { border-color: #93c5fd; color: #0d3b73; }
+.lc-country-btn.active {
+  background: #0d3b73;
+  border-color: #0d3b73;
+  color: #fff;
+}
+
+.lc-nri-note {
+  font-size: 13px;
+  color: #374151;
+  background: #f8fafc;
+  border: 1px solid #e8ecf2;
+  border-radius: 6px;
+  padding: 12px 16px;
+  line-height: 1.5;
+}
+
+/* Forex converter */
+.lc-forex-block {
+  background: #f8fafc;
+  border: 1px solid #e8ecf2;
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.lc-forex-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 600;
+  color: #0d3b73;
+  cursor: pointer;
+  text-align: left;
+}
+.lc-forex-rate-tag {
+  margin-left: auto;
+  font-size: 11px;
+  color: #596475;
+  font-weight: 500;
+}
+.lc-forex-body {
+  padding: 10px 14px 12px;
+  border-top: 1px solid #e8ecf2;
+}
+.lc-forex-row { display: flex; align-items: center; gap: 12px; }
+.lc-forex-result {
+  font-size: 15px;
+  font-weight: 700;
+  color: #0d1f3c;
+  white-space: nowrap;
+}
+
+/* Compliance table inside panel */
+.lc-data-table td {
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 12px;
+}
+.lc-data-table td:first-child { color: #4a5568; }
+.lc-data-table td:last-child { font-weight: 700; color: #0d1f3c; text-align: right; }
+.lc-data-table tr:last-child td { border-bottom: none; }
+
+.lc-compliance-note {
+  font-size: 11px;
+  color: #596475;
+  line-height: 1.5;
+  margin-top: 10px;
+  margin-bottom: 0;
+}
+
+/* Eligibility checklist */
+.lc-checklist-block { display: flex; flex-direction: column; gap: 10px; }
+.lc-checklist {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.lc-checklist li {
+  padding: 8px 0 8px 22px;
+  position: relative;
+  font-size: 13px;
+  color: #374151;
+  border-bottom: 1px solid #f1f5f9;
+}
+.lc-checklist li:last-child { border-bottom: none; }
+.lc-checklist li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: #15803d;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+/* ── Lender compare ────────────────────────────────────── */
+.lc-cmp-table-wrap { overflow-x: auto; }
+
+.lc-cmp-best-row td { background: #f0f7ff; }
+.lc-cmp-best-row .lc-cmp-lender { font-weight: 700; color: #0d3b73; }
+
+.lc-cmp-lender { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+.lc-best-tag {
+  font-size: 10px;
+  font-weight: 700;
+  background: #0d3b73;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
+.lc-cmp-rate-cell { color: #4a5568; font-weight: 600; }
+.lc-cmp-emi-cell  { font-weight: 700; color: #0d1f3c; font-size: 14px; }
+
+.lc-cmp-diff { color: #b45309; font-weight: 600; font-size: 12px; }
+.lc-cmp-diff-zero { color: #596475; }
+
+/* EMI bar chart */
+.lc-cmp-bars { display: flex; flex-direction: column; gap: 10px; padding-top: 4px; }
+.lc-cmp-bar-row { display: flex; align-items: center; gap: 10px; }
+.lc-cmp-bar-lbl { font-size: 12px; font-weight: 600; color: #4a5568; width: 60px; flex-shrink: 0; }
+.lc-cmp-bar-track {
+  flex: 1;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.lc-cmp-bar-fill {
+  height: 100%;
+  background: #cbd5e1;
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+.lc-cmp-bar-best { background: #0d3b73; }
+.lc-cmp-bar-val { font-size: 12px; font-weight: 700; color: #0d1f3c; white-space: nowrap; }
+
+/* ── Lender rate reference ─────────────────────────────── */
+.lc-rates-section {
+  max-width: 1200px;
+  margin: 32px auto 0;
+  padding: 0 32px 32px;
+}
+
+.lc-rates-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+.lc-rates-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #0d1f3c;
+  margin: 0 0 4px;
+}
+.lc-rates-sub { font-size: 12px; color: #596475; margin: 0; }
+
+.lc-rates-table {
+  background: #fff;
+  border: 1px solid #e8ecf2;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.lc-rates-row {
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.lc-rates-row:hover { background: #f8fafc; }
+.lc-rates-row:hover .lc-apply-rate-btn { opacity: 1; }
+
+.lc-rates-bank {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #0d1f3c;
+}
+.lc-rates-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+.tag-psu  { background: #dbeafe; color: #1e40af; }
+.tag-pvt  { background: #fce7f3; color: #9d174d; }
+.tag-nbfc { background: #fef3c7; color: #92400e; }
+.tag-hfc  { background: #dcfce7; color: #166534; }
+
+.lc-rates-type  { color: #4a5568; font-size: 12px; }
+.lc-rates-floor { font-weight: 700; color: #15803d; }
+.lc-rates-ceil  { color: #b45309; }
+
+.lc-apply-rate-btn {
+  padding: 5px 14px;
+  background: #0d3b73;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s;
+}
+.lc-apply-rate-btn:hover { background: #0a2d5a; }
+.lc-rates-row:hover .lc-apply-rate-btn { opacity: 1; }
+
+.lc-rates-note {
+  font-size: 11px;
+  color: #596475;
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+/* ── Disclaimer ────────────────────────────────────────── */
+.lc-disclaimer {
+  max-width: 1200px;
+  margin: 0 auto 48px;
+  padding: 0 32px;
+  font-size: 11px;
+  color: #596475;
+  line-height: 1.6;
+  border-top: 1px solid #e8ecf2;
+  padding-top: 16px;
+}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media (max-width: 960px) {
+  .lc-layout { grid-template-columns: 1fr; }
+  .lc-header-stats { display: none; }
+  .lc-header-inner { padding: 24px 20px 20px; }
+  .lc-workspace, .lc-rates-section { padding-left: 16px; padding-right: 16px; }
+  .lc-disclaimer { padding-left: 16px; padding-right: 16px; }
+  .lc-row-2col { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .lc-title { font-size: 20px; }
+  .lc-output-value { font-size: 30px; }
+  .lc-output-row { grid-template-columns: 1fr; gap: 16px; }
+  .lc-tab { padding: 12px 14px; font-size: 12px; }
+  .lc-chart-row { flex-direction: column; align-items: flex-start; }
+  .lc-donut-wrap { width: 140px; height: 140px; }
+  .lc-country-row { gap: 6px; }
+  .lc-cmp-bar-lbl { width: 44px; font-size: 11px; }
+}

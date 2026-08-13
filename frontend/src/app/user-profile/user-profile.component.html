@@ -1,0 +1,185 @@
+<div class="up-page">
+
+  <!-- ── Page header ──────────────────────────────────── -->
+  <div class="up-header">
+    <div class="up-header-inner">
+      <div class="up-avatar">
+        {{ (user?.fullName || 'U')[0].toUpperCase() }}
+      </div>
+      <div class="up-identity">
+        <h1 class="up-name">{{ user?.fullName || '—' }}</h1>
+        <div class="up-email-row">
+          <span class="up-email">{{ user?.email }}</span>
+          <span class="up-verified" *ngIf="user?.isVerified">Verified</span>
+          <span class="up-unverified" *ngIf="user && !user.isVerified">Unverified</span>
+        </div>
+        <span class="up-since">Member since {{ user?.createdAt | date:'MMMM yyyy' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Tab bar ───────────────────────────────────────── -->
+  <div class="up-tabs-bar">
+    <div class="up-tabs-inner">
+      <button class="up-tab" [class.active]="activeTab==='profile'" (click)="activeTab='profile'">
+        Profile
+      </button>
+      <button class="up-tab" [class.active]="activeTab==='security'" (click)="activeTab='security'">
+        Security
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Body ─────────────────────────────────────────── -->
+  <div class="up-body">
+
+    <!-- ── PROFILE TAB ───────────────────────────────── -->
+    <div *ngIf="activeTab==='profile'" class="up-tab-content">
+
+      <div class="up-card">
+        <div class="up-card-head">
+          <span class="up-card-label">Personal information</span>
+        </div>
+
+        <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+          <div class="up-form-grid">
+            <div class="up-field">
+              <label class="up-label">Full name <span class="up-req">*</span></label>
+              <input type="text" formControlName="fullName" placeholder="Your full name"
+                     class="up-input" [class.up-invalid]="pf['fullName'].touched && pf['fullName'].invalid"
+                     autocomplete="name" />
+              <span class="up-err" *ngIf="pf['fullName'].touched && pf['fullName'].errors?.['required']">Required</span>
+              <span class="up-err" *ngIf="pf['fullName'].touched && pf['fullName'].errors?.['minlength']">Minimum 2 characters</span>
+            </div>
+
+            <div class="up-field">
+              <label class="up-label">Email address</label>
+              <input type="email" [value]="user?.email || ''" disabled class="up-input up-input-disabled" />
+              <span class="up-hint">Email cannot be changed</span>
+            </div>
+
+            <div class="up-field up-field-full">
+              <label class="up-label">Mobile number</label>
+              <input type="tel" formControlName="mobile" placeholder="10-digit mobile number"
+                     class="up-input" [class.up-invalid]="pf['mobile'].touched && pf['mobile'].invalid"
+                     autocomplete="tel" />
+              <span class="up-err" *ngIf="pf['mobile'].touched && pf['mobile'].errors?.['pattern']">Enter a valid 10-digit number</span>
+            </div>
+          </div>
+
+          <div class="up-form-feedback up-feedback-err" *ngIf="profileError">{{ profileError }}</div>
+          <div class="up-form-feedback up-feedback-ok"  *ngIf="profileSuccess">{{ profileSuccess }}</div>
+
+          <div class="up-form-actions">
+            <button type="submit" class="up-save-btn" [disabled]="profileLoading">
+              <span *ngIf="!profileLoading">Save changes</span>
+              <span *ngIf="profileLoading" class="up-spinner"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Quick links -->
+      <div class="up-quick-links">
+        <a routerLink="/saved-properties" class="up-quick-link">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/></svg>
+          Saved Properties
+          <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12" class="up-arrow"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </a>
+        <a routerLink="/favorites" class="up-quick-link">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          Favourites
+          <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12" class="up-arrow"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </a>
+        <a routerLink="/saved-searches" class="up-quick-link">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z"/></svg>
+          Saved Searches
+          <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12" class="up-arrow"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </a>
+      </div>
+
+      <!-- Danger zone -->
+      <div class="up-card up-danger-card">
+        <div class="up-card-head">
+          <span class="up-card-label up-danger-label">Danger zone</span>
+        </div>
+        <p class="up-danger-desc">
+          Permanently delete your account and all associated data — saved properties, favourites, and searches. This cannot be undone.
+        </p>
+        <button class="up-delete-btn" (click)="showDeleteConfirm = true">
+          Delete account
+        </button>
+      </div>
+
+    </div><!-- /profile tab -->
+
+    <!-- ── SECURITY TAB ──────────────────────────────── -->
+    <div *ngIf="activeTab==='security'" class="up-tab-content">
+
+      <div class="up-card">
+        <div class="up-card-head">
+          <span class="up-card-label">Change password</span>
+        </div>
+
+        <form [formGroup]="pwForm" (ngSubmit)="changePassword()" novalidate>
+          <div class="up-form-stack">
+            <div class="up-field">
+              <label class="up-label">Current password <span class="up-req">*</span></label>
+              <input type="password" formControlName="currentPassword" placeholder="Your current password"
+                     class="up-input" [class.up-invalid]="pwf['currentPassword'].touched && pwf['currentPassword'].invalid"
+                     autocomplete="current-password" />
+              <span class="up-err" *ngIf="pwf['currentPassword'].touched && pwf['currentPassword'].errors?.['required']">Required</span>
+            </div>
+            <div class="up-field">
+              <label class="up-label">New password <span class="up-req">*</span></label>
+              <input type="password" formControlName="newPassword" placeholder="Minimum 8 characters"
+                     class="up-input" [class.up-invalid]="pwf['newPassword'].touched && pwf['newPassword'].invalid"
+                     autocomplete="new-password" />
+              <span class="up-err" *ngIf="pwf['newPassword'].touched && pwf['newPassword'].errors?.['minlength']">Minimum 8 characters</span>
+            </div>
+            <div class="up-field">
+              <label class="up-label">Confirm new password <span class="up-req">*</span></label>
+              <input type="password" formControlName="confirmPassword" placeholder="Repeat new password"
+                     class="up-input" [class.up-invalid]="pwf['confirmPassword'].touched && pwForm.errors?.['passwordMismatch']"
+                     autocomplete="new-password" />
+              <span class="up-err" *ngIf="pwf['confirmPassword'].touched && pwForm.errors?.['passwordMismatch']">Passwords do not match</span>
+            </div>
+          </div>
+
+          <div class="up-form-feedback up-feedback-err" *ngIf="pwError">{{ pwError }}</div>
+          <div class="up-form-feedback up-feedback-ok"  *ngIf="pwSuccess">{{ pwSuccess }}</div>
+
+          <div class="up-form-actions">
+            <button type="submit" class="up-save-btn" [disabled]="pwLoading">
+              <span *ngIf="!pwLoading">Update password</span>
+              <span *ngIf="pwLoading" class="up-spinner"></span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div><!-- /security tab -->
+
+  </div><!-- /up-body -->
+
+  <!-- ── Delete confirmation modal ────────────────────── -->
+  <div class="up-modal-overlay" *ngIf="showDeleteConfirm" (click)="showDeleteConfirm = false">
+    <div class="up-modal" (click)="$event.stopPropagation()">
+      <div class="up-modal-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+      </div>
+      <h3 class="up-modal-title">Delete account?</h3>
+      <p class="up-modal-body">
+        This will permanently remove all your data — saved properties, favourites, and searches. This action cannot be reversed.
+      </p>
+      <div class="up-modal-actions">
+        <button class="up-modal-cancel" (click)="showDeleteConfirm = false">Cancel</button>
+        <button class="up-modal-confirm" (click)="confirmDelete()" [disabled]="deleteLoading">
+          <span *ngIf="!deleteLoading">Yes, delete my account</span>
+          <span *ngIf="deleteLoading" class="up-spinner up-spinner-dark"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,0 +1,53 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "🐍 Debug Python Flask",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/backend/app.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}/backend",
+      "env": {
+        "FLASK_APP": "app.py",
+        "FLASK_ENV": "development"
+      }
+    },
+    {
+      "name": "🔧 Debug .NET Backend",
+      "type": "coreclr",
+      "request": "launch",
+      "preLaunchTask": "build",
+      "program": "${workspaceFolder}/backend-dotnet/bin/Debug/net8.0/HyderabadUrbanReality.dll",
+      "args": [],
+      "cwd": "${workspaceFolder}/backend-dotnet",
+      "stopAtEntry": false,
+      "serverReadyAction": {
+        "action": "openExternally",
+        "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
+      },
+      "env": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "ASPNETCORE_URLS": "http://localhost:5001"
+      },
+      "sourceFileMap": {
+        "/Views": "${workspaceFolder}/Views"
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "🚀 Debug All Backends",
+      "configurations": [
+        "🐍 Debug Python Flask",
+        "🔧 Debug .NET Backend"
+      ],
+      "presentation": {
+        "hidden": false,
+        "group": "",
+        "order": 1
+      },
+      "stopAll": true
+    }
+  ]
+}

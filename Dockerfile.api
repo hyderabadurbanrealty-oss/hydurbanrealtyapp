@@ -1,0 +1,30 @@
+# ─────────────────────────────────────────────────────────────
+# Dockerfile.api
+# Build context: repo root (Render sets rootDir to null/blank)
+# ─────────────────────────────────────────────────────────────
+
+# ── Build stage ───────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+# Copy the .NET project — handle both root context and backend-dotnet context
+COPY backend-dotnet/. ./
+# If the above fails (context is already backend-dotnet), try this:
+# COPY . ./
+
+RUN dotnet restore HyderabadUrbanReality.csproj
+RUN dotnet publish HyderabadUrbanReality.csproj -c Release -o /app/publish --no-restore
+
+# ── Runtime stage ─────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
+WORKDIR /app
+
+COPY --from=build /app/publish ./
+
+# Kestrel: listen on all interfaces, port injected by Render via $PORT
+# Falls back to 10000 if PORT not set
+ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://+:10000
+EXPOSE 10000
+
+ENTRYPOINT ["dotnet", "HyderabadUrbanReality.dll"]

@@ -1,0 +1,57 @@
+services:
+  # ── .NET API ────────────────────────────────────────────────
+  - type: web
+    name: hydurban-api
+    runtime: dotnet
+    rootDir: backend-dotnet
+    buildCommand: dotnet publish -c Release -o out
+    startCommand: dotnet out/HyderabadUrbanReality.dll
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:10000
+      - key: DOTNET_USE_POLLING_FILE_WATCHER
+        value: "false"
+      - key: DOTNET_hostBuilder__reloadConfigOnChange
+        value: "false"
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+        # Set manually in Render dashboard — do NOT auto-generate
+        # Value: Server=aws-0-ap-northeast-1.pooler.supabase.com;Port=6543;Database=postgres;User Id=postgres.qjgwnbszmojzgwmafvuc;Password=<SUPABASE_POOLER_PASSWORD>;SSL Mode=Require;Trust Server Certificate=true
+      - key: AppSettings__JwtSecret
+        sync: false
+      - key: AppSettings__AdminUsername
+        sync: false
+      - key: AppSettings__AdminPasswordHash
+        sync: false
+      - key: SmtpSettings__Username
+        sync: false
+      - key: SmtpSettings__Password
+        sync: false
+      - key: SmtpSettings__FromEmail
+        sync: false
+      - key: SmtpSettings__AdminEmail
+        sync: false
+      - key: SmtpSettings__AppBaseUrl
+        sync: false
+      - key: FeatureFlags__UsePostgresRepository
+        value: "true"
+      - key: AppSettings__AllowedOrigins
+        value: "https://hydurbanrealty.onrender.com,https://www.hyderabadurbanrealty.com,https://hyderabadurbanrealty.com"
+
+  # ── Angular Static Site ─────────────────────────────────────
+  - type: web
+    name: hydurban-frontend
+    runtime: static
+    rootDir: frontend
+    buildCommand: npm install && npm run build -- --configuration production
+    staticPublishPath: dist/hyderabad-urban-realty
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

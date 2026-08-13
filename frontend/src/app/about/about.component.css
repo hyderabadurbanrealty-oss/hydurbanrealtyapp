@@ -1,0 +1,469 @@
+.about-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, #f8f9fa 0%, #ffffff 100%);
+}
+
+.about-hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 80px 0 60px;
+  text-align: center;
+  margin-bottom: 60px;
+}
+
+.about-hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 0 0 20px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.hero-subtitle {
+  font-size: 1.3rem;
+  opacity: 0.95;
+  margin: 0;
+  font-weight: 300;
+}
+
+.about-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px 80px;
+}
+
+.about-section {
+  background: white;
+  border-radius: 16px;
+  padding: 50px;
+  margin-bottom: 40px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.about-section:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+}
+
+.section-icon {
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.about-section h2 {
+  color: #667eea;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 20px;
+}
+
+.about-section p {
+  color: #555;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin: 0 0 20px;
+}
+
+.about-section p:last-child {
+  margin-bottom: 0;
+}
+
+/* Features Grid */
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.feature-card {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+}
+
+.feature-icon {
+  font-size: 2.5rem;
+  margin-bottom: 15px;
+}
+
+.feature-card h3 {
+  color: #333;
+  font-size: 1.3rem;
+  font-weight: 700;
+  margin: 0 0 15px;
+}
+
+.feature-card p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Districts List */
+.districts-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.district-badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 24px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  display: inline-block;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.district-badge:hover {
+  transform: scale(1.05);
+}
+
+/* Benefits List */
+.benefits-list {
+  list-style: none;
+  padding: 0;
+  margin: 25px 0 0;
+}
+
+.benefits-list li {
+  color: #555;
+  font-size: 1.1rem;
+  line-height: 1.8;
+  margin-bottom: 15px;
+  padding-left: 35px;
+  position: relative;
+}
+
+.benefits-list li::before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #667eea;
+  font-weight: bold;
+  font-size: 1.3rem;
+}
+
+.benefits-list li strong {
+  color: #333;
+  font-weight: 700;
+}
+
+/* CTA Section */
+.cta-section {
+  text-align: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.cta-section h2 {
+  color: white;
+}
+
+.cta-section p {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 1.2rem;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin-top: 30px;
+}
+
+.btn {
+  padding: 14px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn-primary {
+  background: white;
+  color: #667eea;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(255, 255, 255, 0.3);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btn-secondary:hover {
+  background: white;
+  color: #667eea;
+  transform: translateY(-2px);
+}
+
+/* Consultant section */
+.consultant-section {
+  text-align: center;
+}
+.consultant-section .consultant-lead {
+  max-width: 560px;
+  margin: 0 auto 32px;
+  color: #4a5568;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Consultant profile card */
+.consultant-card {
+  display: inline-flex;
+  align-items: center;
+  gap: 20px;
+  background: #f8faff;
+  border: 1.5px solid #dde3ff;
+  border-radius: 16px;
+  padding: 24px 32px;
+  margin-bottom: 48px;
+  text-align: left;
+}
+.consultant-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #6366f1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  flex-shrink: 0;
+}
+.consultant-body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+.consultant-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+.consultant-role {
+  font-size: 0.8rem;
+  color: #4a5568;
+}
+.consultant-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 2px 0 8px;
+}
+.consultant-badge {
+  padding: 3px 10px;
+  background: #eef2ff;
+  color: #6366f1;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+}
+.wa-contact-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #25d366;
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 50px;
+  box-shadow: 0 3px 12px rgba(37,211,102,0.35);
+  transition: transform 0.18s, box-shadow 0.18s;
+  white-space: nowrap;
+}
+.wa-contact-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37,211,102,0.5);
+}
+
+/* Memberships */
+.memberships {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 36px;
+  margin-top: 8px;
+}
+.memberships-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+.membership-note {
+  font-size: 0.88rem;
+  color: #4a5568;
+  max-width: 520px;
+  margin: 0 auto 24px;
+  line-height: 1.5;
+}
+.membership-cards {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.membership-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 24px;
+  text-decoration: none;
+  color: #1e293b;
+  min-width: 240px;
+  transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s;
+  text-align: left;
+}
+.membership-card:hover {
+  border-color: #6366f1;
+  box-shadow: 0 4px 20px rgba(99,102,241,0.13);
+  transform: translateY(-2px);
+}
+.membership-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6366f1;
+  flex-shrink: 0;
+}
+.membership-name {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e293b;
+}
+.membership-full {
+  font-size: 0.78rem;
+  color: #4a5568;
+  margin-top: 2px;
+}
+.membership-url {
+  font-size: 0.75rem;
+  color: #6366f1;
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* Contact Section */
+.contact-section {
+  text-align: center;
+  background: #f8f9fa;
+  border-radius: 16px;
+  padding: 50px;
+  margin-top: 60px;
+}
+
+.contact-section h2 {
+  color: #333;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 30px;
+}
+
+.contact-info {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  flex-wrap: wrap;
+}
+
+.contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.1rem;
+  color: #555;
+}
+
+.contact-icon {
+  font-size: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .consultant-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 24px 20px;
+  }
+  .consultant-body {
+    align-items: center;
+  }
+  .consultant-badges {
+    justify-content: center;
+  }
+
+  .about-hero h1 {
+    font-size: 2rem;
+  }
+
+  .consultant-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+  }
+  .consultant-body {
+    align-items: center;
+  }
+  .consultant-badges {
+    justify-content: center;
+  }
+  .membership-card {
+    min-width: unset;
+    width: 100%;
+    max-width: 340px;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+  }
+
+  .about-section {
+    padding: 30px 20px;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+  }
+
+  .contact-info {
+    flex-direction: column;
+    gap: 20px;
+  }
+}

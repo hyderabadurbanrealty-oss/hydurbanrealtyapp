@@ -1,0 +1,290 @@
+<div class="properties-page">
+
+  <!-- ── Toast Notification ─────────────────────────────────────────── -->
+  <div class="toast-notification" *ngIf="toastMessage" [class]="'toast-' + toastType">
+    <svg *ngIf="toastType === 'success'" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+    <svg *ngIf="toastType === 'error'" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    <svg *ngIf="toastType === 'info'" viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    <span>{{ toastMessage }}</span>
+  </div>
+
+  <!-- ── Page Header ──────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div class="header-content">
+      <div class="header-badge">RERA Verified</div>
+      <h1 class="page-title">Explore Properties</h1>
+      <p class="page-subtitle">
+        <span class="count-highlight">{{ properties.length }}</span> RERA-registered projects in Hyderabad
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Filters Bar ──────────────────────────────────────────────────── -->
+  <div class="filters-container">
+    <div class="filters-wrapper">
+      <div class="filter-group search-group">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <input
+          type="text"
+          placeholder="Search by name, locality, district…"
+          [(ngModel)]="searchQuery"
+          (input)="applyFilters()"
+          class="filter-input search-input"
+          aria-label="Search properties" />
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Type</label>
+        <select [(ngModel)]="selectedType" (change)="applyFilters()" class="filter-select" aria-label="Filter by type">
+          <option *ngFor="let type of projectTypes" [value]="type">{{ type }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Status</label>
+        <select [(ngModel)]="selectedStatus" (change)="applyFilters()" class="filter-select" aria-label="Filter by status">
+          <option *ngFor="let status of projectStatuses" [value]="status">{{ status }}</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label class="filter-label">Sort By</label>
+        <select [(ngModel)]="sortBy" (change)="applyFilters()" class="filter-select" aria-label="Sort properties">
+          <option value="name">Name (A–Z)</option>
+          <option value="area">Area (Largest)</option>
+          <option value="rating">Rating (Highest)</option>
+        </select>
+      </div>
+
+      <div class="results-badge">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        {{ filtered.length }} {{ filtered.length === 1 ? 'Property' : 'Properties' }}
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Main Layout ──────────────────────────────────────────────────── -->
+  <div class="main-layout" [class.has-compare-panel]="showComparePanel">
+
+    <!-- ── Loading ──────────────────────────────────────────────────── -->
+    <div *ngIf="loading" class="loading-container">
+      <div class="spinner"></div>
+      <p>Loading properties…</p>
+    </div>
+
+    <!-- ── Error ─────────────────────────────────────────────────────── -->
+    <div *ngIf="error && !loading" class="error-container">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+      </svg>
+      <p>{{ error }}</p>
+    </div>
+
+    <!-- ── Properties Grid ───────────────────────────────────────────── -->
+    <div class="properties-container" *ngIf="!loading && !error">
+      <div class="properties-grid">
+
+        <div *ngFor="let property of filtered"
+             class="property-card"
+             [class.in-compare]="isInCompare(property)"
+             (click)="viewDetails(property)"
+             role="article"
+             [attr.aria-label]="property['Project Name'] || 'Property'">
+
+          <!-- ── Card Image ─────────────────────────────────────────── -->
+          <div class="card-image">
+            <!-- Real thumbnail if available -->
+            <img
+              *ngIf="getThumbnail(property)"
+              [src]="getThumbnail(property)"
+              [alt]="property['Project Name'] || 'Property'"
+              class="thumbnail-img"
+              loading="lazy"
+              (error)="$any($event.target).style.display='none'" />
+
+            <!-- Fallback gradient placeholder -->
+            <div class="img-placeholder" [class.has-img]="getThumbnail(property)">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="40" height="40">
+                <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+              </svg>
+            </div>
+
+            <!-- Status Badge -->
+            <div *ngIf="property['Project Status']"
+                 class="status-badge"
+                 [ngClass]="getStatusBadgeClass(property['Project Status'])">
+              {{ getStatusLabel(property['Project Status']) }}
+            </div>
+
+            <!-- Photo count badge -->
+            <div class="photo-badge" *ngIf="getThumbnail(property)">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11">
+                <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+              </svg>
+              Photos
+            </div>
+
+            <!-- ── Card Quick-Action Buttons (top-right overlay) ─── -->
+            <div class="card-actions" (click)="$event.stopPropagation()">
+              <!-- Favorite -->
+              <button
+                class="action-btn favorite-btn"
+                [class.active]="isFavorite(property)"
+                (click)="toggleFavorite(property, $event)"
+                [title]="isFavorite(property) ? 'Remove from favorites' : 'Add to favorites'"
+                aria-label="Toggle favorite">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+              </button>
+
+              <!-- Compare -->
+              <button
+                class="action-btn compare-btn"
+                [class.active]="isInCompare(property)"
+                [class.disabled]="!isInCompare(property) && !compareService.canAdd()"
+                (click)="toggleCompare(property, $event)"
+                [title]="isInCompare(property) ? 'Remove from compare' : (compareService.canAdd() ? 'Add to compare' : 'Compare list full (max ' + COMPARE_MAX + ')')"
+                aria-label="Toggle compare">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <path d="M10 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h5v2h2V1h-2v2zm0 15H5l5-6v6zm9-15h-5v2h5v13l-5-6v6h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- ── Card Body ─────────────────────────────────────────── -->
+          <div class="card-body">
+            <div class="card-header-row">
+              <h3 class="property-title">{{ property['Project Name'] || 'Untitled Project' }}</h3>
+              <span *ngIf="property['Project Type']" class="type-chip">{{ property['Project Type'] }}</span>
+            </div>
+
+            <div class="property-location">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+              <span>{{ property['Locality'] || property['locality'] || property['Village/City/Town'] || 'N/A' }},
+                    {{ property['District'] || property['district'] || 'N/A' }}</span>
+            </div>
+
+            <!-- Rating -->
+            <div class="property-rating" *ngIf="property.averageRating">
+              <span class="rating-stars">
+                <span *ngFor="let i of [1,2,3,4,5]" class="star" [class.filled]="i <= Math.round(property.averageRating)">★</span>
+              </span>
+              <span class="rating-value">{{ property.averageRating }}</span>
+              <span class="rating-count" *ngIf="property.totalReviews">({{ property.totalReviews }})</span>
+            </div>
+
+            <!-- Key Stats -->
+            <div class="stats-row">
+              <div class="stat-pill" *ngIf="property['Total Area(In sqmts)']">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+                {{ formatArea(property['Total Area(In sqmts)']) }}
+              </div>
+              <div class="stat-pill rera-pill" *ngIf="property['Plan Approval Number']">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                RERA
+              </div>
+            </div>
+
+            <!-- ── Action Buttons Row ─────────────────────────────── -->
+            <div class="card-cta-row">
+              <button class="btn-details" (click)="viewDetails(property); $event.stopPropagation()">
+                View Details
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+                  <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+                </svg>
+              </button>
+
+              <button
+                class="btn-enquiry"
+                (click)="openEnquiry(property, $event)"
+                title="{{ auth.isLoggedIn() ? 'Send WhatsApp enquiry' : 'Login to enquire' }}"
+                aria-label="Enquire on WhatsApp">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                <span>{{ auth.isLoggedIn() ? 'Enquire' : 'Login to Enquire' }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Compare active overlay indicator -->
+          <div class="compare-active-bar" *ngIf="isInCompare(property)">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            Added to Compare
+          </div>
+        </div>
+      </div>
+
+      <!-- ── No Results ─────────────────────────────────────────────── -->
+      <div *ngIf="filtered.length === 0" class="no-results">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="64" height="64">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+        </svg>
+        <h3>No properties found</h3>
+        <p>Try adjusting your filters or search terms</p>
+      </div>
+    </div>
+
+    <!-- ── Compare Panel (right sidebar) ────────────────────────────── -->
+    <aside class="compare-panel" [class.visible]="showComparePanel" aria-label="Compare properties">
+      <div class="compare-panel-header">
+        <div class="compare-panel-title">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+            <path d="M10 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h5v2h2V1h-2v2zm0 15H5l5-6v6zm9-15h-5v2h5v13l-5-6v6h5c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
+          </svg>
+          Compare
+          <span class="compare-count-badge">{{ compareList.length }}/{{ COMPARE_MAX }}</span>
+        </div>
+        <button class="compare-clear-btn" (click)="compareService.clear()" title="Clear all">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+
+      <!-- Compare items -->
+      <div class="compare-items">
+        <div *ngFor="let p of compareList; let i = index" class="compare-item">
+          <div class="compare-item-thumb">
+            <img *ngIf="getThumbnail(p)" [src]="getThumbnail(p)" [alt]="getCompareItemName(p)" loading="lazy" (error)="$any($event.target).style.display='none'" />
+            <svg *ngIf="!getThumbnail(p)" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          </div>
+          <div class="compare-item-info">
+            <div class="compare-item-name">{{ getCompareItemName(p) }}</div>
+            <div class="compare-item-loc">{{ getCompareItemLocation(p) }}</div>
+          </div>
+          <button class="compare-item-remove" (click)="removeFromCompare(p, $event)" title="Remove" aria-label="Remove from compare">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+          </button>
+        </div>
+
+        <!-- Empty slots -->
+        <div *ngFor="let slot of getCompareSlots()" class="compare-item compare-item-empty">
+          <div class="compare-item-thumb empty-thumb">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" style="opacity:0.3"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+          </div>
+          <div class="compare-item-info">
+            <div class="compare-item-name" style="opacity:0.4; font-style:italic;">Add a property</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA buttons -->
+      <div class="compare-panel-footer">
+        <button
+          class="btn-go-compare"
+          [disabled]="compareList.length < 2"
+          (click)="goToComparePage()"
+          [title]="compareList.length < 2 ? 'Add at least 2 properties to compare' : 'Compare selected properties'">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+          Compare Now
+          <span *ngIf="compareList.length < 2" class="btn-hint">( {{ 2 - compareList.length }} more needed )</span>
+        </button>
+      </div>
+    </aside>
+  </div>
+</div>

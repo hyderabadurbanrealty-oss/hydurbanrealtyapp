@@ -1,0 +1,12 @@
+requests
+urllib3
+Pillow
+pytesseract
+selenium
+webdriver-manager
+beautifulsoup4
+flask
+flask-cors
+pymupdf
+gunicorn
+psycopg2-binary==2.9.10

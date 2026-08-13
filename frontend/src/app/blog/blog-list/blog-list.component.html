@@ -1,0 +1,109 @@
+<div class="bl-page">
+
+  <!-- ── Page header ──────────────────────────────────────────── -->
+  <div class="bl-header">
+    <div class="bl-header-inner">
+      <nav class="bl-breadcrumb"><a routerLink="/">Home</a><span>/</span><span>Insights</span></nav>
+      <h1 class="bl-title">Property Insights</h1>
+      <p class="bl-subtitle">Data-backed analysis on Hyderabad real estate — prices, RERA compliance, NRI guides and market trends.</p>
+    </div>
+  </div>
+
+  <!-- ── Filter bar ────────────────────────────────────────────── -->
+  <div class="bl-filter-bar">
+    <div class="bl-filter-inner">
+
+      <div class="bl-filter-left">
+        <button class="bl-cat-btn" [class.active]="activeCategory==='all'" (click)="filter('all')">All</button>
+        <button *ngFor="let c of categories" class="bl-cat-btn"
+                [class.active]="activeCategory===c.slug"
+                (click)="filter(c.slug)">
+          {{ c.name }} <span class="bl-cat-count">{{ c.count }}</span>
+        </button>
+      </div>
+
+      <div class="bl-search-wrap">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" class="bl-search-icon">
+          <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+        </svg>
+        <input type="text" [(ngModel)]="searchQuery" (ngModelChange)="onSearch()"
+               placeholder="Search articles…" class="bl-search-input" />
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Content ───────────────────────────────────────────────── -->
+  <div class="bl-content">
+
+    <!-- Empty state -->
+    <div class="bl-empty" *ngIf="filtered.length === 0">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+      <h3>No articles found</h3>
+      <p>Try adjusting your search or category filter.</p>
+    </div>
+
+    <ng-container *ngIf="filtered.length > 0">
+
+      <!-- Featured article -->
+      <a [routerLink]="['/blog', featuredArticle!.slug]" class="bl-featured" *ngIf="featuredArticle">
+        <div class="bl-feat-left">
+          <div class="bl-feat-meta">
+            <span class="bl-feat-cat">{{ featuredArticle.category }}</span>
+            <span class="bl-feat-dot"></span>
+            <span class="bl-feat-read">{{ featuredArticle.readingTime }} min read</span>
+          </div>
+          <h2 class="bl-feat-title">{{ featuredArticle.title }}</h2>
+          <p class="bl-feat-excerpt">{{ featuredArticle.excerpt }}</p>
+          <div class="bl-feat-footer">
+            <span class="bl-feat-date">{{ formatDate(featuredArticle.publishedDate) }}</span>
+            <span class="bl-feat-cta">Read article →</span>
+          </div>
+        </div>
+        <div class="bl-feat-right">
+          <div class="bl-feat-stat">
+            <span class="bl-feat-stat-val">{{ featuredArticle.heroDataPoint }}</span>
+            <span class="bl-feat-stat-lbl">{{ featuredArticle.heroDataLabel }}</span>
+          </div>
+          <div class="bl-feat-tags">
+            <span class="bl-tag" *ngFor="let t of featuredArticle.tags.slice(0,3)">{{ t }}</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Article grid -->
+      <div class="bl-grid" *ngIf="restArticles.length > 0">
+        <a *ngFor="let a of restArticles" [routerLink]="['/blog', a.slug]" class="bl-card">
+          <div class="bl-card-top">
+            <span class="bl-card-cat">{{ a.category }}</span>
+            <span class="bl-card-read">{{ a.readingTime }} min</span>
+          </div>
+          <h3 class="bl-card-title">{{ a.title }}</h3>
+          <p class="bl-card-excerpt">{{ a.excerpt }}</p>
+          <div class="bl-card-stat">
+            <span class="bl-card-stat-val">{{ a.heroDataPoint }}</span>
+            <span class="bl-card-stat-lbl">{{ a.heroDataLabel }}</span>
+          </div>
+          <div class="bl-card-footer">
+            <span class="bl-card-date">{{ formatDate(a.publishedDate) }}</span>
+            <span class="bl-card-arrow">→</span>
+          </div>
+        </a>
+      </div>
+
+    </ng-container>
+  </div>
+
+  <!-- ── Tags cloud ────────────────────────────────────────────── -->
+  <div class="bl-tags-section">
+    <div class="bl-tags-inner">
+      <span class="bl-tags-label">Topics</span>
+      <div class="bl-tags-cloud">
+        <button *ngFor="let t of tags" class="bl-tag-btn"
+                [class.active]="searchQuery===t"
+                (click)="searchQuery=t; onSearch()">{{ t }}</button>
+      </div>
+    </div>
+  </div>
+
+</div>

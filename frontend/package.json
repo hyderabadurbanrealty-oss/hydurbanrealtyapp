@@ -1,0 +1,48 @@
+{
+  "name": "hyderabad-urban-realty",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "node --no-deprecation ./node_modules/@angular/cli/bin/ng serve --open",
+    "serve": "ng serve",
+    "serve:quiet": "node --no-deprecation ./node_modules/@angular/cli/bin/ng serve --open",
+    "build": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng build --no-progress",
+    "build:prod": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng build --configuration production --no-progress",
+    "build:stats": "node --max-old-space-size=8192 ./node_modules/@angular/cli/bin/ng build --configuration production --stats-json --no-progress",
+    "analyze": "webpack-bundle-analyzer dist/hyderabad-urban-realty/stats.json",
+    "server:prod": "node server.js",
+    "start:prod": "npm run build:prod && npm run server:prod",
+    "test": "ng test",
+    "lint": "ng lint",
+    "e2e": "ng e2e"
+  },
+  "dependencies": {
+    "@angular-devkit/build-angular": "~16.1.5",
+    "@angular/animations": "16.1.5",
+    "@angular/cdk": "16.1.5",
+    "@angular/cli": "16.1.5",
+    "@angular/common": "16.1.5",
+    "@angular/compiler": "16.1.5",
+    "@angular/compiler-cli": "16.1.5",
+    "@angular/core": "16.1.5",
+    "@angular/forms": "16.1.5",
+    "@angular/platform-browser": "16.1.5",
+    "@angular/platform-browser-dynamic": "16.1.5",
+    "@angular/router": "16.1.5",
+    "chart.js": "^4.5.1",
+    "compression": "^1.8.1",
+    "express": "^4.22.1",
+    "helmet": "^7.2.0",
+    "http-proxy-middleware": "^2.0.6",
+    "mapbox-gl": "^2.13.0",
+    "maplibre-gl": "^3.6.2",
+    "ng2-charts": "^5.0.4",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.5.0",
+    "typescript": "~5.1.6",
+    "zone.js": "~0.13.0"
+  },
+  "devDependencies": {
+    "@types/mapbox-gl": "^2.4.0"
+  }
+}

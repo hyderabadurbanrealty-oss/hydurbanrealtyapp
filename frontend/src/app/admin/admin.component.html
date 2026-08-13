@@ -1,0 +1,667 @@
+<!-- ── LOGIN ─────────────────────────────────────────────────────── -->
+<div class="admin-login-container" *ngIf="!isLoggedIn">
+  <h2>🔐 Admin Panel</h2>
+  <div class="form-group">
+    <label>Email / Username</label>
+    <input type="text" [(ngModel)]="loginUsername" placeholder="admin@example.com" (keyup.enter)="doLogin()">
+  </div>
+  <div class="form-group">
+    <label>Password</label>
+    <input type="password" [(ngModel)]="loginPassword" placeholder="Password" (keyup.enter)="doLogin()">
+  </div>
+  <div class="error-msg" *ngIf="loginError">{{loginError}}</div>
+  <button class="btn-admin-primary" (click)="doLogin()" [disabled]="loginLoading">
+    <span *ngIf="!loginLoading">Sign In</span>
+    <span *ngIf="loginLoading" class="spinner-sm"></span>
+  </button>
+</div>
+
+<!-- ── ADMIN SHELL ──────────────────────────────────────────────── -->
+<div class="admin-shell" *ngIf="isLoggedIn">
+
+  <!-- Sidebar -->
+  <aside class="admin-sidebar">
+    <div class="sidebar-brand">
+      <img src="assets/blue-Logo.png" alt="HydUrban" class="sidebar-logo">
+      <span class="sidebar-title">Admin</span>
+    </div>
+    <nav class="sidebar-nav">
+      <button [class.active]="activeSection==='dashboard'" (click)="activeSection='dashboard';loadDashboard()">
+        📊 Dashboard
+      </button>
+      <button [class.active]="activeSection==='properties'" (click)="activeSection='properties';loadProperties()">
+        🏠 Properties
+      </button>
+      <button [class.active]="activeSection==='users'" (click)="activeSection='users';loadUsers()">
+        👥 Users
+      </button>
+      <button [class.active]="activeSection==='leads'" (click)="activeSection='leads';loadLeads()">
+        📋 Leads
+      </button>
+      <button [class.active]="activeSection==='visits'" (click)="activeSection='visits';loadVisits()">
+        📅 Visits
+      </button>
+      <button [class.active]="activeSection==='scraper'" (click)="activeSection='scraper'">
+        ⚙️ Scraper
+      </button>
+      <button [class.active]="activeSection==='social'" (click)="activeSection='social';loadTweets()">
+        𝕏 Social Feed
+      </button>
+    </nav>
+    <button class="sidebar-logout" (click)="logout()">🚪 Logout</button>
+  </aside>
+
+  <!-- Main content -->
+  <main class="admin-main">
+    <div class="status-bar" *ngIf="statusMsg">
+      {{statusMsg}}
+      <button class="dismiss-btn" (click)="statusMsg=''">×</button>
+    </div>
+
+    <!-- ── DASHBOARD ──────────────────────────────────────────────── -->
+    <section *ngIf="activeSection==='dashboard'" class="admin-section">
+      <h1 class="section-title">Dashboard</h1>
+      <div class="stats-grid" *ngIf="dashStats">
+        <div class="stat-card"><div class="stat-value">{{dashStats.total_properties}}</div><div class="stat-label">Properties</div></div>
+        <div class="stat-card"><div class="stat-value">{{dashStats.total_users}}</div><div class="stat-label">Users</div></div>
+        <div class="stat-card"><div class="stat-value">{{dashStats.total_leads}}</div><div class="stat-label">Leads</div></div>
+        <div class="stat-card"><div class="stat-value">{{dashStats.active_users}}</div><div class="stat-label">Active Users</div></div>
+        <div class="stat-card"><div class="stat-value">{{dashStats.new_users_30d}}</div><div class="stat-label">New Users (30d)</div></div>
+        <div class="stat-card"><div class="stat-value">{{dashStats.new_leads_30d}}</div><div class="stat-label">New Leads (30d)</div></div>
+      </div>
+      <div *ngIf="!dashStats" class="loading-state"><span class="spinner-sm"></span> Loading stats…</div>
+      <div class="quick-actions">
+        <button class="btn-admin-primary" (click)="activeSection='properties';loadProperties()">Manage Properties</button>
+        <button class="btn-admin-secondary" (click)="activeSection='users';loadUsers()">Manage Users</button>
+        <button class="btn-admin-secondary" (click)="activeSection='leads';loadLeads()">View Leads</button>
+        <button class="btn-admin-secondary" (click)="activeSection='visits';loadVisits()">View Visits</button>
+      </div>
+    </section>
+
+    <!-- ── PROPERTIES ────────────────────────────────────────────── -->
+    <section *ngIf="activeSection==='properties'" class="admin-section">
+      <div class="section-header">
+        <h1 class="section-title">Properties ({{properties.length}})</h1>
+        <div class="section-actions">
+          <input type="text" [(ngModel)]="propertySearchQuery" (input)="searchProperties()" placeholder="Search…" class="search-input-sm">
+          <button class="btn-admin-primary" (click)="openCreateModal()">+ Add Property</button>
+        </div>
+      </div>
+      <div *ngIf="loading" class="loading-state"><span class="spinner-sm"></span> Loading…</div>
+      <div class="data-table-wrap" *ngIf="!loading">
+        <table class="data-table">
+          <thead><tr>
+            <th>Name</th><th>Locality</th><th>District</th><th>Status</th><th>Type</th><th>Flats</th><th>Actions</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let p of filteredProperties">
+              <td class="td-name">{{p['Project Name'] || p.project_name}}</td>
+              <td>{{p['Locality'] || p.locality || '—'}}</td>
+              <td>{{p['District'] || p.district || '—'}}</td>
+              <td><span class="badge-status" [ngClass]="getStatusClass(p['Project Status'] || p.project_status)">{{p['Project Status'] || p.project_status || '—'}}</span></td>
+              <td>{{p['Project Type'] || p.project_type || '—'}}</td>
+              <td>{{p.totalFlats || p.total_flats || '—'}}</td>
+              <td class="td-actions">
+                <button class="btn-icon" title="Edit" (click)="openEditModal(p)">✏️</button>
+                <button class="btn-icon" title="Pricing" (click)="openPricingModal(p)">💰</button>
+                <button class="btn-icon" title="Media" (click)="openMediaModal(p)">🖼️</button>
+                <button class="btn-icon btn-danger-icon" title="Delete" (click)="deleteProperty(p)">🗑️</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── USERS ─────────────────────────────────────────────────── -->
+    <section *ngIf="activeSection==='users'" class="admin-section">
+      <div class="section-header">
+        <h1 class="section-title">Users ({{userTotal}})</h1>
+        <div class="section-actions">
+          <input type="text" [(ngModel)]="userSearchQuery" (input)="searchUsers()" placeholder="Search users…" class="search-input-sm">
+        </div>
+      </div>
+      <div class="stats-row" *ngIf="userStats">
+        <span class="mini-stat">Total: {{userStats.total}}</span>
+        <span class="mini-stat">Active: {{userStats.active}}</span>
+        <span class="mini-stat">Verified: {{userStats.verified}}</span>
+        <span class="mini-stat">Admins: {{userStats.admins}}</span>
+        <span class="mini-stat">New (7d): {{userStats.new_this_week}}</span>
+      </div>
+      <div *ngIf="loading" class="loading-state"><span class="spinner-sm"></span> Loading…</div>
+      <div class="data-table-wrap" *ngIf="!loading">
+        <table class="data-table">
+          <thead><tr>
+            <th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Verified</th><th>Last Login</th><th>Actions</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let u of filteredUsers">
+              <td>{{u.fullName || '—'}}</td>
+              <td>{{u.email}}</td>
+              <td><span class="role-badge" [class.role-admin]="u.role==='admin'">{{u.role}}</span></td>
+              <td><span class="status-dot" [class.active]="u.isActive"></span>{{u.isActive ? 'Active' : 'Inactive'}}</td>
+              <td>{{u.isVerified ? '✅' : '❌'}}</td>
+              <td>{{getTimeAgo(u.lastLoginAt)}}</td>
+              <td class="td-actions">
+                <button class="btn-icon" title="Edit Role" (click)="openUserEditModal(u)">✏️</button>
+                <button class="btn-icon" [title]="u.isActive ? 'Deactivate' : 'Activate'" (click)="toggleUserStatus(u)">{{u.isActive ? '🔒' : '🔓'}}</button>
+                <button class="btn-icon btn-danger-icon" title="Delete" (click)="deleteUser(u)">🗑️</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── LEADS ─────────────────────────────────────────────────── -->
+    <section *ngIf="activeSection==='leads'" class="admin-section">
+      <div class="section-header">
+        <h1 class="section-title">Leads ({{leadTotal}})</h1>
+        <div class="section-actions">
+          <input type="text" [(ngModel)]="leadsSearchQuery" (input)="searchLeads()" placeholder="Search leads…" class="search-input-sm">
+        </div>
+      </div>
+      <div *ngIf="leadsLoading" class="loading-state"><span class="spinner-sm"></span> Loading…</div>
+      <div class="data-table-wrap" *ngIf="!leadsLoading">
+        <table class="data-table">
+          <thead><tr>
+            <th>Name</th><th>Email</th><th>Mobile</th><th>Area of Interest</th><th>Project</th><th>Date</th><th>Actions</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let l of filteredLeads">
+              <td>{{l.name}}</td>
+              <td>{{l.email}}</td>
+              <td>{{l.mobile}}</td>
+              <td>{{l.areaOfInterest || '—'}}</td>
+              <td>{{l.projectName || '—'}}</td>
+              <td>{{getTimeAgo(l.createdAt)}}</td>
+              <td class="td-actions">
+                <button class="btn-icon btn-danger-icon" title="Delete" (click)="deleteLead(l)">🗑️</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="filteredLeads.length === 0" class="empty-table">No leads found.</div>
+      </div>
+    </section>
+
+    <!-- ── VISITS ────────────────────────────────────────────────── -->
+    <section *ngIf="activeSection==='visits'" class="admin-section">
+      <div class="section-header">
+        <h1 class="section-title">Site Visit Requests ({{visits.length}})</h1>
+        <div class="section-actions">
+          <input type="text" [(ngModel)]="visitsSearchQuery" (input)="searchVisits()" placeholder="Search visits…" class="search-input-sm">
+        </div>
+      </div>
+      <div *ngIf="visitsLoading" class="loading-state"><span class="spinner-sm"></span> Loading…</div>
+      <div class="data-table-wrap" *ngIf="!visitsLoading">
+        <table class="data-table">
+          <thead><tr>
+            <th>Name</th>
+            <th>Email / Mobile</th>
+            <th>Project</th>
+            <th>Date &amp; Time</th>
+            <th>Location</th>
+            <th>Message</th>
+            <th>Status</th>
+            <th>Received</th>
+            <th>Actions</th>
+          </tr></thead>
+          <tbody>
+            <tr *ngFor="let v of filteredVisits">
+              <td class="td-name">{{v.name}}</td>
+              <td>
+                <div>{{v.email}}</div>
+                <div style="color:#64748b;font-size:12px;">{{v.mobile}}</div>
+              </td>
+              <td>{{v.projectName || v.projectId || '—'}}</td>
+              <td>
+                <div style="font-weight:600;">{{v.visitDate | date:'dd MMM yyyy'}}</div>
+                <div style="color:#64748b;font-size:12px;">{{v.visitTime}}</div>
+              </td>
+              <td>
+                <ng-container *ngIf="v.locationAddress; else noLoc">
+                  <a *ngIf="v.locationMapUrl" [href]="v.locationMapUrl" target="_blank" rel="noopener noreferrer" class="visit-map-link" title="Open in OpenStreetMap">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+                    {{v.locationAddress | slice:0:40}}{{v.locationAddress.length > 40 ? '…' : ''}}
+                  </a>
+                  <span *ngIf="!v.locationMapUrl">{{v.locationAddress | slice:0:40}}</span>
+                  <div *ngIf="v.locationLat && v.locationLng" style="font-size:11px;color:#94a3b8;margin-top:2px;">
+                    {{v.locationLat | number:'1.4-4'}}, {{v.locationLng | number:'1.4-4'}}
+                  </div>
+                </ng-container>
+                <ng-template #noLoc><span style="color:#94a3b8;">—</span></ng-template>
+              </td>
+              <td style="max-width:160px;white-space:normal;font-size:12px;color:#475569;">{{v.message || '—'}}</td>
+              <td>
+                <select class="visit-status-select"
+                        [ngClass]="getVisitStatusClass(v.status)"
+                        [ngModel]="v.status"
+                        (ngModelChange)="updateVisitStatus(v, $event)">
+                  <option value="pending">⏳ Pending</option>
+                  <option value="confirmed">✅ Confirmed</option>
+                  <option value="cancelled">❌ Cancelled</option>
+                </select>
+              </td>
+              <td style="font-size:12px;color:#64748b;">{{getTimeAgo(v.createdAt)}}</td>
+              <td class="td-actions">
+                <button class="btn-icon btn-danger-icon" title="Delete" (click)="deleteVisit(v)">🗑️</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div *ngIf="filteredVisits.length === 0" class="empty-table">No visit requests yet.</div>
+      </div>
+    </section>
+
+    <!-- ── SCRAPER ────────────────────────────────────────────────── -->
+    <section *ngIf="activeSection==='scraper'" class="admin-section">
+      <h1 class="section-title">Scraper Control</h1>
+
+      <div class="scraper-card">
+        <h3>📍 Pin Code Preferences</h3>
+        <div class="pincode-row">
+          <input type="text" [(ngModel)]="newPincode" placeholder="Add pin code" (keyup.enter)="addPincode()" class="search-input-sm">
+          <button class="btn-admin-secondary" (click)="addPincode()">Add</button>
+        </div>
+        <div class="pincode-tags">
+          <span *ngFor="let pin of preferences.pincodes; let i=index" class="pincode-tag">
+            {{pin}} <button (click)="removePincode(i)">×</button>
+          </span>
+        </div>
+        <button class="btn-admin-primary" (click)="savePreferences()" [disabled]="prefsLoading">
+          {{prefsSaved ? '✅ Saved' : 'Save Preferences'}}
+        </button>
+      </div>
+
+      <div class="scraper-card">
+        <h3>🏗️ RERA Scraper</h3>
+        <div class="scraper-actions">
+          <button class="btn-admin-secondary" (click)="fetchProjectNames()">Fetch Project Names</button>
+          <button class="btn-admin-primary" (click)="bulkScrape()" [disabled]="loading">Start Bulk Scrape</button>
+        </div>
+      </div>
+
+      <div class="scraper-card">
+        <h3>📊 SRO Transactions</h3>
+        <div class="scraper-status" *ngIf="sroScrapeStatus">
+          Status: <strong>{{sroScrapeStatus.message}}</strong>
+          <span *ngIf="sroScrapeStatus.total_records"> | Records: {{sroScrapeStatus.total_records}}</span>
+        </div>
+        <div class="scraper-actions">
+          <button class="btn-admin-primary" (click)="startSroScrape()" [disabled]="sroScrapeLoading">
+            {{sroScrapeStatus?.is_running ? '⏳ Running…' : 'Start SRO Scrape'}}
+          </button>
+        </div>
+      </div>
+
+      <div class="scraper-card">
+        <h3>💰 Ready Reckoner (Unit Rates)</h3>
+        <div class="scraper-status" *ngIf="rrScrapeStatus">
+          Status: <strong>{{rrScrapeStatus.message}}</strong>
+          <span *ngIf="rrScrapeStatus.total_records"> | Records: {{rrScrapeStatus.total_records}}</span>
+        </div>
+        <div class="scraper-actions">
+          <button class="btn-admin-primary" (click)="startRrScrape()" [disabled]="rrScrapeLoading">
+            {{rrScrapeStatus?.is_running ? '⏳ Running…' : 'Start RR Scrape'}}
+          </button>
+          <button class="btn-admin-secondary" (click)="stopRrScrape()" *ngIf="rrScrapeStatus?.is_running">Stop</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SOCIAL FEED ───────────────────────────────────────────── -->
+    <section *ngIf="activeSection==='social'" class="admin-section">
+      <div class="section-header">
+        <h1 class="section-title">𝕏 Social Feed — Tweet Manager</h1>
+        <p class="section-desc">Add tweet URLs from <strong>x.com/HydUrbanRealty</strong>. Each URL is fetched via oEmbed and displayed on the Social Feeds page. Toggle visibility without deleting.</p>
+      </div>
+
+      <!-- Add tweet form -->
+      <div class="social-add-card">
+        <h3 class="social-card-title">Add a Tweet</h3>
+        <p class="social-card-hint">Go to <strong>x.com/HydUrbanRealty</strong>, open any tweet, copy the URL from the browser address bar and paste it below.</p>
+
+        <div class="social-add-row">
+          <div class="social-field social-field-url">
+            <label>Tweet URL <span class="req">*</span></label>
+            <input type="url" [(ngModel)]="newTweetUrl"
+                   placeholder="https://x.com/HydUrbanRealty/status/1234567890"
+                   class="admin-input" />
+          </div>
+          <div class="social-field social-field-label">
+            <label>Label (optional)</label>
+            <input type="text" [(ngModel)]="newTweetLabel"
+                   placeholder="e.g. RERA news, Market update"
+                   class="admin-input" />
+          </div>
+          <button class="btn-admin-primary social-add-btn"
+                  (click)="addTweet()"
+                  [disabled]="addingTweet || !newTweetUrl.trim()">
+            <span *ngIf="!addingTweet">＋ Add Tweet</span>
+            <span *ngIf="addingTweet">Adding…</span>
+          </button>
+        </div>
+
+        <div class="social-feedback social-feedback-err" *ngIf="addTweetError">{{ addTweetError }}</div>
+        <div class="social-feedback social-feedback-ok"  *ngIf="addTweetSuccess">{{ addTweetSuccess }}</div>
+      </div>
+
+      <!-- Tweet list -->
+      <div class="social-list-card">
+        <div class="social-list-header">
+          <h3 class="social-card-title">Configured Tweets ({{ tweets.length }})</h3>
+          <span class="social-cache-note">Feed is cached for 1 hour after changes.</span>
+        </div>
+
+        <div class="social-loading" *ngIf="tweetsLoading">
+          <span class="spinner-sm"></span> Loading…
+        </div>
+        <div class="social-error" *ngIf="tweetsError">{{ tweetsError }}</div>
+
+        <div class="social-empty" *ngIf="!tweetsLoading && tweets.length === 0">
+          No tweets added yet. Paste a tweet URL above to get started.
+        </div>
+
+        <div class="social-tweet-row" *ngFor="let t of tweets">
+          <div class="social-tweet-info">
+            <div class="social-tweet-url">
+              <a [href]="t.url" target="_blank" rel="noopener">{{ t.url }}</a>
+            </div>
+            <div class="social-tweet-meta">
+              <span class="social-tweet-label" *ngIf="t.label">{{ t.label }}</span>
+              <span class="social-status-badge"
+                    [class.badge-active]="t.isActive"
+                    [class.badge-hidden]="!t.isActive">
+                {{ t.isActive ? 'Visible' : 'Hidden' }}
+              </span>
+              <span class="social-tweet-date">Added {{ t.createdAt | date:'d MMM yyyy' }}</span>
+            </div>
+          </div>
+          <div class="social-tweet-actions">
+            <button class="btn-admin-secondary btn-sm"
+                    (click)="toggleTweet(t.id)"
+                    [title]="t.isActive ? 'Hide from feed' : 'Show in feed'">
+              {{ t.isActive ? '👁 Hide' : '👁 Show' }}
+            </button>
+            <button class="btn-admin-danger btn-sm"
+                    (click)="deleteTweet(t.id, t.url)">
+              🗑 Remove
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+<!-- ── EDIT PROPERTY MODAL ───────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showEditModal" (click)="closeModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>Edit Property</h3>
+      <button class="modal-close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row-2">
+        <div class="form-group"><label>Project Name</label><input [(ngModel)]="editForm.project_name"></div>
+        <div class="form-group"><label>Status</label>
+          <select [(ngModel)]="editForm.project_status">
+            <option>New Project</option><option>Ongoing</option><option>Completed</option><option>Lapsed</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Type</label>
+          <select [(ngModel)]="editForm.project_type">
+            <option>Residential</option><option>Commercial</option><option>Mixed Use</option><option>Plot</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Locality</label><input [(ngModel)]="editForm.locality"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>District</label><input [(ngModel)]="editForm.district"></div>
+        <div class="form-group"><label>Pin Code</label><input [(ngModel)]="editForm.pin_code"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Promoter/Developer</label><input [(ngModel)]="editForm.promoter_name"></div>
+        <div class="form-group"><label>Bank Name</label><input [(ngModel)]="editForm.bank_name"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin-secondary" (click)="closeModal()">Cancel</button>
+      <button class="btn-admin-primary" (click)="saveProjectDetails()" [disabled]="loading">
+        <span *ngIf="!loading">Save Changes</span>
+        <span *ngIf="loading" class="spinner-sm"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── CREATE PROPERTY MODAL ─────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showCreateModal" (click)="closeModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header"><h3>Add New Property</h3><button class="modal-close" (click)="closeModal()">×</button></div>
+    <div class="modal-body">
+      <div class="form-row-2">
+        <div class="form-group"><label>Project Name *</label><input [(ngModel)]="createForm['Project Name']" placeholder="ALEKHYA RISE"></div>
+        <div class="form-group"><label>Status</label>
+          <select [(ngModel)]="createForm['Project Status']"><option>New Project</option><option>Ongoing</option><option>Completed</option></select>
+        </div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>Type</label>
+          <select [(ngModel)]="createForm['Project Type']"><option>Residential</option><option>Commercial</option><option>Mixed Use</option></select>
+        </div>
+        <div class="form-group"><label>Locality</label><input [(ngModel)]="createForm['Locality']"></div>
+      </div>
+      <div class="form-row-2">
+        <div class="form-group"><label>District</label><input [(ngModel)]="createForm['District']"></div>
+        <div class="form-group"><label>Pin Code</label><input [(ngModel)]="createForm['Pin Code']"></div>
+      </div>
+      <div class="form-group"><label>Total Area (sqmts)</label><input type="number" [(ngModel)]="createForm['Total Area(In sqmts)']"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin-secondary" (click)="closeModal()">Cancel</button>
+      <button class="btn-admin-primary" (click)="createProject()" [disabled]="loading">
+        <span *ngIf="!loading">Create Property</span>
+        <span *ngIf="loading" class="spinner-sm"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── PRICING MODAL ──────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showPricingModal" (click)="closeModal()">
+  <div class="modal-box modal-wide" (click)="$event.stopPropagation()">
+    <div class="modal-header"><h3>Manage Pricing — {{selectedProperty?.['Project Name'] || selectedProperty?.project_name}}</h3><button class="modal-close" (click)="closeModal()">×</button></div>
+    <div class="modal-body">
+      <h4>Add Unit Type</h4>
+      <div class="form-row-4">
+        <div class="form-group"><label>Type</label>
+          <select [(ngModel)]="newUnit.type"><option *ngFor="let t of unitTypes">{{t}}</option></select>
+        </div>
+        <div class="form-group"><label>Size (sqft)</label><input [(ngModel)]="newUnit.size" placeholder="e.g. 850-1100"></div>
+        <div class="form-group"><label>Price/sqft (₹)</label><input type="number" [(ngModel)]="newUnit.pricePerSqft"></div>
+        <div class="form-group" style="align-self:flex-end"><button class="btn-admin-secondary" (click)="addPricingUnit()">+ Add</button></div>
+      </div>
+      <table class="data-table" *ngIf="pricingUnits.length > 0">
+        <thead><tr><th>Type</th><th>Size</th><th>₹/sqft</th><th></th></tr></thead>
+        <tbody>
+          <tr *ngFor="let u of pricingUnits; let i=index">
+            <td>{{u.type}}</td><td>{{u.size || '—'}}</td><td>{{u.pricePerSqft | number}}</td>
+            <td><button class="btn-icon btn-danger-icon" (click)="removePricingUnit(i)">🗑️</button></td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="pricingUnits.length === 0" class="empty-table">No units added yet.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin-secondary" (click)="closeModal()">Cancel</button>
+      <button class="btn-admin-primary" (click)="savePricing()" [disabled]="loading">
+        <span *ngIf="!loading">Save Pricing</span>
+        <span *ngIf="loading" class="spinner-sm"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── USER EDIT MODAL ───────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showUserEditModal" (click)="closeModal()">
+  <div class="modal-box" (click)="$event.stopPropagation()">
+    <div class="modal-header"><h3>Edit User Role</h3><button class="modal-close" (click)="closeModal()">×</button></div>
+    <div class="modal-body" *ngIf="selectedUser">
+      <p class="user-info-line"><strong>{{selectedUser.fullName}}</strong> — {{selectedUser.email}}</p>
+      <div class="form-group">
+        <label>Role</label>
+        <select [(ngModel)]="userEditRole">
+          <option value="user">User</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin-secondary" (click)="closeModal()">Cancel</button>
+      <button class="btn-admin-primary" (click)="saveUserRole()">Save Role</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MEDIA MODAL ────────────────────────────────────────────────── -->
+<div class="modal-overlay" *ngIf="showMediaModal" (click)="closeModal()">
+  <div class="modal-box modal-wide" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>📁 Media Manager — {{selectedProperty?.['Project Name'] || selectedProperty?.project_name}}</h3>
+      <button class="modal-close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- Upload tabs -->
+      <div class="media-tabs">
+        <button [class.active]="mediaTab==='image'" (click)="mediaTab='image'">🖼️ Images</button>
+        <button [class.active]="mediaTab==='floorplan'" (click)="mediaTab='floorplan'">📐 Floor Plans</button>
+        <button [class.active]="mediaTab==='document'" (click)="mediaTab='document'">📄 Documents</button>
+        <button [class.active]="mediaTab==='video'" (click)="mediaTab='video'">▶️ Videos</button>
+      </div>
+
+      <!-- Image / FloorPlan / Document Upload -->
+      <div *ngIf="mediaTab !== 'video'" class="upload-zone">
+        <label class="upload-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <span>Click to upload {{mediaTab}}s</span>
+          <span class="upload-hint" *ngIf="mediaTab!=='document'">JPEG, PNG, WebP — max 10 MB each</span>
+          <span class="upload-hint" *ngIf="mediaTab==='document'">PDF, DOC, DOCX — max 50 MB each</span>
+          <input type="file" multiple [accept]="getAcceptTypes()" (change)="onFilesSelected($event)" style="display:none">
+        </label>
+        <div class="upload-queue" *ngIf="uploadQueue.length > 0">
+          <div *ngFor="let f of uploadQueue; let i=index" class="queue-item">
+            <span>{{f.name}}</span>
+            <span class="file-size">{{formatFileSize(f.size)}}</span>
+            <button class="btn-icon btn-danger-icon" (click)="removeFromQueue(i)">×</button>
+          </div>
+          <button class="btn-admin-primary" (click)="uploadFiles()" [disabled]="uploading">
+            <span *ngIf="!uploading">Upload {{uploadQueue.length}} file(s)</span>
+            <span *ngIf="uploading" class="spinner-sm"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- YouTube Video URL -->
+      <div *ngIf="mediaTab === 'video'" class="video-upload-zone">
+        <div class="form-group">
+          <label>YouTube URL</label>
+          <input type="url" [(ngModel)]="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
+        </div>
+        <div class="form-group">
+          <label>Title (optional)</label>
+          <input type="text" [(ngModel)]="videoTitle" placeholder="Property Tour">
+        </div>
+        <button class="btn-admin-primary" (click)="addVideoUrl()" [disabled]="!videoUrl || uploading">Add Video</button>
+      </div>
+
+      <!-- Existing Media Grid -->
+      <div class="media-grid-section">
+        <h4>Existing {{mediaTab}}s ({{getMediaByType(mediaTab).length}})</h4>
+        <div *ngIf="mediaLoading" class="loading-state"><span class="spinner-sm"></span></div>
+        <div class="media-grid" *ngIf="!mediaLoading">
+          <div *ngFor="let m of getMediaByType(mediaTab)" class="media-item">
+            <!-- Image preview -->
+            <div class="media-thumb" *ngIf="mediaTab==='image' || mediaTab==='floorplan'">
+              <img [src]="m.fileUrl || m.file_url" [alt]="m.title" (error)="onImgError($event)">
+            </div>
+            <!-- Document icon -->
+            <div class="media-thumb media-doc" *ngIf="mediaTab==='document'">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="40" height="40"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <a [href]="m.fileUrl || m.file_url" target="_blank" class="doc-link">Open</a>
+            </div>
+            <!-- Video thumbnail -->
+            <div class="media-thumb" *ngIf="mediaTab==='video'">
+              <img [src]="getYTThumb(m.fileUrl || m.file_url)" [alt]="m.title" (error)="onImgError($event)">
+              <span class="play-badge">▶</span>
+            </div>
+            <div class="media-info">
+              <span class="media-title" *ngIf="editingMediaId !== m.id">{{m.title}}</span>
+              <input *ngIf="editingMediaId === m.id" [(ngModel)]="editingMediaTitle" class="media-title-input">
+              <div class="media-actions">
+                <button *ngIf="editingMediaId !== m.id" class="btn-icon" title="Edit" (click)="startEditMedia(m)">✏️</button>
+                <button *ngIf="editingMediaId === m.id" class="btn-icon" title="Save" (click)="saveMediaEdit(m)">💾</button>
+                <button *ngIf="editingMediaId === m.id" class="btn-icon" title="Cancel" (click)="editingMediaId=null">✕</button>
+                <button class="btn-icon btn-danger-icon" title="Delete" (click)="deleteMediaItem(m)">🗑️</button>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="getMediaByType(mediaTab).length === 0" class="empty-table">No {{mediaTab}}s uploaded yet.</div>
+        </div>
+      </div>
+
+      <!-- ── SCRAPED FLOOR PLANS SECTION (shown on floorplan tab) ────────── -->
+      <div class="scraped-section" *ngIf="mediaTab === 'floorplan'">
+        <div class="scraped-section-header">
+          <h4>
+            📥 Scraped RERA Floor Plans
+            <span class="scraped-count" *ngIf="scrapedPageCount > 0">({{scrapedPageCount}} pages)</span>
+          </h4>
+          <small class="scraped-hint">Downloaded from RERA portal by <code>download_project_docs.py</code>. Click <strong>+ Add</strong> to register a page into the media library, or 🗑️ to remove it from disk.</small>
+        </div>
+
+        <div *ngIf="scrapedLoading" class="loading-state"><span class="spinner-sm"></span> Loading scraped files…</div>
+
+        <div *ngIf="!scrapedLoading && scrapedFloorPlans.length === 0" class="empty-table">
+          No scraped floor plans found. Run <code>python download_project_docs.py "{{selectedProperty?.['Project Name']}}"</code> in the backend folder to fetch them from RERA.
+        </div>
+
+        <div *ngIf="!scrapedLoading && scrapedFloorPlans.length > 0">
+          <div *ngFor="let entry of scrapedFloorPlans" class="scraped-doc-group">
+            <div class="scraped-doc-label">
+              <span class="scraped-doc-name">{{entry.docName}}</span>
+              <span class="scraped-doc-tag">{{entry.label}}</span>
+              <span class="scraped-page-count">{{entry.pages?.length || 0}} page(s)</span>
+            </div>
+            <div class="scraped-pages-grid">
+              <div *ngFor="let pageUrl of entry.pages" class="scraped-page-item">
+                <div class="scraped-thumb">
+                  <img [src]="pageUrl" [alt]="scrapedFilename(pageUrl)" (error)="onImgError($event)">
+                </div>
+                <div class="scraped-page-name">{{scrapedFilename(pageUrl)}}</div>
+                <div class="scraped-page-actions">
+                  <button class="btn-scrape-add" title="Add to floor plans library"
+                    [disabled]="promotingPage === scrapedFilename(pageUrl)"
+                    (click)="promoteScrapedPage(pageUrl, entry.docName)">
+                    <span *ngIf="promotingPage !== scrapedFilename(pageUrl)">+ Add</span>
+                    <span *ngIf="promotingPage === scrapedFilename(pageUrl)" class="spinner-sm"></span>
+                  </button>
+                  <button class="btn-icon btn-danger-icon" title="Delete from disk" (click)="deleteScrapedPage(pageUrl)">🗑️</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-admin-secondary" (click)="closeModal()">Done</button>
+    </div>
+  </div>
+</div>

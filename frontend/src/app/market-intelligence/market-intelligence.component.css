@@ -1,0 +1,571 @@
+/* ── Page Shell ─────────────────────────────────────────────── */
+.mi-page {
+  min-height: 100vh;
+  background: #f8fafc;
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.mi-header {
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 60%, #312e81 100%);
+  color: #fff;
+  padding: 48px 0 40px;
+}
+.mi-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+.mi-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #a5b4fc;
+  margin-bottom: 10px;
+}
+.mi-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0 0 8px;
+  letter-spacing: -0.5px;
+}
+.mi-subtitle {
+  font-size: 0.95rem;
+  color: #596475;
+  max-width: 520px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* KPIs */
+.mi-kpis {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.kpi-card {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  padding: 18px 24px;
+  text-align: center;
+  min-width: 110px;
+  backdrop-filter: blur(8px);
+}
+.kpi-card.kpi-accent {
+  background: rgba(99,102,241,0.2);
+  border-color: rgba(99,102,241,0.4);
+}
+.kpi-value {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.kpi-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #596475;
+}
+.kpi-up { color: #34d399; }
+.kpi-dn { color: #f87171; }
+
+/* ── Entity selector ─────────────────────────────────────────── */
+.entity-selector-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 1.5rem;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+}
+.entity-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #4a5568;
+  white-space: nowrap;
+}
+.entity-select {
+  background: rgba(30,41,59,0.9);
+  color: #e2e8f0;
+  border: 1px solid rgba(99,102,241,0.4);
+  border-radius: 7px;
+  padding: 7px 12px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  outline: none;
+  min-width: 220px;
+}
+.entity-select:focus { border-color: #6366f1; }
+
+/* ── Loading ─────────────────────────────────────────────────── */
+.mi-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  color: #4a5568;
+  gap: 16px;
+}
+.loader-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Content ─────────────────────────────────────────────────── */
+.mi-content {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+/* ── 2-column grid for sections 01-06 ───────────────────────── */
+.sections-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  /* stretch so both cards in a row are always equal height */
+}
+/* Cards become flex columns so the chart stretches to fill */
+.sections-grid .mi-section {
+  display: flex;
+  flex-direction: column;
+}
+.sections-grid .trend-layout {
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.sections-grid .trend-chart {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+}
+/* Rank chart-wrap also stretches */
+.sections-grid .chart-wrap {
+  flex: 1;
+  min-height: 0;
+  height: auto !important;
+}
+.sections-grid .trend-stats {
+  flex-direction: row;
+  flex-wrap: nowrap;
+  min-width: unset;
+  width: 100%;
+  gap: 6px;
+  margin-top: 10px;
+}
+.sections-grid .trend-snapshot-quarter {
+  display: none;   /* hide the quarter badge — already shown in section header */
+}
+.sections-grid .stat-chip {
+  flex: 1 1 0;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+.sections-grid .stat-label {
+  font-size: 0.6rem;
+  margin-bottom: 1px;
+}
+.sections-grid .stat-value {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.sections-grid .stat-unit {
+  font-size: 0.58rem;
+}
+
+/* ── Section ─────────────────────────────────────────────────── */
+.mi-section {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 32px 28px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+}
+.section-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.section-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: #eef2ff;
+  color: #6366f1;
+  font-size: 0.85rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.5px;
+}
+.section-title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+.section-desc {
+  font-size: 0.85rem;
+  color: #4a5568;
+  margin: 0;
+}
+
+/* ── Filter Bar ──────────────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.filter-group label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #596475;
+  text-transform: uppercase;
+}
+.pill-group {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1.5px solid #e2e8f0;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.pill:hover { border-color: #6366f1; color: #6366f1; }
+.pill.active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #fff;
+}
+
+/* ── Chart Wrap ──────────────────────────────────────────────── */
+.chart-wrap {
+  position: relative;
+  width: 100%;
+}
+
+/* ── Data Source ─────────────────────────────────────────────── */
+.data-source {
+  font-size: 0.72rem;
+  color: #596475;
+  margin: 12px 0 24px;
+  text-align: right;
+}
+
+/* ── Tracker Table ───────────────────────────────────────────── */
+.tracker-table-wrap {
+  overflow-x: auto;
+  border-radius: 10px;
+  border: 1px solid #f1f5f9;
+}
+.tracker-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.tracker-table thead tr {
+  background: #f8fafc;
+}
+.tracker-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: #596475;
+  border-bottom: 1px solid #f1f5f9;
+}
+.tracker-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #f8fafc;
+  color: #1e293b;
+}
+.tracker-table tbody tr:hover { background: #f8fafc; }
+.tracker-table tbody tr:last-child td { border-bottom: none; }
+.rank-cell { color: #596475; font-weight: 600; width: 40px; }
+.locality-cell { font-weight: 500; }
+.num-cell { font-variant-numeric: tabular-nums; font-weight: 600; color: #6366f1; }
+
+/* ── Empty State ─────────────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  color: #596475;
+  font-size: 0.9rem;
+}
+
+/* ── Section number colour variants ─────────────────────────── */
+.section-num.sn-indigo { background: #ede9fe; color: #6366f1; }
+.section-num.sn-green  { background: #d1fae5; color: #10b981; }
+.section-num.sn-yellow { background: #fef3c7; color: #d97706; }
+
+/* ── SRO Sub-header bar ───────────────────────────────────────── */
+.sro-subheader {
+  max-width: 1200px;
+  margin: 20px auto 8px;
+  padding: 16px 24px;
+  background: linear-gradient(90deg, #0f172a, #1e293b);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.sro-subheader-title { font-size: 1.05rem; font-weight: 700; color: #f1f5f9; margin: 0 0 4px; }
+.sro-subheader-desc  { font-size: 0.82rem; color: #596475; margin: 0; }
+.sro-latest-tag {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  border-radius: 20px;
+  background: rgba(99,102,241,0.25);
+  color: #a5b4fc;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.sro-refresh-btn {
+  flex-shrink: 0;
+  padding: 10px 20px;
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+.sro-refresh-btn:hover:not(:disabled) { background: #4f46e5; }
+.sro-refresh-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+/* ── Scrape progress banner ───────────────────────────────────── */
+.scrape-banner {
+  max-width: 1200px;
+  margin: 0 auto 0;
+  padding: 0 24px 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.scrape-spinner {
+  width: 18px; height: 18px;
+  border: 3px solid rgba(99,102,241,0.25);
+  border-top-color: #6366f1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.scrape-info { font-size: 0.82rem; color: #475569; }
+.scrape-info strong { color: #1e293b; }
+
+/* ── SRO empty state ──────────────────────────────────────────── */
+.sro-empty {
+  max-width: 1200px;
+  margin: 12px auto;
+  padding: 40px 32px;
+  background: #fff;
+  border: 2px dashed #e2e8f0;
+  border-radius: 12px;
+  text-align: center;
+  color: #4a5568;
+}
+.sro-empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.sro-empty h4 { font-size: 1.05rem; font-weight: 700; color: #1e293b; margin: 0 0 8px; }
+.sro-empty p  { font-size: 0.88rem; line-height: 1.6; max-width: 480px; margin: 0 auto; }
+
+/* ── Rank table (SRO) ─────────────────────────────────────────── */
+.rank-table-wrap {
+  margin-top: 16px;
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+/* ── Trend layout (chart + stat panel side-by-side) ─────────── */
+.trend-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.trend-chart {
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
+  height: 320px;
+}
+.trend-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 164px;
+  padding-top: 4px;
+}
+.trend-snapshot-quarter {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: #6366f1;
+  padding: 6px 10px;
+  background: #eef2ff;
+  border-radius: 8px;
+  text-align: center;
+  margin-bottom: 2px;
+}
+.stat-chip {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: center;
+}
+.chip-up { background: #f0fdf4; border-color: #bbf7d0; }
+.chip-dn { background: #fff1f2; border-color: #fecdd3; }
+.stat-value {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.1;
+  margin-bottom: 2px;
+}
+.chip-up .stat-value { color: #15803d; }
+.chip-dn .stat-value { color: #be123c; }
+.stat-label {
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: #596475;
+  margin-bottom: 4px;
+}
+.stat-unit {
+  font-size: 0.72rem;
+  color: #596475;
+  margin-top: 2px;
+}
+
+/* ── Rank layout (chart + top-5 cards) ───────────────────────── */
+.rank-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.rank-chart {
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
+}
+.rank-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 200px;
+  max-width: 220px;
+}
+.rank-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #f1f5f9;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+.rank-card-pos {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #6366f1;
+  min-width: 18px;
+  padding-top: 2px;
+}
+.rank-card-body { flex: 1; min-width: 0; }
+.rank-card-loc {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.rank-card-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #6366f1;
+}
+.rank-card-sub {
+  font-size: 0.7rem;
+  color: #596475;
+  margin-top: 1px;
+}
+
+/* ── Text colour helpers ─────────────────────────────────────── */
+.sn-indigo-txt { color: #6366f1; }
+.sn-green-txt  { color: #10b981; }
+.sn-yellow-txt { color: #d97706; }
+.sn-indigo { background: #ede9fe; color: #6366f1; }
+.sn-green  { background: #d1fae5; color: #10b981; }
+.sn-yellow { background: #fef3c7; color: #d97706; }
+
+/* ── Circle rate vs market premium ──────────────────────────── */
+.premium-positive { color: #b45309; font-weight: 600; }
+.premium-negative { color: #15803d; font-weight: 600; }
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .mi-title { font-size: 1.6rem; }
+  .mi-header-inner { flex-direction: column; align-items: flex-start; }
+  .mi-section { padding: 20px 16px; }
+  .filter-bar { gap: 16px; }
+  .sro-subheader { flex-direction: column; align-items: flex-start; }
+  .sections-grid { grid-template-columns: 1fr; }
+  .trend-layout { flex-direction: column; }
+  .trend-stats { flex-direction: row; flex-wrap: wrap; min-width: unset; }
+  .rank-layout  { flex-direction: column; }
+  .rank-cards   { max-width: 100%; flex-direction: row; flex-wrap: wrap; }
+}

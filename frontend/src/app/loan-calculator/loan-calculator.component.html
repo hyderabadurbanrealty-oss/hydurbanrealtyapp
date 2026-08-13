@@ -1,0 +1,657 @@
+<div class="lc-page">
+
+  <!-- ── Page header ─────────────────────────────────────────────── -->
+  <div class="lc-header">
+    <div class="lc-header-inner">
+      <div class="lc-header-left">
+        <nav class="lc-breadcrumb">
+          <a routerLink="/">Home</a>
+          <span>/</span>
+          <span>Financing Tools</span>
+        </nav>
+        <h1 class="lc-title">Financing Calculator</h1>
+        <p class="lc-subtitle">Model your home loan across EMI, affordability, NRI compliance and lender comparison.</p>
+      </div>
+      <div class="lc-header-stats">
+        <div class="lc-stat">
+          <span class="lc-stat-val">{{ minBankRate | number:'1.2-2' }}%</span>
+          <span class="lc-stat-lbl">Floor rate p.a.</span>
+        </div>
+        <div class="lc-stat-sep"></div>
+        <div class="lc-stat">
+          <span class="lc-stat-val">75%</span>
+          <span class="lc-stat-lbl">Max LTV (RBI)</span>
+        </div>
+        <div class="lc-stat-sep"></div>
+        <div class="lc-stat">
+          <span class="lc-stat-val">30 yr</span>
+          <span class="lc-stat-lbl">Max tenure</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mode tabs inside header -->
+    <div class="lc-header-inner lc-tabs-row">
+      <nav class="lc-tabs">
+        <button class="lc-tab" [class.active]="activeMode==='home-loan'" (click)="setMode('home-loan')">EMI</button>
+        <button class="lc-tab" [class.active]="activeMode==='affordability'" (click)="setMode('affordability')">Affordability</button>
+        <button class="lc-tab" [class.active]="activeMode==='nri'" (click)="setMode('nri')">
+          NRI <span class="lc-tab-tag">Overseas</span>
+        </button>
+        <button class="lc-tab" [class.active]="activeMode==='compare'" (click)="setMode('compare')">Lender Compare</button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ── Workspace ────────────────────────────────────────────────── -->
+  <div class="lc-workspace">
+
+    <!-- ════════════════════ EMI ════════════════════════════════════ -->
+    <div *ngIf="activeMode==='home-loan'" class="lc-layout">
+
+      <!-- Inputs panel -->
+      <aside class="lc-panel">
+        <div class="lc-panel-section">
+          <h3 class="lc-section-label">Property</h3>
+          <div class="lc-row-2col">
+            <div class="lc-field">
+              <label class="lc-label">Property value</label>
+              <div class="lc-input-wrap">
+                <span class="lc-sym">₹</span>
+                <input type="number" [(ngModel)]="propertyValue" (ngModelChange)="calculate()" min="100000" step="100000" class="lc-input lc-input-sym" />
+              </div>
+              <span class="lc-meta">{{ fmtCr(propertyValue) }}</span>
+            </div>
+            <div class="lc-field">
+              <label class="lc-label">Down payment — <strong>{{ downPaymentPct }}%</strong></label>
+              <input type="range" [(ngModel)]="downPaymentPct" min="10" max="50" step="5" (ngModelChange)="calculate()" class="lc-slider" />
+              <div class="lc-slider-ends"><span>10%</span><span>50%</span></div>
+              <span class="lc-meta">{{ fmtCr(downPaymentAmount) }} → Loan {{ fmtCr(derivedLoanAmount) }}</span>
+            </div>
+          </div>
+          <button class="lc-set-btn" (click)="applyPropertyValue()">Set loan from property value</button>
+        </div>
+
+        <div class="lc-panel-divider"></div>
+
+        <div class="lc-panel-section">
+          <h3 class="lc-section-label">Loan parameters</h3>
+
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Loan amount</label>
+              <span class="lc-live-val">{{ fmtCr(loanAmount) }}</span>
+            </div>
+            <div class="lc-input-wrap">
+              <span class="lc-sym">₹</span>
+              <input type="number" [(ngModel)]="loanAmount" (ngModelChange)="calculate()" min="100000" step="100000" class="lc-input lc-input-sym" />
+            </div>
+            <input type="range" [(ngModel)]="loanAmountLakhs" min="5" max="1000" step="5"
+                   (ngModelChange)="loanAmount=loanAmountLakhs*100000; calculate()" class="lc-slider" />
+            <div class="lc-slider-ends"><span>₹5 L</span><span>₹10 Cr</span></div>
+          </div>
+
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Interest rate (p.a.)</label>
+              <span class="lc-live-val">{{ interestRate | number:'1.2-2' }}%</span>
+            </div>
+            <input type="range" [(ngModel)]="interestRate" min="6" max="18" step="0.05" (ngModelChange)="calculate()" class="lc-slider" />
+            <div class="lc-slider-ends"><span>6%</span><span>18%</span></div>
+          </div>
+
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Tenure</label>
+              <span class="lc-live-val">{{ tenureYears }} yr</span>
+            </div>
+            <input type="range" [(ngModel)]="tenureYears" min="1" max="30" step="1" (ngModelChange)="calculate()" class="lc-slider" />
+            <div class="lc-slider-ends"><span>1 yr</span><span>30 yr</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Results panel -->
+      <main class="lc-results" *ngIf="result">
+
+        <!-- EMI output -->
+        <div class="lc-output-row">
+          <div class="lc-output-primary">
+            <span class="lc-output-label">Monthly EMI</span>
+            <span class="lc-output-value">{{ fmtInr(result.emi) }}</span>
+            <span class="lc-output-sub">{{ tenureYears }} yr · {{ interestRate | number:'1.2-2' }}% p.a.</span>
+          </div>
+          <div class="lc-output-secondary">
+            <div class="lc-kv">
+              <span class="lc-kv-k">Principal</span>
+              <span class="lc-kv-v">{{ fmtCr(loanAmount) }}</span>
+            </div>
+            <div class="lc-kv">
+              <span class="lc-kv-k">Total interest</span>
+              <span class="lc-kv-v lc-kv-warn">{{ fmtCr(result.totalInterest) }}</span>
+            </div>
+            <div class="lc-kv lc-kv-total">
+              <span class="lc-kv-k">Total repayment</span>
+              <span class="lc-kv-v">{{ fmtCr(result.totalPayment) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Breakdown chart + legend side by side -->
+        <div class="lc-chart-row">
+          <div class="lc-donut-wrap">
+            <canvas baseChart [data]="doughnutData" [options]="doughnutOptions" type="doughnut"></canvas>
+            <div class="lc-donut-center">
+              <span class="lc-donut-pct">{{ result.principalPct }}%</span>
+              <span class="lc-donut-sub">principal</span>
+            </div>
+          </div>
+          <div class="lc-donut-legend">
+            <div class="lc-legend-item">
+              <span class="lc-legend-dot lc-dot-primary"></span>
+              <div>
+                <div class="lc-legend-label">Principal</div>
+                <div class="lc-legend-val">{{ fmtCr(loanAmount) }} · {{ result.principalPct }}%</div>
+              </div>
+            </div>
+            <div class="lc-legend-item">
+              <span class="lc-legend-dot lc-dot-interest"></span>
+              <div>
+                <div class="lc-legend-label">Total interest</div>
+                <div class="lc-legend-val">{{ fmtCr(result.totalInterest) }} · {{ result.interestPct }}%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Amortisation -->
+        <div class="lc-amort-header">
+          <span class="lc-section-label">Amortisation schedule</span>
+          <div class="lc-toggle-pair">
+            <button [class.on]="scheduleView==='chart'" (click)="scheduleView='chart'">Chart</button>
+            <button [class.on]="scheduleView==='table'" (click)="scheduleView='table'">Table</button>
+          </div>
+          <button class="lc-amort-toggle" (click)="showSchedule=!showSchedule">
+            {{ showSchedule ? 'Collapse' : 'Expand' }}
+          </button>
+        </div>
+
+        <div class="lc-amort-body" *ngIf="showSchedule">
+          <div class="lc-amort-chart" *ngIf="scheduleView==='chart'">
+            <canvas baseChart [data]="amortChartData" [options]="amortChartOptions" type="bar"></canvas>
+          </div>
+          <div class="lc-table-wrap" *ngIf="scheduleView==='table'">
+            <table class="lc-table">
+              <thead>
+                <tr>
+                  <th>Year</th>
+                  <th>Opening balance</th>
+                  <th>Principal paid</th>
+                  <th>Interest paid</th>
+                  <th>Closing balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of result.schedule">
+                  <td class="lc-td-yr">{{ row.year }}</td>
+                  <td>{{ fmtCr(row.openingBalance) }}</td>
+                  <td class="lc-td-p">{{ fmtCr(row.principal) }}</td>
+                  <td class="lc-td-i">{{ fmtCr(row.interest) }}</td>
+                  <td>{{ fmtCr(row.closingBalance) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div><!-- /emi -->
+
+    <!-- ════════════════ AFFORDABILITY ══════════════════════════════ -->
+    <div *ngIf="activeMode==='affordability'" class="lc-layout">
+
+      <aside class="lc-panel">
+        <div class="lc-panel-section">
+          <h3 class="lc-section-label">Income profile</h3>
+
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Monthly net income</label>
+              <span class="lc-live-val">{{ fmtInr(monthlyIncome) }}</span>
+            </div>
+            <div class="lc-input-wrap">
+              <span class="lc-sym">₹</span>
+              <input type="number" [(ngModel)]="monthlyIncome" (ngModelChange)="calculateAffordability()" min="0" step="10000" class="lc-input lc-input-sym" />
+            </div>
+          </div>
+
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Existing monthly obligations</label>
+              <span class="lc-live-val">{{ fmtInr(existingEmi) }}</span>
+            </div>
+            <div class="lc-input-wrap">
+              <span class="lc-sym">₹</span>
+              <input type="number" [(ngModel)]="existingEmi" (ngModelChange)="calculateAffordability()" min="0" step="1000" class="lc-input lc-input-sym" />
+            </div>
+            <span class="lc-meta">Car loans, personal loans, other EMIs</span>
+          </div>
+        </div>
+
+        <div class="lc-panel-divider"></div>
+
+        <div class="lc-panel-section">
+          <h3 class="lc-section-label">Lending assumptions</h3>
+
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">FOIR ceiling</label>
+              <span class="lc-live-val">{{ (foir * 100) | number:'1.0-0' }}%</span>
+            </div>
+            <input type="range" [(ngModel)]="foir" min="0.2" max="0.6" step="0.05" (ngModelChange)="calculateAffordability()" class="lc-slider" />
+            <div class="lc-slider-ends"><span>20%</span><span>60%</span></div>
+            <span class="lc-meta">RBI guidance: 40–50%. Most banks cap at 50%.</span>
+          </div>
+
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Expected rate (p.a.)</label>
+              <span class="lc-live-val">{{ affordRate | number:'1.2-2' }}%</span>
+            </div>
+            <input type="range" [(ngModel)]="affordRate" min="6" max="16" step="0.25" (ngModelChange)="calculateAffordability()" class="lc-slider" />
+            <div class="lc-slider-ends"><span>6%</span><span>16%</span></div>
+          </div>
+
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Tenure</label>
+              <span class="lc-live-val">{{ affordTenure }} yr</span>
+            </div>
+            <input type="range" [(ngModel)]="affordTenure" min="5" max="30" step="1" (ngModelChange)="calculateAffordability()" class="lc-slider" />
+            <div class="lc-slider-ends"><span>5 yr</span><span>30 yr</span></div>
+          </div>
+
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Down payment</label>
+              <span class="lc-live-val">{{ downPaymentPct }}%</span>
+            </div>
+            <input type="range" [(ngModel)]="downPaymentPct" min="10" max="40" step="5" (ngModelChange)="calculateAffordability()" class="lc-slider" />
+            <div class="lc-slider-ends"><span>10%</span><span>40%</span></div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="lc-results" *ngIf="affordResult">
+
+        <div class="lc-output-row" *ngIf="affordResult.maxLoan > 0">
+          <div class="lc-output-primary">
+            <span class="lc-output-label">Max eligible loan</span>
+            <span class="lc-output-value">{{ fmtCr(affordResult.maxLoan) }}</span>
+            <span class="lc-output-sub">Based on {{ (foir*100)|number:'1.0-0' }}% FOIR ceiling</span>
+          </div>
+          <div class="lc-output-secondary">
+            <div class="lc-kv">
+              <span class="lc-kv-k">Max monthly EMI</span>
+              <span class="lc-kv-v">{{ fmtInr(affordResult.maxEmi) }}</span>
+            </div>
+            <div class="lc-kv lc-kv-total">
+              <span class="lc-kv-k">Affordable property value</span>
+              <span class="lc-kv-v">{{ fmtCr(affordResult.maxProperty) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="lc-ineligible" *ngIf="affordResult.maxLoan <= 0">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+          Existing obligations exceed the FOIR ceiling. Reducing current debt or increasing income improves eligibility.
+        </div>
+
+        <!-- Income utilisation breakdown -->
+        <div class="lc-util-section" *ngIf="affordResult.maxLoan > 0">
+          <span class="lc-section-label">Monthly income utilisation</span>
+          <div class="lc-util-bar">
+            <div class="lc-util-seg lc-util-existing"
+                 [style.width.%]="((existingEmi / monthlyIncome) * 100)">
+            </div>
+            <div class="lc-util-seg lc-util-new"
+                 [style.width.%]="((affordResult.maxEmi / monthlyIncome) * 100)">
+            </div>
+          </div>
+          <div class="lc-util-legend">
+            <div class="lc-legend-item">
+              <span class="lc-legend-dot lc-dot-primary"></span>
+              <div>
+                <div class="lc-legend-label">Existing obligations</div>
+                <div class="lc-legend-val">{{ fmtInr(existingEmi) }} · {{ ((existingEmi/monthlyIncome)*100)|number:'1.1-1' }}%</div>
+              </div>
+            </div>
+            <div class="lc-legend-item">
+              <span class="lc-legend-dot lc-dot-interest"></span>
+              <div>
+                <div class="lc-legend-label">New home loan EMI</div>
+                <div class="lc-legend-val">{{ fmtInr(affordResult.maxEmi) }} · {{ ((affordResult.maxEmi/monthlyIncome)*100)|number:'1.1-1' }}%</div>
+              </div>
+            </div>
+            <div class="lc-legend-item">
+              <span class="lc-legend-dot lc-dot-free"></span>
+              <div>
+                <div class="lc-legend-label">Remaining disposable</div>
+                <div class="lc-legend-val">{{ fmtInr(monthlyIncome - existingEmi - affordResult.maxEmi) }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div><!-- /affordability -->
+
+    <!-- ════════════════ NRI ═════════════════════════════════════════ -->
+    <div *ngIf="activeMode==='nri'" class="lc-nri-wrap">
+
+      <!-- Country selector -->
+      <div class="lc-country-row">
+        <button *ngFor="let c of nriCountries"
+                class="lc-country-btn"
+                [class.active]="selectedNriCountry.countryCode === c.countryCode"
+                (click)="selectedNriCountry = c; calculateNri()">
+          {{ c.countryName }}
+        </button>
+      </div>
+
+      <div class="lc-nri-note">{{ selectedNriCountry.tipText }}</div>
+
+      <div class="lc-layout">
+        <aside class="lc-panel">
+          <div class="lc-panel-section">
+            <div class="lc-panel-title-row">
+              <h3 class="lc-section-label">Loan parameters</h3>
+              <span class="lc-scheme-tag">{{ selectedNriCountry.nriScheme }}</span>
+            </div>
+
+            <!-- Forex converter -->
+            <div class="lc-forex-block">
+              <button class="lc-forex-toggle" (click)="showForexHelper=!showForexHelper">
+                {{ selectedNriCountry.symbol }} ↔ ₹ converter
+                <span class="lc-forex-rate-tag">1 {{ selectedNriCountry.currency }} = ₹{{ selectedNriCountry.forexToInr }}</span>
+              </button>
+              <div class="lc-forex-body" *ngIf="showForexHelper">
+                <div class="lc-forex-row">
+                  <div class="lc-input-wrap">
+                    <span class="lc-sym">{{ selectedNriCountry.symbol }}</span>
+                    <input type="number" [(ngModel)]="forexAmount" min="0" step="1000" class="lc-input lc-input-sym" />
+                  </div>
+                  <span class="lc-forex-result">= {{ fmtInr(forexInInr) }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="lc-field">
+              <div class="lc-label-row">
+                <label class="lc-label">Loan amount (INR)</label>
+                <span class="lc-live-val">{{ fmtCr(nriLoanAmount) }}</span>
+              </div>
+              <div class="lc-input-wrap">
+                <span class="lc-sym">₹</span>
+                <input type="number" [(ngModel)]="nriLoanAmount" (ngModelChange)="calculateNri()" min="100000" step="100000" class="lc-input lc-input-sym" />
+              </div>
+              <input type="range" [(ngModel)]="nriLoanAmountLakhs" min="10" max="2000" step="10"
+                     (ngModelChange)="nriLoanAmount=nriLoanAmountLakhs*100000; calculateNri()" class="lc-slider" />
+              <div class="lc-slider-ends"><span>₹10 L</span><span>₹20 Cr</span></div>
+              <span class="lc-meta">≈ {{ selectedNriCountry.symbol }} {{ (nriLoanAmount / selectedNriCountry.forexToInr) | number:'1.0-0' }}</span>
+            </div>
+
+            <div class="lc-field">
+              <div class="lc-label-row">
+                <label class="lc-label">Interest rate (p.a.)</label>
+                <span class="lc-live-val">{{ nriInterestRate | number:'1.2-2' }}%</span>
+              </div>
+              <input type="range" [(ngModel)]="nriInterestRate" min="7" max="14" step="0.05" (ngModelChange)="calculateNri()" class="lc-slider" />
+              <div class="lc-slider-ends"><span>7%</span><span>14%</span></div>
+              <span class="lc-meta">NRI loans typically carry +0.25–0.50% over resident rates.</span>
+            </div>
+
+            <div class="lc-field">
+              <div class="lc-label-row">
+                <label class="lc-label">Tenure</label>
+                <span class="lc-live-val">{{ nriTenureYears }} yr</span>
+              </div>
+              <input type="range" [(ngModel)]="nriTenureYears" min="1" max="20" step="1" (ngModelChange)="calculateNri()" class="lc-slider" />
+              <div class="lc-slider-ends"><span>1 yr</span><span>20 yr</span></div>
+              <span class="lc-meta">Maximum tenure for NRI borrowers is typically 20 years.</span>
+            </div>
+          </div>
+
+          <!-- Tax & compliance table -->
+          <div class="lc-panel-divider"></div>
+          <div class="lc-panel-section">
+            <h3 class="lc-section-label">Tax & compliance — {{ selectedNriCountry.countryName }}</h3>
+            <table class="lc-data-table">
+              <tr><td>TDS on rental income</td><td>{{ selectedNriCountry.taxTds }}%</td></tr>
+              <tr><td>TDS on sale (STCG)</td><td>30%</td></tr>
+              <tr><td>TDS on sale (LTCG)</td><td>20% + surcharge</td></tr>
+              <tr><td>Repatriation account</td><td>{{ selectedNriCountry.nriScheme }}</td></tr>
+            </table>
+            <p class="lc-compliance-note">DTAA between India and {{ selectedNriCountry.countryName }} may reduce effective tax liability. Seek CA advice.</p>
+          </div>
+        </aside>
+
+        <main class="lc-results" *ngIf="nriResult">
+          <div class="lc-output-row">
+            <div class="lc-output-primary">
+              <span class="lc-output-label">Monthly EMI</span>
+              <span class="lc-output-value">{{ fmtInr(nriResult.emi) }}</span>
+              <span class="lc-output-sub">≈ {{ selectedNriCountry.symbol }} {{ (nriResult.emi / selectedNriCountry.forexToInr) | number:'1.0-0' }} / month</span>
+            </div>
+            <div class="lc-output-secondary">
+              <div class="lc-kv">
+                <span class="lc-kv-k">Principal (INR)</span>
+                <span class="lc-kv-v">{{ fmtCr(nriLoanAmount) }}</span>
+              </div>
+              <div class="lc-kv">
+                <span class="lc-kv-k">Total interest</span>
+                <span class="lc-kv-v lc-kv-warn">{{ fmtCr(nriResult.totalInterest) }}</span>
+              </div>
+              <div class="lc-kv">
+                <span class="lc-kv-k">Total repayment (INR)</span>
+                <span class="lc-kv-v">{{ fmtCr(nriResult.totalPayment) }}</span>
+              </div>
+              <div class="lc-kv lc-kv-total">
+                <span class="lc-kv-k">Total repayment ({{ selectedNriCountry.currency }})</span>
+                <span class="lc-kv-v">{{ selectedNriCountry.symbol }} {{ (nriResult.totalPayment / selectedNriCountry.forexToInr) | number:'1.0-0' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="lc-chart-row">
+            <div class="lc-donut-wrap">
+              <canvas baseChart [data]="doughnutData" [options]="doughnutOptions" type="doughnut"></canvas>
+              <div class="lc-donut-center">
+                <span class="lc-donut-pct">{{ nriResult.principalPct }}%</span>
+                <span class="lc-donut-sub">principal</span>
+              </div>
+            </div>
+            <div class="lc-donut-legend">
+              <div class="lc-legend-item">
+                <span class="lc-legend-dot lc-dot-primary"></span>
+                <div>
+                  <div class="lc-legend-label">Principal</div>
+                  <div class="lc-legend-val">{{ fmtCr(nriLoanAmount) }} · {{ nriResult.principalPct }}%</div>
+                </div>
+              </div>
+              <div class="lc-legend-item">
+                <span class="lc-legend-dot lc-dot-interest"></span>
+                <div>
+                  <div class="lc-legend-label">Total interest</div>
+                  <div class="lc-legend-val">{{ fmtCr(nriResult.totalInterest) }} · {{ nriResult.interestPct }}%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Eligibility checklist -->
+          <div class="lc-checklist-block">
+            <span class="lc-section-label">NRI eligibility — documentation</span>
+            <ul class="lc-checklist">
+              <li>Valid Indian Passport or OCI Card</li>
+              <li>NRE / NRO bank account in India</li>
+              <li>Minimum 2 years overseas employment proof</li>
+              <li>Last 6 months foreign salary slips</li>
+              <li>FEMA compliance declaration</li>
+              <li>Power of Attorney (if purchasing remotely)</li>
+            </ul>
+          </div>
+        </main>
+      </div>
+    </div><!-- /nri -->
+
+    <!-- ════════════════ LENDER COMPARE ═════════════════════════════ -->
+    <div *ngIf="activeMode==='compare'" class="lc-layout">
+
+      <aside class="lc-panel">
+        <div class="lc-panel-section">
+          <h3 class="lc-section-label">Common parameters</h3>
+
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Loan amount</label>
+              <span class="lc-live-val">{{ fmtCr(cmpAmount) }}</span>
+            </div>
+            <div class="lc-input-wrap">
+              <span class="lc-sym">₹</span>
+              <input type="number" [(ngModel)]="cmpAmount" (ngModelChange)="calculateCompare()" min="100000" step="100000" class="lc-input lc-input-sym" />
+            </div>
+          </div>
+
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Tenure</label>
+              <span class="lc-live-val">{{ cmpTenure }} yr</span>
+            </div>
+            <input type="range" [(ngModel)]="cmpTenure" min="5" max="30" step="1" (ngModelChange)="calculateCompare()" class="lc-slider" />
+            <div class="lc-slider-ends"><span>5 yr</span><span>30 yr</span></div>
+          </div>
+        </div>
+
+        <div class="lc-panel-divider"></div>
+
+        <div class="lc-panel-section">
+          <h3 class="lc-section-label">Lender rates</h3>
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Lender A</label>
+              <span class="lc-live-val">{{ bank1Rate | number:'1.2-2' }}%</span>
+            </div>
+            <input type="range" [(ngModel)]="bank1Rate" min="6" max="16" step="0.05" (ngModelChange)="calculateCompare()" class="lc-slider lc-slider-a" />
+          </div>
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Lender B</label>
+              <span class="lc-live-val">{{ bank2Rate | number:'1.2-2' }}%</span>
+            </div>
+            <input type="range" [(ngModel)]="bank2Rate" min="6" max="16" step="0.05" (ngModelChange)="calculateCompare()" class="lc-slider lc-slider-b" />
+          </div>
+          <div class="lc-field">
+            <div class="lc-label-row">
+              <label class="lc-label">Lender C</label>
+              <span class="lc-live-val">{{ bank3Rate | number:'1.2-2' }}%</span>
+            </div>
+            <input type="range" [(ngModel)]="bank3Rate" min="6" max="16" step="0.05" (ngModelChange)="calculateCompare()" class="lc-slider lc-slider-c" />
+          </div>
+        </div>
+      </aside>
+
+      <main class="lc-results">
+        <div class="lc-cmp-table-wrap">
+          <table class="lc-cmp-table">
+            <thead>
+              <tr>
+                <th>Lender</th>
+                <th>Rate p.a.</th>
+                <th>Monthly EMI</th>
+                <th>Total interest</th>
+                <th>Cost vs best</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of cmpResults"
+                  [class.lc-cmp-best-row]="r.emi === (cmpResults | minEmi)">
+                <td class="lc-cmp-lender">
+                  {{ r.bank }}
+                  <span class="lc-best-tag" *ngIf="r.emi === (cmpResults | minEmi)">Lowest</span>
+                </td>
+                <td class="lc-cmp-rate-cell">{{ r.rate | number:'1.2-2' }}%</td>
+                <td class="lc-cmp-emi-cell">{{ fmtInr(r.emi) }}</td>
+                <td>{{ fmtCr(r.totalInterest) }}</td>
+                <td class="lc-cmp-diff" [class.lc-cmp-diff-zero]="r.emi === (cmpResults | minEmi)">
+                  {{ r.emi === (cmpResults | minEmi) ? '—' : '+' + fmtCr(r.totalInterest - (cmpResults | minTotalInt)) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Visual EMI bars -->
+        <div class="lc-cmp-bars">
+          <span class="lc-section-label">EMI comparison</span>
+          <div *ngFor="let r of cmpResults" class="lc-cmp-bar-row">
+            <span class="lc-cmp-bar-lbl">{{ r.bank }}</span>
+            <div class="lc-cmp-bar-track">
+              <div class="lc-cmp-bar-fill"
+                   [class.lc-cmp-bar-best]="r.emi === (cmpResults | minEmi)"
+                   [style.width.%]="(r.emi / ((cmpResults | maxEmi) || 1)) * 100"></div>
+            </div>
+            <span class="lc-cmp-bar-val">{{ fmtInr(r.emi) }}</span>
+          </div>
+        </div>
+      </main>
+    </div><!-- /compare -->
+
+  </div><!-- /lc-workspace -->
+
+  <!-- ── Lender rate reference ────────────────────────────────────── -->
+  <div class="lc-rates-section">
+    <div class="lc-rates-inner">
+      <div class="lc-rates-head">
+        <div>
+          <h2 class="lc-rates-title">Indicative lending rates</h2>
+          <p class="lc-rates-sub">Aug 2026 · Click any row to apply the floor rate to the active calculator</p>
+        </div>
+      </div>
+      <table class="lc-rates-table">
+        <thead>
+          <tr>
+            <th>Institution</th>
+            <th>Type</th>
+            <th>Floor rate</th>
+            <th>Ceiling rate</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let b of bankRates" (click)="selectBankRate(b.minRate)" class="lc-rates-row">
+            <td class="lc-rates-bank">
+              {{ b.bank }}
+              <span class="lc-rates-tag"
+                    [class.tag-psu]="b.tag==='PSU'"
+                    [class.tag-pvt]="b.tag==='Private'"
+                    [class.tag-nbfc]="b.tag==='NBFC'"
+                    [class.tag-hfc]="b.tag==='HFC'">{{ b.tag }}</span>
+            </td>
+            <td class="lc-rates-type">{{ b.type }}</td>
+            <td class="lc-rates-floor">{{ b.minRate | number:'1.2-2' }}%</td>
+            <td class="lc-rates-ceil">{{ b.maxRate | number:'1.2-2' }}%</td>
+            <td>
+              <button class="lc-apply-rate-btn" (click)="selectBankRate(b.minRate); $event.stopPropagation()">Apply</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="lc-rates-note">Rates are indicative and subject to change. Final rate depends on CIBIL score, LTV ratio, and lender policy at time of disbursement.</p>
+    </div>
+  </div>
+
+  <!-- ── Disclaimer ───────────────────────────────────────────────── -->
+  <div class="lc-disclaimer">
+    Results are for illustrative purposes only. Calculations assume constant interest and do not include processing fees, prepayment penalties, or GST. Forex rates are indicative. Consult your lender and a SEBI-registered financial advisor before making investment decisions.
+  </div>
+
+</div><!-- /lc-page -->

@@ -1,0 +1,59 @@
+name: 📦 Bundle Size Analysis
+
+on:
+  workflow_dispatch:          # run manually from GitHub Actions tab
+  push:
+    branches: [master, main]
+    paths:
+      - 'frontend/src/**'
+      - 'frontend/package.json'
+      - 'frontend/angular.json'
+
+jobs:
+  analyze:
+    name: Webpack Bundle Analyzer
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm install --legacy-peer-deps
+
+      - name: Install webpack-bundle-analyzer
+        working-directory: frontend
+        run: npm install --save-dev webpack-bundle-analyzer --legacy-peer-deps
+
+      - name: Build with stats JSON
+        working-directory: frontend
+        run: npm run build:stats
+
+      - name: Generate bundle report (HTML)
+        working-directory: frontend
+        run: |
+          npx webpack-bundle-analyzer dist/hyderabad-urban-realty/stats.json \
+            dist/hyderabad-urban-realty \
+            --mode static \
+            --report bundle-report.html \
+            --no-open
+
+      - name: Upload bundle report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bundle-report
+          path: frontend/dist/hyderabad-urban-realty/bundle-report.html
+          retention-days: 30
+
+      - name: Print bundle sizes
+        working-directory: frontend
+        run: |
+          echo "=== Main bundle sizes ==="
+          find dist/hyderabad-urban-realty -name "*.js" | sort | xargs du -sh

@@ -1,0 +1,12 @@
+{
+  "name": "hyderabad-urban-reality",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "postinstall": "cd frontend && npm install",
+    "build": "cd frontend && npm run build:prod",
+    "build:prod": "cd frontend && npm run build:prod",
+    "start": "cd frontend && npm run start:prod",
+    "start:prod": "cd frontend && npm run start:prod"
+  }
+}

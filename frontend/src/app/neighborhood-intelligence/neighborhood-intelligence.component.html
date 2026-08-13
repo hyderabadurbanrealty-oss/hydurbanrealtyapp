@@ -1,0 +1,123 @@
+<div class="neighborhood-card">
+  <div class="card-header">
+    <h3>🗺️ Neighborhood Intelligence</h3>
+    <p>Explore what's around this property</p>
+  </div>
+
+  <!-- Data Source Info -->
+  <div class="data-source-section" *ngIf="dataSource === 'loading'">
+    <div class="data-source-info">
+      <span class="data-badge loading">
+        ⏳ Loading neighborhood data...
+      </span>
+    </div>
+  </div>
+
+  <div class="data-source-section" *ngIf="dataSource === 'unavailable'">
+    <div class="data-source-info">
+      <span class="data-badge unavailable">
+        📍 Neighborhood data unavailable — location could not be geocoded for this project.
+      </span>
+    </div>
+  </div>
+
+  <div class="card-body">
+    <!-- Amenities Tabs -->
+    <div class="amenities-section">
+      <h4>📍 Nearby Amenities</h4>
+      
+      <!-- Schools -->
+      <div class="amenity-category">
+        <div class="category-header">
+          <span class="category-icon">🏫</span>
+          <h5>Education ({{ amenities.schools?.length || 0 }})</h5>
+        </div>
+        <div class="places-grid">
+          <div class="place-card" *ngFor="let place of amenities.schools?.slice(0, 3)">
+            <div class="place-icon">{{ place.icon }}</div>
+            <div class="place-info">
+              <h6>{{ place.name }}</h6>
+              <p class="place-type">{{ formatPlaceType(place.type) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hospitals -->
+      <div class="amenity-category">
+        <div class="category-header">
+          <span class="category-icon">🏥</span>
+          <h5>Healthcare ({{ amenities.hospitals?.length || 0 }})</h5>
+        </div>
+        <div class="places-grid">
+          <div class="place-card" *ngFor="let place of amenities.hospitals?.slice(0, 3)">
+            <div class="place-icon">{{ place.icon }}</div>
+            <div class="place-info">
+              <h6>{{ place.name }}</h6>
+              <p class="place-type">{{ formatPlaceType(place.type) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transport -->
+      <div class="amenity-category highlight">
+        <div class="category-header">
+          <span class="category-icon">🚇</span>
+          <h5>Transportation ({{ amenities.transport?.length || 0 }})</h5>
+        </div>
+        <div class="places-grid">
+          <div class="place-card" *ngFor="let place of amenities.transport?.slice(0, 3)">
+            <div class="place-icon">{{ place.icon }}</div>
+            <div class="place-info">
+              <h6>{{ place.name }}</h6>
+              <p class="place-type">{{ formatPlaceType(place.type) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Shopping -->
+      <div class="amenity-category">
+        <div class="category-header">
+          <span class="category-icon">🛍️</span>
+          <h5>Shopping & Dining ({{ amenities.shopping?.length || 0 }})</h5>
+        </div>
+        <div class="places-grid">
+          <div class="place-card" *ngFor="let place of amenities.shopping?.slice(0, 3)">
+            <div class="place-icon">{{ place.icon }}</div>
+            <div class="place-info">
+              <h6>{{ place.name }}</h6>
+              <p class="place-type">{{ formatPlaceType(place.type) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Entertainment & Parks -->
+      <div class="amenity-category">
+        <div class="category-header">
+          <span class="category-icon">🎬</span>
+          <h5>Entertainment & Recreation</h5>
+        </div>
+        <div class="places-grid">
+          <div class="place-card" *ngFor="let place of getEntertainmentAndParks()?.slice(0, 3)">
+            <div class="place-icon">{{ place.icon }}</div>
+            <div class="place-info">
+              <h6>{{ place.name }}</h6>
+              <p class="place-type">{{ formatPlaceType(place.type) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      <small>
+        <strong>Note:</strong> Distances and amenities are approximate and based on publicly available data. 
+        Please verify exact locations and availability before making decisions.
+      </small>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,184 @@
+<div class="rera-compliance-card">
+  <div class="card-header">
+    <h3>✅ RERA Compliance Dashboard</h3>
+    <p>Real-time compliance tracking & transparency</p>
+  </div>
+
+  <div class="card-body">
+    <!-- Overall Compliance Score -->
+    <div class="compliance-score-section">
+      <div class="score-container">
+        <div class="score-circle">
+          <svg viewBox="0 0 200 200" class="score-ring">
+            <circle cx="100" cy="100" r="85" class="score-bg"></circle>
+            <circle 
+              cx="100" 
+              cy="100" 
+              r="85" 
+              class="score-progress"
+              [style.stroke]="getComplianceColor()"
+              [style.strokeDashoffset]="534 - (534 * complianceScore / 100)"
+            ></circle>
+          </svg>
+          <div class="score-content">
+            <div class="score-value">{{ complianceScore }}</div>
+            <div class="score-max">/100</div>
+          </div>
+        </div>
+        <div class="score-info">
+          <h4 [style.color]="getComplianceColor()">{{ overallStatus }}</h4>
+          <p>RERA Compliance Score</p>
+          <div class="rera-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            RERA Approved Project
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compliance Metrics -->
+    <div class="metrics-section">
+      <h4>📊 Compliance Metrics</h4>
+      <div class="metrics-grid">
+        <div class="metric-card" *ngFor="let metric of complianceMetrics">
+          <div class="metric-icon">{{ metric.icon }}</div>
+          <div class="metric-content">
+            <h5>{{ metric.label }}</h5>
+            <p class="metric-value">{{ metric.value }}</p>
+            <span class="metric-status" [class]="getStatusClass(metric.status)">
+              {{ metric.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Key Performance Indicators -->
+    <div class="kpi-section">
+      <h4>📈 Key Performance Indicators</h4>
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-icon">📅</span>
+            <span class="kpi-label">Timeline Compliance</span>
+          </div>
+          <div class="kpi-progress-container">
+            <div class="kpi-progress-bar">
+              <div 
+                class="kpi-progress-fill" 
+                [style.width.%]="timelineCompliance"
+                [style.background]="timelineCompliance >= 80 ? '#10b981' : (timelineCompliance >= 50 ? '#f59e0b' : '#ef4444')"
+              ></div>
+            </div>
+            <span class="kpi-value">{{ timelineCompliance }}%</span>
+          </div>
+          <p class="kpi-description">Project timeline adherence</p>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-icon">₹</span>
+            <span class="kpi-label">Fund Utilization</span>
+          </div>
+          <div class="kpi-progress-container">
+            <div class="kpi-progress-bar">
+              <div 
+                class="kpi-progress-fill" 
+                [style.width.%]="fundUtilization"
+                [style.background]="'#3b82f6'"
+              ></div>
+            </div>
+            <span class="kpi-value">{{ fundUtilization }}%</span>
+          </div>
+          <p class="kpi-description">Transparent fund usage</p>
+        </div>
+
+        <div class="kpi-card">
+          <div class="kpi-header">
+            <span class="kpi-icon">📢</span>
+            <span class="kpi-label">Customer Complaints</span>
+          </div>
+          <div class="kpi-stat">
+            <div class="kpi-stat-value" [style.color]="complaintsCount <= 2 ? '#10b981' : (complaintsCount <= 5 ? '#f59e0b' : '#ef4444')">
+              {{ complaintsCount }}
+            </div>
+            <p class="kpi-stat-label">Active Complaints</p>
+          </div>
+          <p class="kpi-description">RERA registered complaints</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents Status -->
+    <div class="documents-section">
+      <h4>📂 Required Documents Status</h4>
+      <div class="documents-grid">
+        <div 
+          class="document-card" 
+          *ngFor="let doc of documents"
+          [class]="getDocumentStatusClass(doc.isAvailable)"
+        >
+          <div class="document-icon">{{ doc.icon }}</div>
+          <div class="document-info">
+            <h5>{{ doc.name }}</h5>
+            <span class="document-status">{{ doc.status }}</span>
+          </div>
+          <div class="document-indicator">
+            <svg *ngIf="doc.isAvailable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            <svg *ngIf="!doc.isAvailable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compliance Highlights -->
+    <div class="highlights-section">
+      <h4>💡 Compliance Highlights</h4>
+      <ul class="highlights-list">
+        <li *ngIf="complianceScore >= 90">
+          <span class="highlight-icon good">✓</span>
+          <span>Excellent RERA compliance - All statutory requirements met</span>
+        </li>
+        <li *ngIf="property.registrationNumber">
+          <span class="highlight-icon good">✓</span>
+          <span>Valid RERA registration number: {{ property.registrationNumber }}</span>
+        </li>
+        <li *ngIf="timelineCompliance >= 80">
+          <span class="highlight-icon good">✓</span>
+          <span>Project on track with expected timeline</span>
+        </li>
+        <li *ngIf="timelineCompliance < 80">
+          <span class="highlight-icon warning">⚠</span>
+          <span>Timeline compliance needs attention</span>
+        </li>
+        <li *ngIf="complaintsCount === 0">
+          <span class="highlight-icon good">✓</span>
+          <span>Zero active complaints - Excellent customer satisfaction</span>
+        </li>
+        <li *ngIf="complaintsCount > 0 && complaintsCount <= 3">
+          <span class="highlight-icon neutral">ℹ</span>
+          <span>{{ complaintsCount }} active complaint(s) being resolved</span>
+        </li>
+        <li *ngIf="fundUtilization >= 70">
+          <span class="highlight-icon good">✓</span>
+          <span>Transparent fund utilization with regular audits</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer">
+      <small>
+        <strong>Note:</strong> Compliance data is based on publicly available RERA records and may be subject to updates. 
+        Please verify directly with RERA authorities for the most current information. Visit 
+        <a href="https://rera.telangana.gov.in" target="_blank">rera.telangana.gov.in</a> for official records.
+      </small>
+    </div>
+  </div>
+</div>

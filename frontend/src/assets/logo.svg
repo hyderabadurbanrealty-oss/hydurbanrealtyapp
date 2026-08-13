@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="64" viewBox="0 0 320 64">
+  <rect width="100%" height="100%" fill="white"/>
+  <g transform="translate(6,6)">
+    <circle cx="28" cy="26" r="22" fill="#00bcd4"/>
+    <text x="64" y="36" font-family="Arial, Helvetica, sans-serif" font-size="20" fill="#0d3b73">HYDERABAD</text>
+    <text x="64" y="52" font-family="Arial, Helvetica, sans-serif" font-size="18" fill="#0d3b73">URBAN REALTY</text>
+  </g>
+</svg>
