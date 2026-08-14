@@ -1,0 +1,117 @@
+<div class="rl-page">
+
+  <!-- Header -->
+  <div class="rl-header">
+    <div class="rl-header-left">
+      <h1 class="rl-title">My Resale Listings</h1>
+      <p class="rl-subtitle">Track the status of your submitted property listings</p>
+    </div>
+    <a routerLink="/resale/submit" class="btn-new">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+      New Listing
+    </a>
+  </div>
+
+  <!-- Loading -->
+  <div class="rl-loading" *ngIf="loading">
+    <div class="rl-spinner"></div>
+    <p>Loading your listings…</p>
+  </div>
+
+  <!-- Error -->
+  <div class="rl-error" *ngIf="error && !loading">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+    {{ error }}
+    <button class="rl-retry" (click)="load()">Retry</button>
+  </div>
+
+  <!-- Empty state -->
+  <div class="rl-empty" *ngIf="!loading && !error && listings.length === 0">
+    <svg viewBox="0 0 64 64" fill="none" width="80" height="80">
+      <circle cx="32" cy="32" r="30" fill="#f0f4ff" stroke="#e2e8f0" stroke-width="2"/>
+      <path d="M20 44V28l12-10 12 10v16" stroke="#0d3b73" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <rect x="26" y="34" width="6" height="10" rx="1" fill="#00b8d4" opacity=".8"/>
+      <rect x="38" y="30" width="5" height="5" rx="1" stroke="#0d3b73" stroke-width="1.5" fill="none"/>
+    </svg>
+    <h3>No listings yet</h3>
+    <p>You haven't submitted any resale listings. List your property to reach thousands of buyers.</p>
+    <a routerLink="/resale/submit" class="btn-new" style="margin-top:8px">List a Property</a>
+  </div>
+
+  <!-- Listings grid -->
+  <div class="rl-grid" *ngIf="!loading && listings.length > 0">
+    <div class="rl-card" *ngFor="let l of listings">
+
+      <!-- Image strip -->
+      <div class="rl-images">
+        <img *ngIf="getImages(l).length > 0" [src]="getImages(l)[0]" [alt]="l.project_name || 'Property'" class="rl-main-img">
+        <div class="rl-no-img" *ngIf="getImages(l).length === 0">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+          <span>No photos</span>
+        </div>
+        <div class="rl-img-count" *ngIf="getImages(l).length > 1">
+          +{{ getImages(l).length - 1 }} photo{{ getImages(l).length > 2 ? 's' : '' }}
+        </div>
+      </div>
+
+      <!-- Card body -->
+      <div class="rl-body">
+        <div class="rl-body-top">
+          <div>
+            <h3 class="rl-project">{{ l.project_name || 'Property Listing' }}</h3>
+            <p class="rl-location" *ngIf="l.location">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+              {{ l.location }}
+            </p>
+          </div>
+          <span class="rl-badge" [class]="statusClass(l.status)">
+            {{ l.status | titlecase }}
+          </span>
+        </div>
+
+        <div class="rl-meta-grid">
+          <div class="rl-meta-item" *ngIf="l.configuration">
+            <span class="rl-meta-label">Config</span>
+            <span class="rl-meta-value">{{ l.configuration }}</span>
+          </div>
+          <div class="rl-meta-item" *ngIf="l.super_built_up_area">
+            <span class="rl-meta-label">Area</span>
+            <span class="rl-meta-value">{{ l.super_built_up_area }} sq.ft</span>
+          </div>
+          <div class="rl-meta-item" *ngIf="l.age_of_property">
+            <span class="rl-meta-label">Age</span>
+            <span class="rl-meta-value">{{ l.age_of_property }}</span>
+          </div>
+          <div class="rl-meta-item" *ngIf="l.expected_price">
+            <span class="rl-meta-label">Price</span>
+            <span class="rl-meta-value rl-price">{{ formatPrice(l.expected_price) }}</span>
+          </div>
+        </div>
+
+        <div class="rl-features" *ngIf="getFeatures(l).length > 0">
+          <span class="rl-feature-tag" *ngFor="let f of getFeatures(l).slice(0, 4)">{{ f }}</span>
+          <span class="rl-feature-more" *ngIf="getFeatures(l).length > 4">
+            +{{ getFeatures(l).length - 4 }} more
+          </span>
+        </div>
+
+        <div class="rl-admin-note" *ngIf="l.admin_notes">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+          <span>{{ l.admin_notes }}</span>
+        </div>
+
+        <div class="rl-footer">
+          <span class="rl-date">Submitted {{ formatDate(l.created_at) }}</span>
+          <button class="rl-delete-btn" (click)="delete(l.id)"
+                  [disabled]="deleting === l.id" aria-label="Delete listing">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+              <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+            </svg>
+            {{ deleting === l.id ? 'Removing…' : 'Remove' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

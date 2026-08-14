@@ -40,6 +40,8 @@ import { LoanCalculatorComponent } from './loan-calculator/loan-calculator.compo
 import { MinEmiPipe, MaxEmiPipe, MinTotalIntPipe } from './loan-calculator/loan-calc.pipes';
 import { BlogListComponent } from './blog/blog-list/blog-list.component';
 import { BlogDetailComponent } from './blog/blog-detail/blog-detail.component';
+import { ResaleSubmitComponent } from './resale/resale-submit/resale-submit.component';
+import { ResaleListingsComponent } from './resale/resale-listings/resale-listings.component';
 
 import { AuthInterceptor } from './auth.interceptor';
 import { ApiUrlInterceptor } from './api-url.interceptor';
@@ -59,6 +61,8 @@ const routes: Routes = [
   { path: 'loan-calculator', component: LoanCalculatorComponent },
   { path: 'blog', component: BlogListComponent },
   { path: 'blog/:slug', component: BlogDetailComponent },
+  { path: 'resale/submit', component: ResaleSubmitComponent, canActivate: [AuthGuard] },
+  { path: 'resale/my-listings', component: ResaleListingsComponent, canActivate: [AuthGuard] },
 
   // Auth routes (public)
   { path: 'login', component: LoginComponent },
@@ -111,6 +115,8 @@ const routes: Routes = [
     MinTotalIntPipe,
     BlogListComponent,
     BlogDetailComponent,
+    ResaleSubmitComponent,
+    ResaleListingsComponent,
   ],
   imports: [
     BrowserModule,

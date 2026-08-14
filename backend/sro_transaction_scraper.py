@@ -79,6 +79,8 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
 BASE_URL       = "https://registration.telangana.gov.in"
@@ -335,29 +337,63 @@ def login_and_get_cookies() -> dict:
     cookies = {}
     try:
         driver.get(f"{BASE_URL}/districtList.htm")
-        time.sleep(5)
+        # Wait up to 20s for the username field to be present
+        WebDriverWait(driver, 20).until(
+            EC.presence_of_element_located((By.ID, "username"))
+        )
         for attempt in range(8):
+            # Dismiss any lingering alert first
             try:
-                sel = Select(driver.find_element(By.ID, "user_type"))
-                for o in sel.options:
-                    if "citizen" in o.text.lower():
-                        sel.select_by_visible_text(o.text); break
-            except Exception: pass
-            driver.find_element(By.ID, "username").clear()
-            driver.find_element(By.ID, "username").send_keys(username)
-            driver.find_element(By.ID, "password").clear()
-            driver.find_element(By.ID, "password").send_keys(password)
+                driver.switch_to.alert.accept()
+            except Exception:
+                pass
+
+            # Select user type via JavaScript — value '1' = Citizen (confirmed by debug)
+            try:
+                driver.execute_script("""
+                    var sel = document.getElementById('user_type');
+                    if (sel) {
+                        sel.value = '1';
+                        sel.dispatchEvent(new Event('change'));
+                    }
+                """)
+                # Wait for username to become visible after user_type change
+                WebDriverWait(driver, 8).until(
+                    EC.visibility_of_element_located((By.ID, "username"))
+                )
+                time.sleep(1)  # extra settle time
+            except Exception as e:
+                log.warning(f"user_type JS selection failed: {e}")
+
+            # Fill fields via Selenium send_keys (more reliable than JS .value after visibility confirmed)
+            try:
+                u_el = driver.find_element(By.ID, "username")
+                u_el.clear()
+                u_el.send_keys(username)
+                p_el = driver.find_element(By.ID, "password")
+                p_el.clear()
+                p_el.send_keys(password)
+            except Exception as e:
+                log.warning(f"Field fill failed: {e}")
+                continue
             cap = _ocr_captcha(driver)
             log.info(f"Login attempt {attempt+1}: captcha={cap!r}")
             if not cap:
-                driver.get(f"{BASE_URL}/districtList.htm"); time.sleep(3); continue
-            driver.find_element(By.ID, "captcha").clear()
-            driver.find_element(By.ID, "captcha").send_keys(cap)
+                driver.get(f"{BASE_URL}/districtList.htm")
+                WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "username")))
+                continue
+            driver.execute_script(f"document.getElementById('captcha').value = '{cap}';")
             try:
                 driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
             except Exception:
                 driver.find_element(By.ID, "myForm").submit()
             time.sleep(6)
+            # Dismiss any alert that appeared after submit
+            try:
+                driver.switch_to.alert.accept()
+                time.sleep(2)
+            except Exception:
+                pass
             body = driver.find_element(By.TAG_NAME, "body").text.lower()
             if any(x in body for x in ["welcome","logout","encumbrance"]):
                 log.info("Login successful")
@@ -365,7 +401,8 @@ def login_and_get_cookies() -> dict:
                 return cookies
             elif "invalid captcha" in body:
                 log.warning("Invalid captcha — retrying")
-                driver.get(f"{BASE_URL}/districtList.htm"); time.sleep(3)
+                driver.get(f"{BASE_URL}/districtList.htm")
+                WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "username")))
             elif "invalid password" in body:
                 log.error("Invalid credentials"); return {}
     finally:
