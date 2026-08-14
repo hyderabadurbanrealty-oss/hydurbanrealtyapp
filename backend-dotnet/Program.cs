@@ -73,6 +73,13 @@ Console.WriteLine(string.IsNullOrWhiteSpace(connStr)
     ? "STARTUP ERROR: ConnectionStrings__DefaultConnection is NOT set — database will be unavailable."
     : $"STARTUP OK: ConnectionStrings__DefaultConnection is set (length={connStr.Length}, host={connStr.Split(';').FirstOrDefault(s => s.TrimStart().StartsWith("Host", StringComparison.OrdinalIgnoreCase)) ?? connStr.Split('@').LastOrDefault()?.Split('/').FirstOrDefault() ?? "unknown"})");
 
+// ── Supabase Storage config check ────────────────────────────────────────────
+var supabaseKey = builder.Configuration["SupabaseSettings:ServiceKey"];
+var supabaseBucket = builder.Configuration["SupabaseSettings:Bucket"];
+Console.WriteLine(string.IsNullOrWhiteSpace(supabaseKey)
+    ? "STORAGE WARNING: SupabaseSettings__ServiceKey NOT set — uploads will use local disk (ephemeral on Render)"
+    : $"STORAGE OK: Supabase Storage configured, bucket={supabaseBucket ?? "property-media"}");
+
 // ── Test DB connectivity at startup + keepalive ping every 4 minutes ─────────
 // Render free tier spins down after 15 min inactivity. The keepalive prevents
 // the Npgsql connection pool from holding stale sockets that time out on first use.
