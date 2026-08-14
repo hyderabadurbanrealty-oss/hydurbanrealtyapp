@@ -231,8 +231,8 @@ builder.Services.AddScoped<HyderabadUrbanReality.Infrastructure.Repositories.Med
 builder.Services.AddScoped<HyderabadUrbanReality.Infrastructure.Repositories.ReviewRepository>();
 builder.Services.AddScoped<HyderabadUrbanReality.Infrastructure.Repositories.ScheduleVisitRepository>();
 
-// Register email service
-builder.Services.AddScoped<HyderabadUrbanReality.Core.Interfaces.IEmailService, HyderabadUrbanReality.Infrastructure.Services.SmtpEmailService>();
+// Register email service — uses Resend HTTP API (SMTP is blocked on Render free tier)
+builder.Services.AddScoped<HyderabadUrbanReality.Core.Interfaces.IEmailService, HyderabadUrbanReality.Infrastructure.Services.ResendEmailService>();
 
 // Register application services (Business Logic Layer)
 // Follows Dependency Inversion - register interfaces

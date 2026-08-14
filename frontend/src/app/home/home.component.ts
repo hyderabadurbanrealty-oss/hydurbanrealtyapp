@@ -8,6 +8,7 @@ import { FavoriteService } from '../services/favorite.service';
 import { CompareService, COMPARE_MAX } from '../services/compare.service';
 import { AuthService } from '../services/auth.service';
 import { MediaService } from '../services/media.service';
+import { environment } from '../../environments/environment';
 import { Subject, Subscription, forkJoin, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, catchError } from 'rxjs/operators';
 
@@ -113,7 +114,7 @@ export class HomeComponent implements OnInit, OnDestroy {
             this.thumbnails[id] = mediaList[0].fileUrl || mediaList[0].file_url || '';
           } else {
             const legacyImg = (chunk[i] as any)?.media?.images?.[0];
-            if (legacyImg) this.thumbnails[id] = `/api/projects/${id}/media/${legacyImg}`;
+            if (legacyImg) this.thumbnails[id] = `${environment.apiUrl}/projects/${id}/media/${legacyImg}`;
           }
         });
         setTimeout(() => processChunk(idx + 1), 200);

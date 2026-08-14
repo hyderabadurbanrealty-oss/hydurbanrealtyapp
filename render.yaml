@@ -35,6 +35,12 @@ services:
         sync: false
       - key: SmtpSettings__AppBaseUrl
         sync: false
+      - key: ResendSettings__ApiKey
+        sync: false
+      - key: ResendSettings__FromEmail
+        sync: false
+      - key: ResendSettings__AdminEmail
+        sync: false
       - key: FeatureFlags__UsePostgresRepository
         value: "true"
       - key: AppSettings__AllowedOrigins

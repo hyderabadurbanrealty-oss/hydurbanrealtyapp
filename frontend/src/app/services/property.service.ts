@@ -3,6 +3,9 @@ import { Property } from '../map/map.component';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
+
+const API = environment.apiUrl;
 
 @Injectable({ providedIn: 'root' })
 export class PropertyService {
@@ -89,7 +92,7 @@ export class PropertyService {
         observer.error({ error: { message: 'Upload failed' } });
       });
       
-      xhr.open('POST', `/api/projects/${id}/media`);
+      xhr.open('POST', `${API}/projects/${id}/media`);
       xhr.send(formData);
     });
   }
