@@ -238,7 +238,7 @@ builder.Services.AddScoped<HyderabadUrbanReality.Core.Interfaces.IEmailService, 
 // Follows Dependency Inversion - register interfaces
 builder.Services.AddScoped<IProjectService, HyderabadUrbanReality.Application.Services.ProjectService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IFileService, SupabaseStorageService>();
 builder.Services.AddScoped<IInputSanitizer, InputSanitizer>();
 
 // Register infrastructure services (External Dependencies)
