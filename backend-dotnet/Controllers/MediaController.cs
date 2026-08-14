@@ -17,6 +17,8 @@ namespace HyderabadUrbanReality.Controllers
         private readonly IProjectRepository _projects;
         private readonly IWebHostEnvironment _env;
         private readonly ILogger<MediaController> _logger;
+        private readonly IFileService _fileService;
+        private readonly IConfiguration _config;
 
         private static readonly HashSet<string> AllowedImageTypes =
             new(StringComparer.OrdinalIgnoreCase) { "image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif" };
@@ -32,12 +34,16 @@ namespace HyderabadUrbanReality.Controllers
             MediaRepository media,
             IProjectRepository projects,
             IWebHostEnvironment env,
+            IFileService fileService,
+            IConfiguration config,
             ILogger<MediaController> logger)
         {
-            _media    = media;
-            _projects = projects;
-            _env      = env;
-            _logger   = logger;
+            _media       = media;
+            _projects    = projects;
+            _env         = env;
+            _fileService = fileService;
+            _config      = config;
+            _logger      = logger;
         }
 
         // ── GET /api/projects/{id}/media ──────────────────────────────────────
@@ -84,24 +90,44 @@ namespace HyderabadUrbanReality.Controllers
                 return BadRequest(new { error = "invalid_media_type", message = "Use 'image', 'floorplan', or 'document'" });
             }
 
-            // Save file
-            var uploadRoot = Path.Combine(_env.ContentRootPath, "uploads", "properties", SanitizeId(projectId), mediaType + "s");
-            Directory.CreateDirectory(uploadRoot);
-
+            string fileUrl;
             var ext      = Path.GetExtension(file.FileName);
             var safeName = $"{Guid.NewGuid()}{ext}";
-            var filePath = Path.Combine(uploadRoot, safeName);
 
-            await using (var stream = new FileStream(filePath, FileMode.Create))
-                await file.CopyToAsync(stream);
+            // Try Supabase Storage first; fall back to local disk if not configured
+            var supabaseUrl = _config["SupabaseSettings:Url"];
+            var serviceKey  = _config["SupabaseSettings:ServiceKey"];
 
-            var relUrl = $"/media/properties/{SanitizeId(projectId)}/{mediaType}s/{safeName}";
+            if (!string.IsNullOrEmpty(supabaseUrl) && !string.IsNullOrEmpty(serviceKey))
+            {
+                // Upload to Supabase Storage — persistent across redeploys
+                try
+                {
+                    await using var stream = file.OpenReadStream();
+                    fileUrl = await _fileService.UploadFileAsync(stream, safeName);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Supabase Storage upload failed for {File}", safeName);
+                    return StatusCode(500, new { error = "upload_failed", message = ex.Message });
+                }
+            }
+            else
+            {
+                // Fallback: local disk (dev only — not persistent on Render)
+                var uploadRoot = Path.Combine(_env.ContentRootPath, "uploads", "properties", SanitizeId(projectId), mediaType + "s");
+                Directory.CreateDirectory(uploadRoot);
+                var filePath = Path.Combine(uploadRoot, safeName);
+                await using (var stream = new FileStream(filePath, FileMode.Create))
+                    await file.CopyToAsync(stream);
+                fileUrl = $"/media/properties/{SanitizeId(projectId)}/{mediaType}s/{safeName}";
+            }
+
             var displayTitle = title ?? Path.GetFileNameWithoutExtension(file.FileName);
+            var id = await _media.AddAsync(projectId, mediaType, displayTitle, fileUrl, safeName, file.Length, mime, sortOrder);
+            _logger.LogInformation("Uploaded {Type} for project {Project}: {Url}", mediaType, projectId, fileUrl);
 
-            var id = await _media.AddAsync(projectId, mediaType, displayTitle, relUrl, safeName, file.Length, mime, sortOrder);
-            _logger.LogInformation("Uploaded {Type} for project {Project}: {File}", mediaType, projectId, safeName);
-
-            return StatusCode(201, new { id, url = relUrl, title = displayTitle, mediaType, fileSize = file.Length });
+            return StatusCode(201, new { id, url = fileUrl, title = displayTitle, mediaType, fileSize = file.Length });
         }
 
         // ── POST /api/projects/{id}/media/video ───────────────────────────────
