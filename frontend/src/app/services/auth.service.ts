@@ -2,7 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { tap, catchError, map } from 'rxjs/operators';
+import { tap, catchError, map, timeout } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
+
+const API = environment.apiUrl;
 
 export interface UserProfile {
   id: string;
@@ -93,14 +96,15 @@ export class AuthService {
   // ── Auth API calls ─────────────────────────────────────────────────────────
 
   register(fullName: string, email: string, password: string, mobile?: string): Observable<any> {
-    return this.http.post('/api/auth/register', { fullName, email, password, mobile });
+    return this.http.post(`${API}/auth/register`, { fullName, email, password, mobile })
+      .pipe(timeout(30000));
   }
 
   login(email: string, password: string, deviceInfo?: string): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>('/api/auth/login', { email, password, deviceInfo }).pipe(
+    return this.http.post<AuthResponse>(`${API}/auth/login`, { email, password, deviceInfo }).pipe(
+      timeout(30000),
       tap(resp => {
         this.saveSession(resp);
-        // Set legacy admin flag for AdminGuard compatibility
         if (resp.user.role === 'admin') {
           localStorage.setItem('isAdmin', 'true');
           localStorage.setItem('authToken', resp.accessToken);
@@ -112,7 +116,7 @@ export class AuthService {
   logout(): Observable<any> {
     const refreshToken = this.getRefreshToken();
     const req = refreshToken
-      ? this.http.post('/api/auth/logout', { refreshToken })
+      ? this.http.post(`${API}/auth/logout`, { refreshToken })
       : new Observable(obs => { obs.next({}); obs.complete(); });
     return req.pipe(
       tap(() => { this.clearSession(); this.router.navigate(['/']); }),
@@ -123,32 +127,33 @@ export class AuthService {
   refreshToken(): Observable<AuthResponse> {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) return throwError(() => new Error('No refresh token'));
-    return this.http.post<AuthResponse>('/api/auth/refresh', { refreshToken }).pipe(
+    return this.http.post<AuthResponse>(`${API}/auth/refresh`, { refreshToken }).pipe(
+      timeout(30000),
       tap(resp => this.saveSession(resp)),
       catchError(err => { this.clearSession(); return throwError(() => err); })
     );
   }
 
   forgotPassword(email: string): Observable<any> {
-    return this.http.post('/api/auth/forgot-password', { email });
+    return this.http.post(`${API}/auth/forgot-password`, { email }).pipe(timeout(30000));
   }
 
   resetPassword(token: string, newPassword: string): Observable<any> {
-    return this.http.post('/api/auth/reset-password', { token, newPassword });
+    return this.http.post(`${API}/auth/reset-password`, { token, newPassword }).pipe(timeout(30000));
   }
 
   verifyEmail(token: string): Observable<any> {
-    return this.http.post('/api/auth/verify-email', { token });
+    return this.http.post(`${API}/auth/verify-email`, { token }).pipe(timeout(30000));
   }
 
   resendVerification(email: string): Observable<any> {
-    return this.http.post('/api/auth/resend-verification', { email });
+    return this.http.post(`${API}/auth/resend-verification`, { email }).pipe(timeout(30000));
   }
 
   // ── Profile API calls ──────────────────────────────────────────────────────
 
   getProfile(): Observable<UserProfile> {
-    return this.http.get<UserProfile>('/api/user/profile').pipe(
+    return this.http.get<UserProfile>(`${API}/user/profile`).pipe(
       tap(user => {
         localStorage.setItem(USER_KEY, JSON.stringify(user));
         this._currentUser.next(user);
@@ -157,7 +162,7 @@ export class AuthService {
   }
 
   updateProfile(fullName?: string, mobile?: string, avatarUrl?: string): Observable<UserProfile> {
-    return this.http.put<UserProfile>('/api/user/profile', { fullName, mobile, avatarUrl }).pipe(
+    return this.http.put<UserProfile>(`${API}/user/profile`, { fullName, mobile, avatarUrl }).pipe(
       tap(user => {
         localStorage.setItem(USER_KEY, JSON.stringify(user));
         this._currentUser.next(user);
@@ -166,11 +171,11 @@ export class AuthService {
   }
 
   changePassword(currentPassword: string, newPassword: string): Observable<any> {
-    return this.http.put('/api/user/change-password', { currentPassword, newPassword });
+    return this.http.put(`${API}/user/change-password`, { currentPassword, newPassword });
   }
 
   deleteAccount(): Observable<any> {
-    return this.http.delete('/api/user/account').pipe(
+    return this.http.delete(`${API}/user/account`).pipe(
       tap(() => this.clearSession())
     );
   }
