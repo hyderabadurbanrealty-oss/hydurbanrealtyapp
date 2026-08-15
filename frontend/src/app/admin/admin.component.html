@@ -450,9 +450,22 @@
               <span class="resale-date">{{ formatDate(l.created_at) }}</span>
               <span *ngIf="l.user_full_name" class="resale-user">by {{ l.user_full_name }}</span>
               <div class="resale-actions">
-                <button class="btn-admin-secondary btn-sm" [disabled]="resaleUpdating === l.id" (click)="updateResaleStatus(l.id, 'active')">✅ Activate</button>
-                <button class="btn-admin-secondary btn-sm" [disabled]="resaleUpdating === l.id" (click)="updateResaleStatus(l.id, 'sold')">🏷 Sold</button>
-                <button class="btn-admin-danger btn-sm" [disabled]="resaleUpdating === l.id" (click)="updateResaleStatus(l.id, 'rejected')">❌ Reject</button>
+                <button class="btn-admin-secondary btn-sm"
+                        *ngIf="l.status !== 'active'"
+                        [disabled]="resaleUpdating === l.id"
+                        (click)="updateResaleStatus(l.id, 'active')">✅ Activate</button>
+                <button class="btn-admin-secondary btn-sm"
+                        *ngIf="l.status === 'active'"
+                        [disabled]="resaleUpdating === l.id"
+                        (click)="updateResaleStatus(l.id, 'sold')">🏷 Mark Sold</button>
+                <button class="btn-admin-secondary btn-sm"
+                        *ngIf="l.status === 'active'"
+                        [disabled]="resaleUpdating === l.id"
+                        (click)="updateResaleStatus(l.id, 'pending')">↩ Revert</button>
+                <button class="btn-admin-danger btn-sm"
+                        *ngIf="l.status !== 'rejected'"
+                        [disabled]="resaleUpdating === l.id"
+                        (click)="updateResaleStatus(l.id, 'rejected')">❌ Reject</button>
               </div>
             </div>
           </div>
