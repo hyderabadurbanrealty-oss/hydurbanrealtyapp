@@ -1,148 +1,344 @@
-<div class="about-page">
-  <div class="about-hero">
-    <div class="container">
-      <h1>About Hyderabad Urban Realty</h1>
-      <p class="hero-subtitle">A data-first portal for Hyderabad’s RERA-approved real estate.</p>
+<!-- ══════════════════════════════════════════════════════════
+     ABOUT PAGE — Hyderabad Urban Realty
+     ══════════════════════════════════════════════════════════ -->
+<div class="ab-page">
+
+  <!-- ── HERO ─────────────────────────────────────────────────── -->
+  <section class="ab-hero">
+    <div class="ab-hero-bg"></div>
+    <div class="ab-hero-grid"></div>
+    <div class="ab-hero-inner">
+      <div class="ab-hero-badge">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M10 1a4.5 4.5 0 00-4.5 4.5V9H5a2 2 0 00-2 2v6a2 2 0 002 2h10a2 2 0 002-2v-6a2 2 0 00-2-2h-.5V5.5A4.5 4.5 0 0010 1zm3 8V5.5a3 3 0 10-6 0V9h6z" clip-rule="evenodd"/></svg>
+        RERA-Verified · Transparent · Data-First
+      </div>
+      <h1 class="ab-hero-title">
+        Hyderabad Urban<br><em>Realty</em>
+      </h1>
+      <p class="ab-hero-sub">
+        Bridging engineering intelligence with real estate decision-making —
+        empowering buyers with clarity across Hyderabad's growth corridors.
+      </p>
+      <div class="ab-hero-trust">
+        <div class="ab-trust-pill">
+          <img src="assets/blue-Logo.png" alt="" class="ab-trust-logo" onerror="this.style.display='none'">
+          <span class="ab-trust-divider"></span>
+          <span class="ab-trust-text">HRA India Member</span>
+        </div>
+        <div class="ab-trust-pill">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" class="ab-trust-icon"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7l8-4.32z"/></svg>
+          <span class="ab-trust-text">NAR India Member</span>
+        </div>
+        <div class="ab-trust-pill">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" class="ab-trust-icon"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          <span class="ab-trust-text">RERA Compliant</span>
+        </div>
+      </div>
+      <div class="ab-hero-actions">
+        <a routerLink="/properties" class="ab-btn-primary">Browse Properties</a>
+        <a href="https://wa.me/918143369988" target="_blank" rel="noopener noreferrer" class="ab-btn-wa">
+          <svg viewBox="0 0 32 32" fill="currentColor" width="18" height="18"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.469 2.027 7.77L0 32l8.454-2.007A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.006 22.394c-.34.957-1.99 1.826-2.738 1.942-.72.113-1.624.161-2.619-.165-1.609-.52-3.748-2.126-5.233-3.59C11.93 19.12 10.3 17.02 9.74 15.43c-.557-1.587-.128-2.888.217-3.568.347-.682.778-.86 1.039-.882.261-.022.522-.027.752-.018.239.01.56-.09.875.671.32.778 1.083 2.664 1.179 2.857.097.192.16.417.032.672-.127.255-.19.414-.38.638-.188.224-.396.5-.565.672-.188.19-.384.396-.165.776.219.38.975 1.608 2.095 2.605 1.434 1.276 2.644 1.67 3.022 1.857.377.188.598.16.822-.096.224-.255.957-1.12 1.213-1.503.255-.384.51-.32.86-.192.35.128 2.22 1.048 2.6 1.238.38.19.634.286.728.446.094.16.094.926-.246 1.882z"/></svg>
+          Consult on WhatsApp
+        </a>
+      </div>
     </div>
-  </div>
-
-  <div class="container about-content">
-    <section class="about-section">
-      <div class="section-icon">🏛️</div>
-      <h2>Who We Are</h2>
-      <p>We are a small team building tools to make Hyderabad’s real estate market more transparent. Our platform aggregates RERA project data and makes it easy for buyers, investors, and agents to discover, compare, and track approved properties.</p>
-    </section>
-
-    <section class="about-section">
-      <div class="section-icon">🎯</div>
-      <h2>What You Can Do Here</h2>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">✅</div>
-          <h3>RERA-Verified Listings</h3>
-          <p>Every project is sourced from RERA filings so you can trust the information shown.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🔎</div>
-          <h3>Search & Filter</h3>
-          <p>Find properties by name, location, type, status, or other key attributes.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">💙</div>
-          <h3>Save Favorites</h3>
-          <p>Bookmark projects while you browse and view them quickly from the Favorites page.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📊</div>
-          <h3>Compare Projects</h3>
-          <p>Pick multiple projects and compare them side-by-side to spot the differences.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🗺️</div>
-          <h3>Map View</h3>
-          <p>See where projects are located across Hyderabad along with density insights.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">📈</div>
-          <h3>District Insights</h3>
-          <p>Check which localities have the highest number of RERA projects to spot emerging hotspots.</p>
-        </div>
+    <div class="ab-hero-stats">
+      <div class="ab-hstat">
+        <span class="ab-hstat-n">21+</span>
+        <span class="ab-hstat-l">RERA Projects</span>
       </div>
-    </section>
-
-    <section class="about-section">
-      <div class="section-icon">🚀</div>
-      <h2>Our Approach</h2>
-      <ul class="benefits-list">
-        <li><strong>Data-Driven:</strong> We use publicly available RERA data and present it in a searchable format.</li>
-        <li><strong>Easy to Use:</strong> Designed for quick browsing on both desktop and mobile.</li>
-        <li><strong>No Ads, No Bias:</strong> We don’t promote specific developers — just facts and figures.</li>
-        <li><strong>Free Access:</strong> You don’t need an account to explore property listings.</li>
-      </ul>
-    </section>
-
-    <section class="about-section cta-section">
-      <div class="section-icon">🏠</div>
-      <h2>Start Exploring</h2>
-      <p>Find RERA-approved properties, save the ones you like, and compare them with a few taps.</p>
-      <div class="cta-buttons">
-        <button class="btn btn-primary" routerLink="/properties">Browse Properties</button>
-        <button class="btn btn-secondary" routerLink="/favorites">View Favorites</button>
+      <div class="ab-hstat-sep"></div>
+      <div class="ab-hstat">
+        <span class="ab-hstat-n">10 Yrs</span>
+        <span class="ab-hstat-l">Global Experience</span>
       </div>
-    </section>
+      <div class="ab-hstat-sep"></div>
+      <div class="ab-hstat">
+        <span class="ab-hstat-n">2</span>
+        <span class="ab-hstat-l">Industry Bodies</span>
+      </div>
+      <div class="ab-hstat-sep"></div>
+      <div class="ab-hstat">
+        <span class="ab-hstat-n">24/7</span>
+        <span class="ab-hstat-l">Live Data Access</span>
+      </div>
+    </div>
+  </section>
 
-    <!-- Consultant section -->
-    <section class="about-section consultant-section">
-      <div class="section-icon">🤝</div>
-      <h2>Our Real Estate Consultant</h2>
-      <p class="consultant-lead">Have questions about a property, pricing, or site visits? Connect directly with our expert consultant — we respond fast.</p>
+  <!-- ── CONSULTANT PROFILE ────────────────────────────────────── -->
+  <section class="ab-section ab-section--consultant">
+    <div class="ab-container">
+      <div class="ab-consultant-wrap">
 
-      <div class="consultant-card">
-        <div class="consultant-avatar">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="36" height="36" aria-hidden="true">
-            <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
-          </svg>
-        </div>
-        <div class="consultant-body">
-          <div class="consultant-name">Hyderabad Urban Realty</div>
-          <div class="consultant-role">Certified Real Estate Consultant · Hyderabad</div>
-          <div class="consultant-badges">
-            <span class="consultant-badge">HRA India Member</span>
-            <span class="consultant-badge">NAR India Member</span>
+        <!-- Avatar + credentials -->
+        <div class="ab-con-left">
+          <div class="ab-con-avatar">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="52" height="52"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
           </div>
-          <a class="wa-contact-btn" href="https://wa.me/918143369988" target="_blank" rel="noopener noreferrer">
-            <svg viewBox="0 0 32 32" fill="currentColor" width="20" height="20" aria-hidden="true">
-              <path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.469 2.027 7.77L0 32l8.454-2.007A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.006 22.394c-.34.957-1.99 1.826-2.738 1.942-.72.113-1.624.161-2.619-.165-1.609-.52-3.748-2.126-5.233-3.59C11.93 19.12 10.3 17.02 9.74 15.43c-.557-1.587-.128-2.888.217-3.568.347-.682.778-.86 1.039-.882.261-.022.522-.027.752-.018.239.01.56-.09.875.671.32.778 1.083 2.664 1.179 2.857.097.192.16.417.032.672-.127.255-.19.414-.38.638-.188.224-.396.5-.565.672-.188.19-.384.396-.165.776.219.38.975 1.608 2.095 2.605 1.434 1.276 2.644 1.67 3.022 1.857.377.188.598.16.822-.096.224-.255.957-1.12 1.213-1.503.255-.384.51-.32.86-.192.35.128 2.22 1.048 2.6 1.238.38.19.634.286.728.446.094.16.094.926-.246 1.882z"/>
-            </svg>
-            Chat on WhatsApp · +91 81433 69988
-          </a>
+          <div class="ab-con-creds">
+            <div class="ab-con-name">Ravi</div>
+            <div class="ab-con-title">M.Sc. Civil Engineering · Global Construction Professional</div>
+            <div class="ab-con-subtitle">Real Estate Consultant · Hyderabad</div>
+            <div class="ab-con-uni">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+              University of East London, UK
+            </div>
+            <div class="ab-con-badges">
+              <a href="https://hraindia.org" target="_blank" rel="noopener noreferrer" class="ab-member-badge ab-member-badge--hra">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/></svg>
+                HRA India Member
+              </a>
+              <a href="https://www.narindia.org" target="_blank" rel="noopener noreferrer" class="ab-member-badge ab-member-badge--nar">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><path d="M12 2L2 7v10l10 5 10-5V7L12 2z"/></svg>
+                NAR India Member
+              </a>
+            </div>
+            <div class="ab-con-contacts">
+              <a href="https://wa.me/918143369988" target="_blank" rel="noopener noreferrer" class="ab-con-contact ab-con-contact--wa">
+                <svg viewBox="0 0 32 32" fill="currentColor" width="15" height="15"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.469 2.027 7.77L0 32l8.454-2.007A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.006 22.394c-.34.957-1.99 1.826-2.738 1.942-.72.113-1.624.161-2.619-.165-1.609-.52-3.748-2.126-5.233-3.59C11.93 19.12 10.3 17.02 9.74 15.43c-.557-1.587-.128-2.888.217-3.568.347-.682.778-.86 1.039-.882.261-.022.522-.027.752-.018.239.01.56-.09.875.671.32.778 1.083 2.664 1.179 2.857.097.192.16.417.032.672-.127.255-.19.414-.38.638-.188.224-.396.5-.565.672-.188.19-.384.396-.165.776.219.38.975 1.608 2.095 2.605 1.434 1.276 2.644 1.67 3.022 1.857.377.188.598.16.822-.096.224-.255.957-1.12 1.213-1.503.255-.384.51-.32.86-.192.35.128 2.22 1.048 2.6 1.238.38.19.634.286.728.446.094.16.094.926-.246 1.882z"/></svg>
+                +91 81433 69988
+              </a>
+              <a href="tel:00918977367700" class="ab-con-contact">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+                0091 8977 367700
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bio -->
+        <div class="ab-con-right">
+          <div class="ab-con-eyebrow">About the Consultant</div>
+          <p class="ab-con-bio">
+            Ravi holds a <strong>Master's degree in Civil Engineering</strong> from the
+            University of East London (UK) and brings nearly a decade of international
+            construction experience across <strong>London and Dubai</strong>. He was associated
+            with the infrastructure development phase linked to the <strong>London 2012 Summer
+            Olympics</strong>, gaining exposure to world-class engineering standards, structured
+            execution systems, and precision-led project management.
+          </p>
+          <p class="ab-con-bio">
+            In Dubai, he worked on major construction activities, handling technically advanced
+            developments and understanding global compliance standards — expertise he now applies
+            directly to Hyderabad's fast-growing real estate market.
+          </p>
+          <div class="ab-mission">
+            <div class="ab-mission-icon">♾</div>
+            <blockquote class="ab-mission-text">
+              "To bridge engineering intelligence with real estate decision-making —
+              empowering buyers with clarity."
+            </blockquote>
+          </div>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- Professional memberships -->
-      <div class="memberships">
-        <div class="memberships-title">Registered Professional Memberships</div>
-        <div class="membership-note">Our consultant is a registered member of these reputed real estate organisations, ensuring professional, ethical, and accountable service.</div>
-        <div class="membership-cards">
-
-          <a class="membership-card" href="https://hraindia.org" target="_blank" rel="noopener noreferrer">
-            <div class="membership-logo">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7l8-4.32z"/></svg>
-            </div>
-            <div class="membership-info">
-              <div class="membership-name">HRA India</div>
-              <div class="membership-full">Hyderabad Realtors Association</div>
-              <div class="membership-url">hraindia.org ↗</div>
-            </div>
-          </a>
-
-          <a class="membership-card" href="https://www.narindia.org" target="_blank" rel="noopener noreferrer">
-            <div class="membership-logo">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7l8-4.32zM11 10v4h2v-4h-2zm0-3v2h2V7h-2z"/></svg>
-            </div>
-            <div class="membership-info">
-              <div class="membership-name">NAR India</div>
-              <div class="membership-full">National Association of Realtors India</div>
-              <div class="membership-url">narindia.org ↗</div>
-            </div>
-          </a>
-
+  <!-- ── SERVICES ──────────────────────────────────────────────── -->
+  <section class="ab-section ab-section--services">
+    <div class="ab-container">
+      <div class="ab-section-header">
+        <div class="ab-section-eyebrow">What We Do</div>
+        <h2 class="ab-section-title">Expert Services</h2>
+        <p class="ab-section-sub">Comprehensive real estate guidance backed by a decade of international engineering expertise.</p>
+      </div>
+      <div class="ab-services-list">
+        <div class="ab-svc-row">
+          <div class="ab-svc-num">01</div>
+          <div class="ab-svc-body">
+            <h3>Property Identification</h3>
+            <p>Helping customers identify the right property based on technical &amp; financial evaluation — matching specifications to engineering reality.</p>
+          </div>
+          <div class="ab-svc-tag">Technical</div>
+        </div>
+        <div class="ab-svc-row">
+          <div class="ab-svc-num">02</div>
+          <div class="ab-svc-body">
+            <h3>Comparative Analysis</h3>
+            <p>Providing comparative analysis between developers and construction quality — backed by civil engineering standards from global projects.</p>
+          </div>
+          <div class="ab-svc-tag">Analysis</div>
+        </div>
+        <div class="ab-svc-row">
+          <div class="ab-svc-num">03</div>
+          <div class="ab-svc-body">
+            <h3>Infrastructure Growth Insights</h3>
+            <p>Guiding clients with infrastructure-based growth insights across Hyderabad corridors — connecting physical development to investment potential.</p>
+          </div>
+          <div class="ab-svc-tag">Strategy</div>
+        </div>
+        <div class="ab-svc-row">
+          <div class="ab-svc-num">04</div>
+          <div class="ab-svc-body">
+            <h3>Project-to-Project Comparison</h3>
+            <p>Offering side-by-side comparisons across Hyderabad growth corridors using RERA data, floor plans, pricing and builder track record.</p>
+          </div>
+          <div class="ab-svc-tag">Research</div>
+        </div>
+        <div class="ab-svc-row">
+          <div class="ab-svc-num">05</div>
+          <div class="ab-svc-body">
+            <h3>Informed Investment Decisions</h3>
+            <p>Assisting buyers in making investment decisions with clarity — combining SRO transaction data, RERA filings and market intelligence.</p>
+          </div>
+          <div class="ab-svc-tag">Investment</div>
+        </div>
+        <div class="ab-svc-row">
+          <div class="ab-svc-num">06</div>
+          <div class="ab-svc-body">
+            <h3>End-to-End Consultation</h3>
+            <p>Supporting end-to-end marketing, sales strategy and consultation — from first enquiry to final registration and beyond.</p>
+          </div>
+          <div class="ab-svc-tag">Consultation</div>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="contact-section">
-      <h2>Contact</h2>
-      <div class="contact-info">
-        <div class="contact-item">
-          <span class="contact-icon">📧</span>
-          <span>info@hyderabadurbanrealty.com</span>
+  <!-- ── MEMBERSHIPS ───────────────────────────────────────────── -->
+  <section class="ab-section ab-section--memberships">
+    <div class="ab-container">
+      <div class="ab-section-header">
+        <div class="ab-section-eyebrow">Professional Recognition</div>
+        <h2 class="ab-section-title">Industry Memberships</h2>
+        <p class="ab-section-sub">Registered with India's most respected real estate organisations, ensuring professional, ethical and accountable service.</p>
+      </div>
+      <div class="ab-mem-cards">
+        <a class="ab-mem-card" href="https://hraindia.org" target="_blank" rel="noopener noreferrer">
+          <div class="ab-mem-logo">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7l8-4.32z"/></svg>
+          </div>
+          <div class="ab-mem-info">
+            <div class="ab-mem-name">HRA India</div>
+            <div class="ab-mem-full">Hyderabad Realtors Association</div>
+            <div class="ab-mem-link">hraindia.org ↗</div>
+          </div>
+          <div class="ab-mem-check">✓ Verified Member</div>
+        </a>
+        <a class="ab-mem-card ab-mem-card--nar" href="https://www.narindia.org" target="_blank" rel="noopener noreferrer">
+          <div class="ab-mem-logo">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18L20 8.5v7L12 19.82 4 15.5v-7l8-4.32zM11 10v4h2v-4h-2zm0-3v2h2V7h-2z"/></svg>
+          </div>
+          <div class="ab-mem-info">
+            <div class="ab-mem-name">NAR India</div>
+            <div class="ab-mem-full">National Association of Realtors India</div>
+            <div class="ab-mem-link">narindia.org ↗</div>
+          </div>
+          <div class="ab-mem-check">✓ Verified Member</div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── PLATFORM FEATURES ─────────────────────────────────────── -->
+  <section class="ab-section ab-section--platform">
+    <div class="ab-container">
+      <div class="ab-section-header">
+        <div class="ab-section-eyebrow">The Platform</div>
+        <h2 class="ab-section-title">What You Can Do Here</h2>
+        <p class="ab-section-sub">A data-first portal aggregating RERA project data — free, unbiased, and built for serious buyers.</p>
+      </div>
+      <div class="ab-plat-grid">
+        <div class="ab-plat-card ab-plat-card--accent">
+          <div class="ab-plat-number">01</div>
+          <h3>RERA-Verified Listings</h3>
+          <p>Every project is sourced from official RERA filings — trust the data you see, always.</p>
         </div>
-        <div class="contact-item">
-          <span class="contact-icon">📞</span>
-          <span>+91 90000 12345</span>
+        <div class="ab-plat-card">
+          <div class="ab-plat-number">02</div>
+          <h3>Search &amp; Filter</h3>
+          <p>Find properties by name, location, type, status or key attributes in seconds.</p>
+        </div>
+        <div class="ab-plat-card">
+          <div class="ab-plat-number">03</div>
+          <h3>Save Favourites</h3>
+          <p>Bookmark projects while browsing and revisit them instantly from your account.</p>
+        </div>
+        <div class="ab-plat-card">
+          <div class="ab-plat-number">04</div>
+          <h3>Compare Projects</h3>
+          <p>Pick multiple projects and compare them side-by-side to spot what really matters.</p>
+        </div>
+        <div class="ab-plat-card">
+          <div class="ab-plat-number">05</div>
+          <h3>Interactive Map</h3>
+          <p>Visualise all RERA projects across Hyderabad on a live geocoded map view.</p>
+        </div>
+        <div class="ab-plat-card ab-plat-card--dark">
+          <div class="ab-plat-number">06</div>
+          <h3>Market Intelligence</h3>
+          <p>SRO transaction data and government unit rates reveal real pricing trends by locality.</p>
         </div>
       </div>
-    </section>
-  </div>
+      <div class="ab-approach-strip">
+        <div class="ab-approach-item">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          <span><strong>Data-Driven</strong> — Public RERA data in searchable format</span>
+        </div>
+        <div class="ab-approach-item">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          <span><strong>No Ads, No Bias</strong> — We don't promote specific developers</span>
+        </div>
+        <div class="ab-approach-item">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          <span><strong>Free Access</strong> — No account needed to explore listings</span>
+        </div>
+        <div class="ab-approach-item">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          <span><strong>Mobile First</strong> — Designed for quick browsing anywhere</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CTA ───────────────────────────────────────────────────── -->
+  <section class="ab-section ab-section--cta">
+    <div class="ab-container">
+      <div class="ab-cta-wrap">
+        <h2>Start Exploring Hyderabad's<br>Real Estate Market</h2>
+        <p>Access RERA-verified data, compare properties, and connect with an expert consultant — all in one place.</p>
+        <div class="ab-cta-actions">
+          <a routerLink="/properties" class="ab-btn-primary">Browse Properties</a>
+          <a routerLink="/map-view" class="ab-btn-outline">Open Map View</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CONTACT ───────────────────────────────────────────────── -->
+  <section class="ab-section ab-section--contact">
+    <div class="ab-container">
+      <div class="ab-contact-grid">
+        <div class="ab-contact-item">
+          <div class="ab-contact-icon">📧</div>
+          <div>
+            <div class="ab-contact-label">Email</div>
+            <a href="mailto:hyderabadurbanrealty@gmail.com" class="ab-contact-value">hyderabadurbanrealty&#64;gmail.com</a>
+          </div>
+        </div>
+        <div class="ab-contact-item">
+          <div class="ab-contact-icon">📞</div>
+          <div>
+            <div class="ab-contact-label">Phone / WhatsApp</div>
+            <a href="tel:+918143369988" class="ab-contact-value">+91 81433 69988</a>
+          </div>
+        </div>
+        <div class="ab-contact-item">
+          <div class="ab-contact-icon">📞</div>
+          <div>
+            <div class="ab-contact-label">International</div>
+            <a href="tel:00918977367700" class="ab-contact-value">0091 8977 367700</a>
+          </div>
+        </div>
+        <div class="ab-contact-item">
+          <div class="ab-contact-icon">💬</div>
+          <div>
+            <div class="ab-contact-label">WhatsApp Direct</div>
+            <a href="https://wa.link/7iis37" target="_blank" rel="noopener noreferrer" class="ab-contact-value">wa.link/7iis37</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
 </div>
