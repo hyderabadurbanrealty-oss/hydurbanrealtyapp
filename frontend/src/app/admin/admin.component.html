@@ -660,6 +660,29 @@
         <button class="btn-admin-primary" (click)="addVideoUrl()" [disabled]="!videoUrl || uploading">Add Video</button>
       </div>
 
+      <!-- Add Image by URL (image / floorplan tab) -->
+      <div *ngIf="mediaTab === 'image' || mediaTab === 'floorplan'" class="url-add-zone">
+        <div class="url-add-header">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"/></svg>
+          Or paste an image URL directly
+        </div>
+        <div class="url-add-row">
+          <input type="url" [(ngModel)]="imageUrlInput"
+                 placeholder="https://cdn.example.com/property-photo.jpg"
+                 class="admin-input url-add-input">
+          <input type="text" [(ngModel)]="imageUrlTitle"
+                 placeholder="Photo title (optional)"
+                 class="admin-input" style="max-width:200px">
+          <button class="btn-admin-secondary"
+                  (click)="addImageByUrl()"
+                  [disabled]="!imageUrlInput.trim() || uploading">
+            <span *ngIf="!uploading">+ Add URL</span>
+            <span *ngIf="uploading" class="spinner-sm"></span>
+          </button>
+        </div>
+        <p class="url-add-hint">Paste any public image URL — useful for developer site CDN images that can't be downloaded directly.</p>
+      </div>
+
       <!-- Existing Media Grid -->
       <div class="media-grid-section">
         <h4>Existing {{mediaTab}}s ({{getMediaByType(mediaTab).length}})</h4>

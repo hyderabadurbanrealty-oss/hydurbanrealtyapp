@@ -66,6 +66,8 @@ export class AdminComponent implements OnInit, OnDestroy {
   uploading = false;
   videoUrl = '';
   videoTitle = '';
+  imageUrlInput = '';
+  imageUrlTitle = '';
   editingMediaId: string | null = null;
   editingMediaTitle = '';
 
@@ -710,6 +712,23 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.videoUrl = '';
         this.videoTitle = '';
         this.statusMsg = '✅ Video added';
+        this.loadMedia(id);
+      },
+      error: err => { this.uploading = false; this.statusMsg = '❌ ' + (err.error?.message || 'Error'); }
+    });
+  }
+
+  addImageByUrl() {
+    const url = this.imageUrlInput.trim();
+    if (!url || !this.selectedProperty) return;
+    const id = this.selectedProperty.id || this.selectedProperty.projectId;
+    this.uploading = true;
+    this.mediaService.registerScrapedPage(id, url, this.imageUrlTitle || undefined, this.mediaTab).subscribe({
+      next: () => {
+        this.uploading = false;
+        this.imageUrlInput = '';
+        this.imageUrlTitle = '';
+        this.statusMsg = '✅ Image URL registered';
         this.loadMedia(id);
       },
       error: err => { this.uploading = false; this.statusMsg = '❌ ' + (err.error?.message || 'Error'); }

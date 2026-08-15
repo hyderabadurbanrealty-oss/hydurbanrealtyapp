@@ -510,3 +510,29 @@
   gap: 6px;
   flex-wrap: wrap;
 }
+
+/* ── Add Image by URL ────────────────────────────────────────── */
+.url-add-zone {
+  background: #f8faff;
+  border: 1.5px dashed #bfdbfe;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-top: 12px;
+}
+
+.url-add-header {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 12.5px; font-weight: 700; color: #1e40af;
+  margin-bottom: 10px;
+}
+
+.url-add-row {
+  display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+}
+
+.url-add-input { flex: 1; min-width: 200px; }
+
+.url-add-hint {
+  font-size: 11.5px; color: #64748b;
+  margin: 8px 0 0; line-height: 1.5;
+}

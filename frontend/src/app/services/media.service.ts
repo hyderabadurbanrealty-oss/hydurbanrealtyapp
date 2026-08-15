@@ -49,11 +49,11 @@ export class MediaService {
   }
 
   /** Register an already-scraped page URL directly in project_media without re-uploading the file */
-  registerScrapedPage(projectId: string, fileUrl: string, title: string, sortOrder = 0): Observable<any> {
+  registerScrapedPage(projectId: string, fileUrl: string, title?: string, mediaType = 'floorplan', sortOrder = 0): Observable<any> {
     return this.http.post(`/api/projects/${encodeURIComponent(projectId)}/media/register-scraped`, {
       fileUrl,
-      title,
-      mediaType: 'floorplan',
+      title: title || undefined,
+      mediaType,
       sortOrder
     });
   }
