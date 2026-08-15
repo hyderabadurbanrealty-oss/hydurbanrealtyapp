@@ -283,7 +283,6 @@ app-resale-submit {
   .rs-features { grid-template-columns: 1fr 1fr; }
   .rs-previews { grid-template-columns: repeat(3, 1fr); }
 }
-  background: linear-gradient(150deg, #0d1f3c 0%, #0d1f3c 45%, #0a1240 100%);
 .rs-prev img { width: 100%; height: 100%; object-fit: cover; }
 .rs-prev-rm { position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,.6); border: none; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; transition: background .15s; }
 .rs-prev-rm:hover { background: #ef4444; }
