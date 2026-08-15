@@ -73,7 +73,7 @@ const routes: Routes = [
 
   // Authenticated user routes
   { path: 'profile', component: UserProfileComponent, canActivate: [AuthGuard] },
-  { path: 'saved-properties', component: SavedPropertiesComponent, canActivate: [AuthGuard] },
+  { path: 'saved-properties', redirectTo: '/favorites', pathMatch: 'full' },
   { path: 'saved-searches', component: SavedSearchesComponent, canActivate: [AuthGuard] },
 
   // Admin (lazy-loaded)
