@@ -29,7 +29,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   loginLoading = false;
 
   // ── UI state ───────────────────────────────────────────────────────────────
-  activeSection: 'dashboard' | 'properties' | 'users' | 'leads' | 'visits' | 'scraper' | 'social' = 'dashboard';
+  activeSection: 'dashboard' | 'properties' | 'users' | 'leads' | 'visits' | 'scraper' | 'social' | 'resale' = 'dashboard';
   statusMsg = '';
   loading = false;
 
@@ -121,6 +121,13 @@ export class AdminComponent implements OnInit, OnDestroy {
   addingTweet   = false;
   addTweetError = '';
   addTweetSuccess = '';
+
+  // ── Resale listings ───────────────────────────────────────────────────────
+  resaleListings: any[] = [];
+  resaleLoading  = false;
+  resaleFilter   = 'all';
+  resaleSearch   = '';
+  resaleUpdating: string | null = null;
 
   constructor(
     private adminService: AdminService,
@@ -830,5 +837,68 @@ export class AdminComponent implements OnInit, OnDestroy {
       },
       error: () => { this.statusMsg = '❌ Failed to delete tweet'; }
     });
+  }
+
+  // ── Resale listings ───────────────────────────────────────────────────────
+
+  loadResaleListings(): void {
+    this.resaleLoading = true;
+    const status = this.resaleFilter !== 'all' ? `?status=${this.resaleFilter}` : '';
+    this.http.get<any>(`/api/admin/resale${status}`).subscribe({
+      next: res => { this.resaleListings = res.listings || []; this.resaleLoading = false; },
+      error: () => { this.resaleLoading = false; this.statusMsg = '❌ Failed to load resale listings'; }
+    });
+  }
+
+  get filteredResale(): any[] {
+    if (!this.resaleSearch.trim()) return this.resaleListings;
+    const q = this.resaleSearch.toLowerCase();
+    return this.resaleListings.filter(l =>
+      (l.owner_name || '').toLowerCase().includes(q) ||
+      (l.project_name || '').toLowerCase().includes(q) ||
+      (l.location || '').toLowerCase().includes(q) ||
+      (l.contact_phone || '').toLowerCase().includes(q) ||
+      (l.configuration || '').toLowerCase().includes(q)
+    );
+  }
+
+  updateResaleStatus(id: string, status: string, adminNotes?: string): void {
+    this.resaleUpdating = id;
+    this.http.put(`/api/admin/resale/${id}/status`, { status, adminNotes: adminNotes || null }).subscribe({
+      next: () => {
+        const listing = this.resaleListings.find(l => l.id === id);
+        if (listing) listing.status = status;
+        this.resaleUpdating = null;
+        this.statusMsg = `✅ Listing marked as ${status}`;
+        setTimeout(() => this.statusMsg = '', 3000);
+      },
+      error: () => { this.resaleUpdating = null; this.statusMsg = '❌ Failed to update status'; }
+    });
+  }
+
+  getResaleImages(listing: any): string[] {
+    try {
+      const imgs = typeof listing.images === 'string' ? JSON.parse(listing.images) : listing.images;
+      return Array.isArray(imgs) ? imgs : [];
+    } catch { return []; }
+  }
+
+  getResaleFeatures(listing: any): string[] {
+    try {
+      const f = typeof listing.features === 'string' ? JSON.parse(listing.features) : listing.features;
+      return Array.isArray(f) ? f : [];
+    } catch { return []; }
+  }
+
+  formatResalePrice(v: number): string {
+    if (!v) return '—';
+    if (v >= 10000000) return `₹${(v / 10000000).toFixed(2)} Cr`;
+    if (v >= 100000)   return `₹${(v / 100000).toFixed(2)} L`;
+    return `₹${v.toLocaleString('en-IN')}`;
+  }
+
+  resaleStatusClass(s: string): string {
+    const m: Record<string, string> = { pending: 'badge-pending', active: 'badge-active', sold: 'badge-sold', rejected: 'badge-rejected' };
+    return m[s] || 'badge-pending';
   }
 }

@@ -59,8 +59,15 @@
               <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5z"/></svg>
               Saved Searches
             </a>
-            <div class="user-dropdown-divider"></div>
-            <button class="user-dropdown-item user-dropdown-signout" (click)="logout()">
+            <a [routerLink]="['/resale/submit']" class="user-dropdown-item" (click)="showUserMenu=false;closeMobileMenu()">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+              List Property for Resale
+            </a>
+            <a [routerLink]="['/resale/my-listings']" class="user-dropdown-item" (click)="showUserMenu=false;closeMobileMenu()">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+              My Listings
+            </a>
+            <div class="user-dropdown-divider"></div>            <button class="user-dropdown-item user-dropdown-signout" (click)="logout()">
               <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
               Sign Out
             </button>
@@ -97,6 +104,7 @@
         <a [routerLink]="['/market-intelligence']">Market IQ</a>
         <a [routerLink]="['/loan-calculator']">Loan Calculator</a>
         <a [routerLink]="['/blog']">Property Insights</a>
+        <a [routerLink]="['/resale/submit']">List Property for Resale</a>
         <a href="#featured">Contact</a>
       </div>
       <div class="footer-column">

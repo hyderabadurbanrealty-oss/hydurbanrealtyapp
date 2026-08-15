@@ -47,6 +47,9 @@
       <button [class.active]="activeSection==='social'" (click)="activeSection='social';loadTweets()">
         𝕏 Social Feed
       </button>
+      <button [class.active]="activeSection==='resale'" (click)="activeSection='resale';loadResaleListings()">
+        🏠 Resale Listings
+      </button>
     </nav>
     <button class="sidebar-logout" (click)="logout()">🚪 Logout</button>
   </aside>
@@ -665,3 +668,101 @@
     </div>
   </div>
 </div>
+
+
+    <!-- ── RESALE LISTINGS ──────────────────────────────────────── -->
+    <section *ngIf="activeSection==='resale'" class="admin-section">
+      <div class="section-header">
+        <h1 class="section-title">🏠 Resale Listings</h1>
+        <div class="section-actions">
+          <input type="text" [(ngModel)]="resaleSearch" placeholder="Search by name, project, location…" class="search-input-sm">
+          <select [(ngModel)]="resaleFilter" (change)="loadResaleListings()" class="search-input-sm" style="max-width:140px">
+            <option value="all">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="active">Active</option>
+            <option value="sold">Sold</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+
+      <div *ngIf="resaleLoading" class="loading-state"><span class="spinner-sm"></span> Loading…</div>
+
+      <div *ngIf="!resaleLoading && filteredResale.length === 0" class="empty-table">
+        No resale listings found.
+      </div>
+
+      <div class="resale-grid" *ngIf="!resaleLoading && filteredResale.length > 0">
+        <div class="resale-card" *ngFor="let l of filteredResale">
+
+          <!-- Image -->
+          <div class="resale-card-img">
+            <img *ngIf="getResaleImages(l).length > 0"
+                 [src]="getResaleImages(l)[0]"
+                 [alt]="l.project_name || 'Listing'"
+                 (error)="onImgError($event)">
+            <div *ngIf="getResaleImages(l).length === 0" class="resale-no-img">📷 No photos</div>
+            <span class="resale-img-count" *ngIf="getResaleImages(l).length > 1">
+              +{{ getResaleImages(l).length - 1 }}
+            </span>
+          </div>
+
+          <!-- Info -->
+          <div class="resale-card-body">
+            <div class="resale-card-top">
+              <div>
+                <h3 class="resale-title">{{ l.project_name || 'Property Listing' }}</h3>
+                <p class="resale-location" *ngIf="l.location">📍 {{ l.location | slice:0:60 }}{{ l.location.length > 60 ? '…' : '' }}</p>
+              </div>
+              <span class="admin-badge" [ngClass]="resaleStatusClass(l.status)">{{ l.status | titlecase }}</span>
+            </div>
+
+            <div class="resale-meta">
+              <span *ngIf="l.configuration"><strong>Config:</strong> {{ l.configuration }}</span>
+              <span *ngIf="l.super_built_up_area"><strong>Area:</strong> {{ l.super_built_up_area }} sq.ft</span>
+              <span *ngIf="l.age_of_property"><strong>Age:</strong> {{ l.age_of_property }}</span>
+              <span *ngIf="l.expected_price" class="resale-price">{{ formatResalePrice(l.expected_price) }}</span>
+            </div>
+
+            <div class="resale-contact">
+              <strong>{{ l.owner_name }}</strong>
+              <span>{{ l.residence_type === 'overseas' ? '✈️ Overseas' : '🇮🇳 India' }}</span>
+              &nbsp;·&nbsp; 📞 {{ l.contact_phone }}
+              <span *ngIf="l.contact_email">&nbsp;·&nbsp; ✉️ {{ l.contact_email }}</span>
+            </div>
+
+            <div class="resale-features" *ngIf="getResaleFeatures(l).length > 0">
+              <span *ngFor="let f of getResaleFeatures(l).slice(0,4)" class="resale-feat-tag">{{ f }}</span>
+              <span *ngIf="getResaleFeatures(l).length > 4" class="resale-feat-more">+{{ getResaleFeatures(l).length - 4 }}</span>
+            </div>
+
+            <div class="resale-callback" *ngIf="l.preferred_callback">
+              🕐 Callback: <strong>{{ l.preferred_callback }}</strong>
+            </div>
+
+            <div class="resale-card-footer">
+              <span class="resale-date">{{ formatDate(l.created_at) }}</span>
+              <span *ngIf="l.user_full_name" class="resale-user">by {{ l.user_full_name }}</span>
+              <div class="resale-actions">
+                <button class="btn-admin-secondary btn-sm"
+                        [disabled]="resaleUpdating === l.id"
+                        (click)="updateResaleStatus(l.id, 'active')">
+                  ✅ Activate
+                </button>
+                <button class="btn-admin-secondary btn-sm"
+                        [disabled]="resaleUpdating === l.id"
+                        (click)="updateResaleStatus(l.id, 'sold')">
+                  🏷 Sold
+                </button>
+                <button class="btn-admin-danger btn-sm"
+                        [disabled]="resaleUpdating === l.id"
+                        (click)="updateResaleStatus(l.id, 'rejected')">
+                  ❌ Reject
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+

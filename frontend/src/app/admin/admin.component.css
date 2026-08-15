@@ -344,3 +344,169 @@
   .social-add-row { grid-template-columns: 1fr; }
   .social-tweet-row { flex-direction: column; align-items: flex-start; }
 }
+
+/* ── Resale Listings ─────────────────────────────────────────── */
+.resale-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.resale-card {
+  background: #fff;
+  border: 1px solid #e8ecf2;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(13,59,115,.06);
+  display: flex;
+  flex-direction: column;
+}
+
+.resale-card-img {
+  position: relative;
+  height: 160px;
+  background: #f1f5f9;
+  overflow: hidden;
+}
+
+.resale-card-img img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+}
+
+.resale-no-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.resale-img-count {
+  position: absolute;
+  bottom: 8px; right: 8px;
+  background: rgba(0,0,0,.6);
+  color: #fff; font-size: 11px; font-weight: 600;
+  padding: 2px 7px; border-radius: 12px;
+}
+
+.resale-card-body {
+  padding: 14px 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.resale-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.resale-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0d1f3c;
+  margin: 0 0 3px;
+}
+
+.resale-location {
+  font-size: 12px;
+  color: #596475;
+  margin: 0;
+}
+
+.admin-badge {
+  display: inline-block;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-pending  { background: #fef3c7; color: #92400e; }
+.badge-active   { background: #d1fae5; color: #065f46; }
+.badge-sold     { background: #dbeafe; color: #1e40af; }
+.badge-rejected { background: #fee2e2; color: #991b1b; }
+
+.resale-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+  color: #374151;
+}
+
+.resale-meta strong { color: #0d1f3c; }
+
+.resale-price {
+  font-weight: 800;
+  color: #0d3b73;
+  font-size: 13px;
+}
+
+.resale-contact {
+  font-size: 12px;
+  color: #4a5568;
+  background: #f8fafc;
+  border-radius: 6px;
+  padding: 6px 10px;
+  line-height: 1.6;
+}
+
+.resale-contact strong {
+  color: #0d1f3c;
+  font-size: 13px;
+}
+
+.resale-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.resale-feat-tag {
+  background: #f0f4ff;
+  color: #0d3b73;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid #dbeafe;
+}
+
+.resale-feat-more {
+  font-size: 11px;
+  color: #94a3b8;
+  align-self: center;
+}
+
+.resale-callback {
+  font-size: 12px;
+  color: #596475;
+}
+
+.resale-card-footer {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: auto;
+}
+
+.resale-date { font-size: 11px; color: #94a3b8; }
+.resale-user { font-size: 11px; color: #596475; margin-left: auto; }
+
+.resale-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}

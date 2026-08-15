@@ -1,306 +1,297 @@
-<div class="auth-page">
+<div class="rs-page">
 
-  <!-- ── Left brand panel ─────────────────────────────────────── -->
-  <aside class="auth-brand-panel">
-    <div class="brand-top">
-      <a routerLink="/" class="brand-logo-wrap">
-        <img src="assets/blue-Logo.png" alt="Hyderabad Urban Realty" class="brand-logo-img">
-        <span class="brand-wordmark">
-          Hyderabad Urban
-          <span>Real Estate Intelligence</span>
-        </span>
-      </a>
-    </div>
-    <div class="brand-middle">
-      <h2 class="brand-tagline">
+  <!-- ── Left panel ───────────────────────────────────────────── -->
+  <aside class="rs-left">
+    <a routerLink="/" class="rs-brand">
+      <img src="assets/blue-Logo.png" alt="Hyderabad Urban Realty" class="rs-brand-img">
+      <span class="rs-brand-text">
+        Hyderabad Urban
+        <span>Real Estate Intelligence</span>
+      </span>
+    </a>
+
+    <div class="rs-left-body">
+      <h1 class="rs-tagline">
         List Your<br>Property<br>
         <em>For Resale</em>
-      </h2>
-      <p class="brand-desc">
-        Reach thousands of verified buyers on Hyderabad's most trusted
-        RERA-data platform. No brokerage. No hidden fees.
+      </h1>
+      <p class="rs-desc">
+        Reach thousands of verified buyers on Hyderabad's most trusted RERA-data platform.
+        No brokerage. No hidden fees.
       </p>
-      <div class="brand-city">
-        <div class="city-building cb1"></div><div class="city-building cb2"></div>
-        <div class="city-building cb3"></div><div class="city-building cb4"></div>
-        <div class="city-building cb5"></div><div class="city-building cb6"></div>
-        <div class="city-building cb7"></div><div class="city-building cb8"></div>
-        <div class="city-building cb9"></div><div class="city-building cb10"></div>
-        <div class="city-glow"></div><div class="city-ground"></div>
-      </div>
-      <ul class="brand-features">
-        <li>
-          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          Free listing — no broker fees
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          Reach verified buyers directly
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          Upload up to 5 property photos
-        </li>
-        <li>
-          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          Our team contacts you within 24 hrs
-        </li>
+
+      <ul class="rs-bullets">
+        <li><span class="rs-check">✓</span> Free listing — no broker fees</li>
+        <li><span class="rs-check">✓</span> Reach verified buyers directly</li>
+        <li><span class="rs-check">✓</span> Upload up to 5 property photos</li>
+        <li><span class="rs-check">✓</span> Our team contacts you within 24 hrs</li>
       </ul>
-    </div>
-    <div class="brand-bottom">
-      <div class="brand-trust">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20" class="trust-icon">
-          <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2z"/>
-        </svg>
-        <span>Your contact details are never shared without consent</span>
+
+      <div class="rs-stats">
+        <div class="rs-stat"><span class="rs-stat-val">21+</span><span class="rs-stat-lbl">RERA Projects</span></div>
+        <div class="rs-stat"><span class="rs-stat-val">500+</span><span class="rs-stat-lbl">Monthly Buyers</span></div>
+        <div class="rs-stat"><span class="rs-stat-val">₹0</span><span class="rs-stat-lbl">Listing Fee</span></div>
       </div>
+    </div>
+
+    <!-- City skyline -->
+    <div class="rs-city">
+      <div class="rs-b rs-b1"></div><div class="rs-b rs-b2"></div><div class="rs-b rs-b3"></div>
+      <div class="rs-b rs-b4"></div><div class="rs-b rs-b5"></div><div class="rs-b rs-b6"></div>
+      <div class="rs-b rs-b7"></div><div class="rs-b rs-b8"></div><div class="rs-b rs-b9"></div>
+      <div class="rs-b rs-b10"></div>
+      <div class="rs-city-glow"></div><div class="rs-city-ground"></div>
+    </div>
+
+    <div class="rs-trust">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2z"/></svg>
+      Your contact details are never shared without consent
     </div>
   </aside>
 
-  <!-- ── Right form panel ──────────────────────────────────────── -->
-  <main class="auth-form-panel auth-form-panel--wide rs-form-panel">
+  <!-- ── Right form panel ─────────────────────────────────────── -->
+  <main class="rs-right">
 
-    <!-- Success state -->
-    <div *ngIf="success" class="rs-success-wrap">
-      <div class="auth-card rs-success-card">
-        <div class="success-box">
-          <div class="success-icon-wrap">
-            <svg viewBox="0 0 24 24" fill="#10b981" width="36" height="36"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
-          </div>
-          <h3>Listing Submitted!</h3>
-          <p>Thank you for listing your property with Hyderabad Urban Realty. Our team will review your submission and contact you at <strong>{{ form.contactPhone }}</strong> within 24 hours.</p>
-          <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;justify-content:center">
-            <button class="btn-primary" (click)="resetForm()">Submit Another Listing</button>
-            <a routerLink="/resale/my-listings" class="btn-secondary">View My Listings</a>
-          </div>
-        </div>
+    <!-- Success -->
+    <div *ngIf="success" class="rs-success">
+      <div class="rs-success-icon">
+        <svg viewBox="0 0 24 24" fill="#10b981" width="36" height="36"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+      <h2>Listing Submitted!</h2>
+      <p>Thank you! Our team will review and contact you at <strong>{{ form.contactPhone }}</strong> within 24 hours.</p>
+      <div class="rs-success-actions">
+        <button class="rs-btn-primary" (click)="resetForm()">Submit Another</button>
+        <a routerLink="/resale/my-listings" class="rs-btn-secondary">View My Listings</a>
       </div>
     </div>
 
-    <!-- Form -->
-    <div *ngIf="!success" class="auth-card auth-card--wide rs-card">
-
-      <div class="auth-card-header">
-        <div class="auth-step-label">
+    <ng-container *ngIf="!success">
+      <div class="rs-form-header">
+        <div class="rs-form-label">
           <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
           Property Resale
         </div>
-        <h1 class="auth-title">List Your Property</h1>
-        <p class="auth-subtitle">Fill in your property details. Fields marked <span class="req">*</span> are required.</p>
+        <h2 class="rs-form-title">List Your Property</h2>
+        <p class="rs-form-sub">Fields marked <span style="color:#ef4444">*</span> are required</p>
       </div>
 
-      <!-- Error banner -->
-      <div class="form-error" *ngIf="error" role="alert">{{ error }}</div>
+      <div class="rs-error" *ngIf="error" role="alert">⚠ {{ error }}</div>
 
-      <!-- ── Section: Owner Details ──────────────────────────────────── -->
-      <div class="rs-section-title">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-        Owner Details
-      </div>
+      <!-- ── Owner Details ─────────────────────────────────────── -->
+      <div class="rs-section">Owner Details</div>
 
-      <div class="form-row-two">
-        <div class="form-field">
-          <label for="ownerName">Owner Name <span class="req">*</span></label>
-          <input id="ownerName" type="text" [(ngModel)]="form.ownerName"
-                 placeholder="Your full name" autocomplete="name">
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>Owner Name <span class="rs-req">*</span></label>
+          <input type="text" [(ngModel)]="form.ownerName" placeholder="Your full name" autocomplete="name">
         </div>
-        <div class="form-field">
-          <label>Where Do You Stay? <span class="req">*</span></label>
-          <div class="rs-radio-group">
-            <label class="rs-radio" [class.rs-radio--active]="form.residenceType === 'india'">
-              <input type="radio" [(ngModel)]="form.residenceType" value="india" name="residenceType">
-              <span class="rs-radio-icon">🇮🇳</span>
-              India
+        <div class="rs-field">
+          <label>Where Do You Stay? <span class="rs-req">*</span></label>
+          <div class="rs-radio-row">
+            <label class="rs-radio" [class.active]="form.residenceType==='india'">
+              <input type="radio" [(ngModel)]="form.residenceType" value="india" name="rt">
+              🇮🇳 India
             </label>
-            <label class="rs-radio" [class.rs-radio--active]="form.residenceType === 'overseas'">
-              <input type="radio" [(ngModel)]="form.residenceType" value="overseas" name="residenceType">
-              <span class="rs-radio-icon">✈️</span>
-              Overseas
+            <label class="rs-radio" [class.active]="form.residenceType==='overseas'">
+              <input type="radio" [(ngModel)]="form.residenceType" value="overseas" name="rt">
+              ✈️ Overseas
             </label>
           </div>
         </div>
       </div>
 
-      <div class="form-row-two">
-        <div class="form-field">
-          <label for="contactPhone">Contact Phone <span class="req">*</span></label>
-          <input id="contactPhone" type="tel" [(ngModel)]="form.contactPhone"
-                 placeholder="10-digit mobile number" maxlength="10" autocomplete="tel">
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>Contact Phone <span class="rs-req">*</span></label>
+          <input type="tel" [(ngModel)]="form.contactPhone" placeholder="10-digit mobile" maxlength="10">
         </div>
-        <div class="form-field">
-          <label for="contactEmail">Email Address <span class="optional">(optional)</span></label>
-          <input id="contactEmail" type="email" [(ngModel)]="form.contactEmail"
-                 placeholder="you@example.com" autocomplete="email">
+        <div class="rs-field">
+          <label>Email Address <span class="rs-opt">(optional)</span></label>
+          <input type="email" [(ngModel)]="form.contactEmail" placeholder="you@example.com">
         </div>
       </div>
 
-      <!-- ── Section: Property Details ──────────────────────────────── -->
-      <div class="rs-section-title">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
-        Property Details
-      </div>
+      <!-- ── Property Details ──────────────────────────────────── -->
+      <div class="rs-section">Property Details</div>
 
-      <div class="form-row-two">
-        <div class="form-field">
-          <label for="builderName">Builder / Developer Name</label>
-          <input id="builderName" type="text" [(ngModel)]="form.builderName"
-                 placeholder="e.g. Prestige, My Home">
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>Builder / Developer</label>
+          <input type="text" [(ngModel)]="form.builderName" placeholder="e.g. Prestige, My Home">
         </div>
-        <div class="form-field">
-          <label for="projectName">Project Name &amp; Location</label>
-          <input id="projectName" type="text" [(ngModel)]="form.projectName"
-                 placeholder="e.g. Prestige Beverly Hills, Kokapet">
+        <div class="rs-field">
+          <label>Project Name</label>
+          <input type="text" [(ngModel)]="form.projectName" placeholder="e.g. Prestige Beverly Hills">
         </div>
       </div>
 
-      <div class="form-field">
-        <label for="location">Full Location / Area</label>
-        <input id="location" type="text" [(ngModel)]="form.location"
-               placeholder="e.g. Kokapet, Ranga Reddy, Hyderabad 500075">
+      <!-- OSM Location Search -->
+      <div class="rs-field rs-field-full">
+        <label>
+          <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13" style="margin-right:4px;vertical-align:-2px;color:#0d3b73"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+          Property Location
+        </label>
+        <div class="rs-loc-wrap" style="position:relative">
+          <input type="text" [(ngModel)]="locationQuery"
+                 (input)="onLocationInput()"
+                 (keydown)="onLocKeydown($event)"
+                 placeholder="Search area, street or landmark in Hyderabad…"
+                 autocomplete="off">
+          <span class="rs-loc-spin" *ngIf="locationSearching">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+              <circle cx="12" cy="12" r="10" opacity=".25"/>
+              <path d="M12 2a10 10 0 0110 10" stroke-linecap="round" style="animation:rsSpin .8s linear infinite"/>
+            </svg>
+          </span>
+          <ul class="rs-suggestions" *ngIf="locationSuggestions.length > 0">
+            <li *ngFor="let s of locationSuggestions; let i=index"
+                [class.active]="i===locationSuggestionIdx"
+                (mousedown)="pickLocation(i)">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="flex-shrink:0;color:#94a3b8"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+              <span>{{ s.display_name }}</span>
+            </li>
+          </ul>
+          <!-- Chosen location chip -->
+          <div class="rs-loc-chosen" *ngIf="form.location && locationSuggestions.length===0">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            {{ form.location | slice:0:80 }}{{ form.location.length > 80 ? '…' : '' }}
+            <button type="button" (click)="clearLocation()">×</button>
+          </div>
+        </div>
       </div>
 
-      <!-- ── Section: Property Features ─────────────────────────────── -->
-      <div class="rs-section-title">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-        Property Features / Amenities
-      </div>
+      <!-- ── Features ──────────────────────────────────────────── -->
+      <div class="rs-section">Features &amp; Amenities</div>
 
-      <div class="rs-features-grid">
-        <label class="rs-feature-check" *ngFor="let f of features"
-               [class.rs-feature-check--active]="isFeatureSelected(f)">
+      <div class="rs-features">
+        <label class="rs-feat" *ngFor="let f of features" [class.active]="isFeatureSelected(f)">
           <input type="checkbox" [checked]="isFeatureSelected(f)" (change)="toggleFeature(f)">
-          <span class="rs-feature-checkmark">
-            <svg viewBox="0 0 12 12" fill="currentColor" width="10" height="10"><path d="M10 3L5 9 2 6"/></svg>
+          <span class="rs-feat-box">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" width="9" height="9"><path d="M2 6l3 3 5-5"/></svg>
           </span>
           {{ f }}
         </label>
       </div>
 
-      <!-- ── Section: Configuration & Size ──────────────────────────── -->
-      <div class="rs-section-title">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"/></svg>
-        Configuration &amp; Size
-      </div>
+      <!-- ── Config & Size ─────────────────────────────────────── -->
+      <div class="rs-section">Configuration &amp; Size</div>
 
-      <div class="form-row-two">
-        <div class="form-field">
-          <label for="configuration">Property Configuration</label>
-          <div class="rs-select-wrap">
-            <select id="configuration" [(ngModel)]="form.configuration" class="rs-select">
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>Configuration</label>
+          <div class="rs-sel-wrap">
+            <select [(ngModel)]="form.configuration">
               <option value="">Choose</option>
               <option *ngFor="let c of configurations" [value]="c">{{ c }}</option>
             </select>
-            <svg class="rs-select-arrow" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
-              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-            </svg>
+            <svg class="rs-sel-arr" viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
           </div>
         </div>
-        <div class="form-field">
-          <label for="superArea">Super Built-up Area (Sq. Ft.)</label>
-          <input id="superArea" type="number" [(ngModel)]="form.superBuiltUpArea"
-                 placeholder="e.g. 1450" min="200" max="20000">
+        <div class="rs-field">
+          <label>Super Built-up Area (sq.ft)</label>
+          <input type="number" [(ngModel)]="form.superBuiltUpArea" placeholder="e.g. 1450" min="200">
         </div>
       </div>
 
-      <div class="form-row-two">
-        <div class="form-field">
-          <label for="ageOfProperty">Age of Property</label>
-          <div class="rs-select-wrap">
-            <select id="ageOfProperty" [(ngModel)]="form.ageOfProperty" class="rs-select">
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>Age of Property</label>
+          <div class="rs-sel-wrap">
+            <select [(ngModel)]="form.ageOfProperty">
               <option value="">Select age</option>
               <option *ngFor="let a of ageOptions" [value]="a">{{ a }}</option>
             </select>
-            <svg class="rs-select-arrow" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
-              <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/>
-            </svg>
+            <svg class="rs-sel-arr" viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
           </div>
         </div>
-        <div class="form-field">
-          <label for="expectedPrice">Expected Price (INR)</label>
+        <div class="rs-field">
+          <label>Expected Price (INR)</label>
           <div class="rs-price-wrap">
-            <span class="rs-price-symbol">₹</span>
-            <input id="expectedPrice" type="number" [(ngModel)]="form.expectedPrice"
-                   placeholder="e.g. 8500000" min="100000" class="rs-price-input">
+            <span class="rs-rupee">₹</span>
+            <input type="number" [(ngModel)]="form.expectedPrice" placeholder="e.g. 8500000" min="100000">
           </div>
-          <span class="rs-price-display" *ngIf="form.expectedPrice">
-            {{ formatPrice(form.expectedPrice) }}
-          </span>
+          <span class="rs-price-hint" *ngIf="form.expectedPrice">{{ formatPrice(form.expectedPrice) }}</span>
         </div>
       </div>
 
-      <!-- ── Section: Callback Preference ───────────────────────────── -->
-      <div class="form-field">
-        <label for="preferredCallback">Preferred Time for Callback</label>
-        <input id="preferredCallback" type="text" [(ngModel)]="form.preferredCallback"
-               placeholder="e.g. Weekdays 10 AM – 12 PM, or Weekends after 5 PM">
+      <!-- ── Preferred Callback ─────────────────────────────────── -->
+      <div class="rs-section">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="margin-right:5px"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+        Preferred Callback Time
       </div>
 
-      <!-- ── Section: Property Images ───────────────────────────────── -->
-      <div class="rs-section-title">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
-        Property Images <span class="optional">(max 5 · 10 MB each · JPEG/PNG/WebP)</span>
-      </div>
-
-      <!-- Drop zone -->
-      <div class="rs-drop-zone"
-           [class.rs-drop-zone--over]="dragOver"
-           [class.rs-drop-zone--has-files]="selectedFiles.length > 0"
-           (dragover)="onDragOver($event)"
-           (dragleave)="onDragLeave()"
-           (drop)="onDrop($event)"
-           (click)="fileInput.click()"
-           *ngIf="selectedFiles.length < 5">
-        <input #fileInput type="file" accept="image/jpeg,image/png,image/webp"
-               multiple (change)="onFileInputChange($event)" style="display:none">
-        <div class="rs-drop-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>
+            <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13" style="margin-right:4px;vertical-align:-2px;color:#0d3b73"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+            Preferred Date
+          </label>
+          <input type="date" [(ngModel)]="form.callbackDate" [min]="minCallbackDate"
+                 class="rs-date-input">
         </div>
-        <p class="rs-drop-text">
-          <strong>Click to upload</strong> or drag &amp; drop photos here
-          <span>{{ 5 - selectedFiles.length }} slot{{ 5 - selectedFiles.length !== 1 ? 's' : '' }} remaining</span>
-        </p>
+        <div class="rs-field">
+          <label>
+            <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13" style="margin-right:4px;vertical-align:-2px;color:#0d3b73"><path fill-rule="evenodd" d="M12 2a10 10 0 100 20A10 10 0 0012 2zm1 10.586V7a1 1 0 00-2 0v6a1 1 0 00.293.707l3 3a1 1 0 001.414-1.414L13 12.586z" clip-rule="evenodd"/></svg>
+            Time Slot
+          </label>
+          <div class="rs-sel-wrap">
+            <select [(ngModel)]="form.callbackSlot">
+              <option value="">Select a time slot</option>
+              <option *ngFor="let s of callbackSlots" [value]="s">{{ s }}</option>
+            </select>
+            <svg class="rs-sel-arr" viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </div>
+        </div>
       </div>
 
-      <!-- Preview grid -->
-      <div class="rs-preview-grid" *ngIf="selectedFiles.length > 0">
-        <div class="rs-preview-item" *ngFor="let url of previewUrls; let i = index">
-          <img [src]="url" [alt]="'Property image ' + (i + 1)">
-          <button type="button" class="rs-preview-remove" (click)="removeImage(i)" aria-label="Remove image">
-            <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
-              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
-            </svg>
+      <!-- ── Images ─────────────────────────────────────────────── -->
+      <div class="rs-section">
+        Property Photos
+        <span class="rs-section-hint">max 5 · 10 MB each · JPEG / PNG / WebP</span>
+      </div>
+
+      <div class="rs-drop" [class.over]="dragOver"
+           (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)"
+           (click)="fi.click()" *ngIf="selectedFiles.length < 5">
+        <input #fi type="file" accept="image/jpeg,image/png,image/webp" multiple
+               (change)="onFileInputChange($event)" style="display:none">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28" style="color:#94a3b8"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        <p><strong>Click to upload</strong> or drag &amp; drop</p>
+        <span>{{ 5 - selectedFiles.length }} slot{{ 5 - selectedFiles.length !== 1 ? 's' : '' }} remaining</span>
+      </div>
+
+      <div class="rs-previews" *ngIf="selectedFiles.length > 0">
+        <div class="rs-prev" *ngFor="let url of previewUrls; let i=index">
+          <img [src]="url" [alt]="'Photo '+(i+1)">
+          <button type="button" class="rs-prev-rm" (click)="removeImage(i)">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="11" height="11"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
           </button>
-          <span class="rs-preview-num">{{ i + 1 }}</span>
+          <span class="rs-prev-n">{{ i+1 }}</span>
         </div>
-        <div class="rs-preview-add" *ngIf="selectedFiles.length < 5" (click)="fileInput2.click()">
-          <input #fileInput2 type="file" accept="image/jpeg,image/png,image/webp"
-                 multiple (change)="onFileInputChange($event)" style="display:none">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
-            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-          </svg>
+        <div class="rs-prev-add" *ngIf="selectedFiles.length < 5" (click)="fi2.click()">
+          <input #fi2 type="file" accept="image/jpeg,image/png,image/webp" multiple
+                 (change)="onFileInputChange($event)" style="display:none">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
           <span>Add more</span>
         </div>
       </div>
 
       <!-- Submit -->
-      <button class="btn-primary full-width rs-submit-btn" (click)="submit()" [disabled]="loading">
+      <button class="rs-btn-primary rs-submit" (click)="submit()" [disabled]="loading">
         <span *ngIf="!loading">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="17" height="17"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
           Submit Property Listing
         </span>
-        <span *ngIf="loading" class="rs-spinner-row">
-          <span class="spinner"></span>
-          Submitting…
+        <span *ngIf="loading" class="rs-loading-row">
+          <span class="rs-spinner"></span>Submitting…
         </span>
       </button>
 
-      <p class="auth-terms">
-        By submitting, you agree our team may contact you regarding your listing.
-        <a routerLink="/resale/my-listings" style="display:block;margin-top:8px;text-align:center">
-          View my existing listings →
-        </a>
+      <p class="rs-terms">
+        By submitting you agree our team may contact you about your listing.
+        <a routerLink="/resale/my-listings">View my existing listings →</a>
       </p>
 
-    </div>
+    </ng-container>
   </main>
 </div>
