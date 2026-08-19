@@ -1,123 +1,140 @@
-<div class="neighborhood-card">
-  <div class="card-header">
-    <h3>🗺️ Neighborhood Intelligence</h3>
-    <p>Explore what's around this property</p>
-  </div>
+<section class="nbhd-section">
 
-  <!-- Data Source Info -->
-  <div class="data-source-section" *ngIf="dataSource === 'loading'">
-    <div class="data-source-info">
-      <span class="data-badge loading">
-        ⏳ Loading neighborhood data...
-      </span>
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="nbhd-header">
+    <div class="nbhd-header-left">
+      <h2 class="nbhd-title">
+        <span class="nbhd-title-icon">📍</span>
+        Neighbourhood
+      </h2>
+      <p class="nbhd-subtitle">Explore what's around this property</p>
+    </div>
+
+    <!-- Score pills (only when data is loaded) -->
+    <div class="nbhd-scores" *ngIf="dataSource === 'OpenStreetMap'">
+      <div class="score-pill" [style.border-color]="getScoreColor(neighborhoodScore)">
+        <span class="score-num" [style.color]="getScoreColor(neighborhoodScore)">{{ neighborhoodScore }}</span>
+        <span class="score-lbl">Livability</span>
+      </div>
+      <div class="score-pill" [style.border-color]="getScoreColor(connectivityScore)">
+        <span class="score-num" [style.color]="getScoreColor(connectivityScore)">{{ connectivityScore }}</span>
+        <span class="score-lbl">Connectivity</span>
+      </div>
     </div>
   </div>
 
-  <div class="data-source-section" *ngIf="dataSource === 'unavailable'">
-    <div class="data-source-info">
-      <span class="data-badge unavailable">
-        📍 Neighborhood data unavailable — location could not be geocoded for this project.
-      </span>
+  <!-- ── Loading ─────────────────────────────────────────────────────────── -->
+  <div class="nbhd-status" *ngIf="dataSource === 'loading'">
+    <div class="nbhd-spinner"></div>
+    <span>Loading neighbourhood data…</span>
+  </div>
+
+  <!-- ── Unavailable ─────────────────────────────────────────────────────── -->
+  <div class="nbhd-status nbhd-status--warn" *ngIf="dataSource === 'unavailable'">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+      <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+    </svg>
+    <span>Neighbourhood data is unavailable — location could not be geocoded for this project.</span>
+  </div>
+
+  <!-- ── Main panel (map + cards) ────────────────────────────────────────── -->
+  <div class="nbhd-body" *ngIf="dataSource === 'OpenStreetMap'">
+
+    <!-- Category filter tabs -->
+    <div class="nbhd-cats">
+      <button
+        *ngFor="let cat of categories"
+        class="cat-btn"
+        [class.active]="activeCategory === cat.key"
+        [style.--cat-color]="cat.color"
+        (click)="selectCategory(cat.key)">
+        <span class="cat-emoji">{{ cat.emoji }}</span>
+        <span class="cat-label">{{ cat.label }}</span>
+        <span class="cat-count" *ngIf="getCategoryCount(cat.key) > 0">{{ getCategoryCount(cat.key) }}</span>
+      </button>
+    </div>
+
+    <!-- Split: map left, cards right -->
+    <div class="nbhd-split">
+
+      <!-- Map -->
+      <div class="nbhd-map-wrap">
+        <div [id]="mapId" class="nbhd-map"></div>
+
+        <!-- Map legend -->
+        <div class="map-legend" *ngIf="mapReady">
+          <div class="legend-item">
+            <span class="legend-dot legend-dot--property"></span>
+            <span>This Property</span>
+          </div>
+          <ng-container *ngFor="let cat of categories">
+            <div class="legend-item" *ngIf="cat.key !== 'all' && getCategoryCount(cat.key) > 0 && (activeCategory === 'all' || activeCategory === cat.key)">
+              <span class="legend-dot" [style.background]="cat.color"></span>
+              <span>{{ cat.label }}</span>
+            </div>
+          </ng-container>
+        </div>
+
+        <!-- Map loading overlay -->
+        <div class="map-loading-overlay" *ngIf="!mapReady">
+          <div class="nbhd-spinner"></div>
+        </div>
+      </div>
+
+      <!-- Cards panel -->
+      <div class="nbhd-cards-panel">
+        <div class="cards-scroll">
+
+          <!-- Empty state for category -->
+          <div class="cards-empty" *ngIf="filteredPois.length === 0">
+            <span>No places found in this category.</span>
+          </div>
+
+          <div
+            *ngFor="let poi of filteredPois; trackBy: trackByName"
+            class="poi-card"
+            [class.active]="activePoi === poi"
+            (mouseenter)="onCardHover(poi)"
+            (mouseleave)="onCardLeave(poi)"
+            (click)="onCardClick(poi)">
+
+            <!-- Coloured left accent bar -->
+            <span class="poi-card-accent" [style.background]="getCategoryColor(poi.category)"></span>
+
+            <!-- Icon bubble -->
+            <div class="poi-icon-bubble" [style.background]="getCategoryColor(poi.category) + '18'" [style.border-color]="getCategoryColor(poi.category) + '44'">
+              <span>{{ poi.icon }}</span>
+            </div>
+
+            <!-- Info -->
+            <div class="poi-info">
+              <p class="poi-name">{{ poi.name }}</p>
+              <p class="poi-type">{{ formatPlaceType(poi.type) }}</p>
+            </div>
+
+            <!-- Distance badge -->
+            <span class="poi-dist" [class]="'dist-' + getDistanceClass(poi.distance)">
+              {{ poi.distance }}
+            </span>
+
+            <!-- Pin indicator (only if has coordinates on map) -->
+            <span class="poi-pin-indicator" *ngIf="poi.lat && poi.lng" title="Shown on map">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13">
+                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <!-- Data attribution -->
+        <div class="cards-footer">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13" style="flex-shrink:0">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"/>
+          </svg>
+          Data from OpenStreetMap · Distances are approximate
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="card-body">
-    <!-- Amenities Tabs -->
-    <div class="amenities-section">
-      <h4>📍 Nearby Amenities</h4>
-      
-      <!-- Schools -->
-      <div class="amenity-category">
-        <div class="category-header">
-          <span class="category-icon">🏫</span>
-          <h5>Education ({{ amenities.schools?.length || 0 }})</h5>
-        </div>
-        <div class="places-grid">
-          <div class="place-card" *ngFor="let place of amenities.schools?.slice(0, 3)">
-            <div class="place-icon">{{ place.icon }}</div>
-            <div class="place-info">
-              <h6>{{ place.name }}</h6>
-              <p class="place-type">{{ formatPlaceType(place.type) }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Hospitals -->
-      <div class="amenity-category">
-        <div class="category-header">
-          <span class="category-icon">🏥</span>
-          <h5>Healthcare ({{ amenities.hospitals?.length || 0 }})</h5>
-        </div>
-        <div class="places-grid">
-          <div class="place-card" *ngFor="let place of amenities.hospitals?.slice(0, 3)">
-            <div class="place-icon">{{ place.icon }}</div>
-            <div class="place-info">
-              <h6>{{ place.name }}</h6>
-              <p class="place-type">{{ formatPlaceType(place.type) }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Transport -->
-      <div class="amenity-category highlight">
-        <div class="category-header">
-          <span class="category-icon">🚇</span>
-          <h5>Transportation ({{ amenities.transport?.length || 0 }})</h5>
-        </div>
-        <div class="places-grid">
-          <div class="place-card" *ngFor="let place of amenities.transport?.slice(0, 3)">
-            <div class="place-icon">{{ place.icon }}</div>
-            <div class="place-info">
-              <h6>{{ place.name }}</h6>
-              <p class="place-type">{{ formatPlaceType(place.type) }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Shopping -->
-      <div class="amenity-category">
-        <div class="category-header">
-          <span class="category-icon">🛍️</span>
-          <h5>Shopping & Dining ({{ amenities.shopping?.length || 0 }})</h5>
-        </div>
-        <div class="places-grid">
-          <div class="place-card" *ngFor="let place of amenities.shopping?.slice(0, 3)">
-            <div class="place-icon">{{ place.icon }}</div>
-            <div class="place-info">
-              <h6>{{ place.name }}</h6>
-              <p class="place-type">{{ formatPlaceType(place.type) }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Entertainment & Parks -->
-      <div class="amenity-category">
-        <div class="category-header">
-          <span class="category-icon">🎬</span>
-          <h5>Entertainment & Recreation</h5>
-        </div>
-        <div class="places-grid">
-          <div class="place-card" *ngFor="let place of getEntertainmentAndParks()?.slice(0, 3)">
-            <div class="place-icon">{{ place.icon }}</div>
-            <div class="place-info">
-              <h6>{{ place.name }}</h6>
-              <p class="place-type">{{ formatPlaceType(place.type) }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Disclaimer -->
-    <div class="disclaimer">
-      <small>
-        <strong>Note:</strong> Distances and amenities are approximate and based on publicly available data. 
-        Please verify exact locations and availability before making decisions.
-      </small>
-    </div>
-  </div>
-</div>
+</section>
