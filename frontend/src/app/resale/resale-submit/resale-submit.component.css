@@ -205,8 +205,8 @@ app-resale-submit {
 .rs-sel-arr { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); color: #596475; pointer-events: none; }
 
 .rs-price-wrap { position: relative; display: flex; align-items: center; }
-.rs-rupee { position: absolute; left: 11px; font-size: 15px; font-weight: 600; color: #374151; pointer-events: none; }
-.rs-price-wrap input { padding-left: 24px; width: 100%; }
+.rs-rupee { position: absolute; left: 12px; font-size: 14px; font-weight: 700; color: #374151; pointer-events: none; user-select: none; line-height: 1; width: 16px; text-align: center; }
+.rs-price-wrap input { padding-left: 32px; width: 100%; }
 .rs-price-hint { font-size: 12px; font-weight: 700; color: #0d3b73; margin-top: 3px; }
 
 /* ── Location ─────────────────────────────────────────────────── */

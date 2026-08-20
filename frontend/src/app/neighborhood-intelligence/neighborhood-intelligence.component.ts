@@ -69,6 +69,28 @@ function buildPoiPin(color: string, emoji: string, active = false): string {
   );
 }
 
+// ── localStorage cache helpers ───────────────────────────────────────────────
+const GEOCODE_CACHE_PREFIX  = 'nbhd_gc:';
+const NBHD_CACHE_PREFIX     = 'nbhd_data:';
+const GEOCODE_TTL_MS        = 30 * 24 * 60 * 60 * 1000;  // 30 days
+const NBHD_TTL_MS           = 24 * 60 * 60 * 1000;        // 24 hours
+
+function lsGet<T>(key: string): T | null {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return null;
+    const { v, exp } = JSON.parse(raw);
+    if (exp && Date.now() > exp) { localStorage.removeItem(key); return null; }
+    return v as T;
+  } catch { return null; }
+}
+
+function lsSet(key: string, value: any, ttlMs: number): void {
+  try {
+    localStorage.setItem(key, JSON.stringify({ v: value, exp: Date.now() + ttlMs }));
+  } catch { /* storage full — skip silently */ }
+}
+
 @Component({
   selector: 'app-neighborhood-intelligence',
   templateUrl: './neighborhood-intelligence.component.html',
@@ -125,30 +147,38 @@ export class NeighborhoodIntelligenceComponent implements OnInit, AfterViewInit,
   // ── Data loading ─────────────────────────────────────────────────────────
   loadNeighborhoodData(): void {
     const projectId = this.property?.id || this.property?.projectName;
-    if (!projectId) {
-      this.setEmpty();
+    if (!projectId) { this.setEmpty(); return; }
+
+    // ── 1. Check POI cache first ──────────────────────────────────────────
+    const cacheKey = `${NBHD_CACHE_PREFIX}${projectId}`;
+    const cached = lsGet<any>(cacheKey);
+    if (cached && this.hasRealData(cached)) {
+      this.amenities = this.transformApiData(cached);
+      this.dataSource = 'OpenStreetMap';
+      this.buildPoiList();
+      this.calculateScores();
+      this.geocodeProperty();
+      this.cdr.markForCheck();
       return;
     }
 
+    // ── 2. Fetch from API and cache result ────────────────────────────────
     this.dataSource = 'loading';
     this.propertyService.getNeighborhoodData(projectId, false).subscribe({
       next: (data) => {
         if (data && this.hasRealData(data)) {
+          lsSet(cacheKey, data, NBHD_TTL_MS);   // cache the raw API response
           this.amenities = this.transformApiData(data);
           this.dataSource = 'OpenStreetMap';
           this.buildPoiList();
           this.calculateScores();
-          // Geocode the property itself then init the map
           this.geocodeProperty();
         } else {
           this.setEmpty();
         }
         this.cdr.markForCheck();
       },
-      error: () => {
-        this.setEmpty();
-        this.cdr.markForCheck();
-      }
+      error: () => { this.setEmpty(); this.cdr.markForCheck(); }
     });
   }
 
@@ -219,15 +249,33 @@ export class NeighborhoodIntelligenceComponent implements OnInit, AfterViewInit,
     const pin  = this.property['Pin Code']   || '';
     const str  = this.property['Street']     || '';
     const lmk  = this.property['Land mark']  || '';
-    this.geocodeViaService(loc, dist, pin, str, lmk);
+
+    // stable cache key — same scheme as MapCacheService
+    const cacheKey = `${GEOCODE_CACHE_PREFIX}${loc}|${dist}|${pin}`.toLowerCase();
+    const hit = lsGet<{ lat: number; lng: number }>(cacheKey);
+    if (hit?.lat && hit?.lng) {
+      this.propLat = hit.lat;
+      this.propLng = hit.lng;
+      this.initMap();
+      return;
+    }
+
+    this.geocodeViaService(cacheKey, loc, dist, pin, str, lmk);
   }
 
-  private geocodeViaService(locality: string, district: string, pinCode: string, street: string, landmark: string): void {
-    this.http.post<{ lat: number; lng: number }>('/api/geocode', { locality, district, pinCode, street, landmark }).subscribe({
+  private geocodeViaService(
+    cacheKey: string,
+    locality: string, district: string, pinCode: string,
+    street: string, landmark: string
+  ): void {
+    this.http.post<{ lat: number; lng: number }>(
+      '/api/geocode', { locality, district, pinCode, street, landmark }
+    ).subscribe({
       next: (r) => {
         if (r?.lat && r?.lng) {
           this.propLat = r.lat;
           this.propLng = r.lng;
+          lsSet(cacheKey, { lat: r.lat, lng: r.lng }, GEOCODE_TTL_MS);
         }
         this.initMap();
       },
