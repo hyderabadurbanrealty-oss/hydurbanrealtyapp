@@ -16,12 +16,10 @@ export class LoadingService {
   }
 
   hide() {
-    // Trigger fade-out animation first
     this.hidingSubject.next(true);
-    // Then remove from DOM after animation completes
     setTimeout(() => {
       this.loadingSubject.next(false);
       this.hidingSubject.next(false);
-    }, 500); // Match fadeOut animation duration
+    }, 260); // match progress-fade-out duration
   }
 }

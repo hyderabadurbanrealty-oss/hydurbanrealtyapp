@@ -76,11 +76,31 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     // no-op
   }
 
+  // Trigger the count-pop CSS class when stats update
+  statsUpdated = false;
+
   ngOnChanges(changes: SimpleChanges): void {
-    // Sync search query when parent updates it
     if (changes['searchTerm'] && !changes['searchTerm'].firstChange) {
       this.searchQuery = this.searchTerm;
     }
+    if (changes['properties'] && !changes['properties'].firstChange && this.properties.length > 0) {
+      this.statsUpdated = false;
+      setTimeout(() => { this.statsUpdated = true; }, 50);
+    }
+  }
+
+  // ── Live stats derived from properties input ──────────────────────────────
+  get totalProjects(): number {
+    return this.properties.length;
+  }
+
+  get districtCount(): number {
+    const districts = new Set<string>();
+    this.properties.forEach(p => {
+      const d = p['District'];
+      if (d) districts.add(d.trim().toLowerCase());
+    });
+    return districts.size || 0;
   }
 
   public focusOn(_: Property) {

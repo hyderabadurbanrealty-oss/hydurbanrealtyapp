@@ -1278,3 +1278,129 @@
 }
 .btn-compare-now:disabled { opacity: 0.55; cursor: not-allowed; }
 .btn-compare-hint { font-size: 11px; font-weight: 400; opacity: 0.75; }
+
+/* ════════════════════════════════════════════════════════
+   DYNAMIC / ANIMATED — card skeletons, entrance, shimmer
+   ════════════════════════════════════════════════════════ */
+
+/* ── Keyframes ────────────────────────────────────────── */
+@keyframes shimmer {
+  0%   { background-position: -600px 0; }
+  100% { background-position:  600px 0; }
+}
+
+@keyframes card-in {
+  from { opacity: 0; transform: translateY(24px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
+
+@keyframes lc-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+@keyframes bar-grow {
+  from { width: 0; }
+}
+
+/* ── Property card entrance ───────────────────────────── */
+.property-card-modern {
+  animation: card-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Stagger each card by its position in the grid (up to 6) */
+.property-grid > .property-card-modern:nth-child(1) { animation-delay: 0.04s; }
+.property-grid > .property-card-modern:nth-child(2) { animation-delay: 0.10s; }
+.property-grid > .property-card-modern:nth-child(3) { animation-delay: 0.16s; }
+.property-grid > .property-card-modern:nth-child(4) { animation-delay: 0.22s; }
+.property-grid > .property-card-modern:nth-child(5) { animation-delay: 0.28s; }
+.property-grid > .property-card-modern:nth-child(6) { animation-delay: 0.34s; }
+
+/* ── Skeleton loading state (shown while loading=true) ── */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 32px;
+}
+
+.skeleton-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.skeleton-img {
+  height: 210px;
+  background: linear-gradient(90deg, #f0f2f5 25%, #e4e8ed 50%, #f0f2f5 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-line {
+  border-radius: 6px;
+  background: linear-gradient(90deg, #f0f2f5 25%, #e4e8ed 50%, #f0f2f5 75%);
+  background-size: 600px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-line.title  { height: 20px; width: 70%; }
+.skeleton-line.sub    { height: 14px; width: 45%; animation-delay: 0.1s; }
+.skeleton-line.meta   { height: 12px; width: 55%; animation-delay: 0.2s; }
+.skeleton-line.btn    { height: 40px; width: 100%; border-radius: 8px; margin-top: 8px; animation-delay: 0.15s; }
+
+/* ── Locality card entrance (staggered) ──────────────── */
+.lc {
+  animation: lc-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.locality-grid > .lc:nth-child(1)  { animation-delay: 0.05s; }
+.locality-grid > .lc:nth-child(2)  { animation-delay: 0.09s; }
+.locality-grid > .lc:nth-child(3)  { animation-delay: 0.13s; }
+.locality-grid > .lc:nth-child(4)  { animation-delay: 0.17s; }
+.locality-grid > .lc:nth-child(5)  { animation-delay: 0.21s; }
+.locality-grid > .lc:nth-child(6)  { animation-delay: 0.25s; }
+.locality-grid > .lc:nth-child(7)  { animation-delay: 0.29s; }
+.locality-grid > .lc:nth-child(8)  { animation-delay: 0.33s; }
+.locality-grid > .lc:nth-child(9)  { animation-delay: 0.37s; }
+.locality-grid > .lc:nth-child(10) { animation-delay: 0.41s; }
+
+/* Animate the bar fill on entrance */
+.lc-bar-fill {
+  animation: bar-grow 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: inherit;
+}
+
+/* ── Hover lift upgrade ───────────────────────────────── */
+.lc-explore-btn {
+  transition: background 0.18s, box-shadow 0.18s, transform 0.14s;
+}
+
+.lc:hover .lc-explore-btn {
+  transform: translateY(-1px);
+}
+
+/* ── View-all button pulse on hover ──────────────────── */
+.btn-view-all {
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.btn-view-all:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(13,31,60,0.18);
+}
+
+/* ── Reduce motion support ────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .property-card-modern,
+  .lc,
+  .skeleton-img,
+  .skeleton-line { animation: none; }
+}

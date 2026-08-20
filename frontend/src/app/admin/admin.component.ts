@@ -33,6 +33,10 @@ export class AdminComponent implements OnInit, OnDestroy {
   statusMsg = '';
   loading = false;
 
+  // ── Sidebar state ──────────────────────────────────────────────────────────
+  sidebarOpen      = false;   // mobile: slide-in overlay
+  sidebarCollapsed = false;   // desktop: icon-only collapse
+
   // ── Dashboard stats ────────────────────────────────────────────────────────
   dashStats: any = null;
 
@@ -783,12 +787,27 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   getStatusClass(s: string): string {
-    if (!s) return 'status-unknown';
+    if (!s) return 'badge-unknown';
     const sl = s.toLowerCase();
-    if (sl.includes('completed')) return 'status-completed';
-    if (sl.includes('ongoing')) return 'status-ongoing';
-    if (sl.includes('new')) return 'status-new';
-    return 'status-unknown';
+    if (sl.includes('completed')) return 'badge-completed';
+    if (sl.includes('ongoing'))   return 'badge-ongoing';
+    if (sl.includes('new'))       return 'badge-new';
+    if (sl.includes('lapsed'))    return 'badge-lapsed';
+    return 'badge-unknown';
+  }
+
+  getSectionTitle(): string {
+    const titles: Record<string, string> = {
+      dashboard:  'Dashboard',
+      properties: 'Properties',
+      users:      'Users',
+      leads:      'Leads',
+      visits:     'Site Visits',
+      scraper:    'Scraper Control',
+      social:     'Social Feed',
+      resale:     'Resale Listings'
+    };
+    return titles[this.activeSection] ?? 'Admin';
   }
 
   formatArea(area: any): string {

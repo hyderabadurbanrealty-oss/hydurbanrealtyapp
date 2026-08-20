@@ -296,7 +296,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   prepareDistrictData() {
     const districtMap = new Map<string, {display: string; count: number; totalArea: number}>();
     this.properties.forEach(p => {
-      const raw = (p['Locality'] || p['Village/City/Town'] || p['Mandal'] || p['District'] || 'Unknown').toString().trim();
+      const raw = (p['Locality'] || p['Village/City/Town'] || p['Mandal'] || p['District'] || '').toString().trim();
+      if (!raw) return; // skip properties with no location data
       const key = raw.toLowerCase();
       const area = parseFloat(p['Total Area(In sqmts)'] || '0');
       if (districtMap.has(key)) { const e = districtMap.get(key)!; e.count++; e.totalArea += area; }

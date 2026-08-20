@@ -81,10 +81,17 @@
       </div>
     </div>
 
-    <!-- Loading State -->
-    <div *ngIf="loading" class="loading-state">
-      <div class="spinner"></div>
-      <p>Loading properties...</p>
+    <!-- Loading State — skeleton cards -->
+    <div *ngIf="loading" class="skeleton-grid">
+      <div *ngFor="let s of [1,2,3,4,5,6]" class="skeleton-card">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line title"></div>
+          <div class="skeleton-line sub"></div>
+          <div class="skeleton-line meta"></div>
+          <div class="skeleton-line btn"></div>
+        </div>
+      </div>
     </div>
 
     <!-- Error State -->

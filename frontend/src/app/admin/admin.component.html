@@ -1,409 +1,753 @@
-<!-- ── LOGIN ─────────────────────────────────────────────────────── -->
-<div class="admin-login-container" *ngIf="!isLoggedIn">
-  <h2>🔐 Admin Panel</h2>
-  <div class="form-group">
-    <label>Email / Username</label>
-    <input type="text" [(ngModel)]="loginUsername" placeholder="admin@example.com" (keyup.enter)="doLogin()">
+<!-- ══════════════════════════════════════════════════════════════
+     LOGIN
+══════════════════════════════════════════════════════════════ -->
+<div class="admin-login-wrap" *ngIf="!isLoggedIn">
+  <div class="admin-login-card">
+    <div class="login-card-header">
+      <img src="assets/blue-Logo.png" alt="HydUrban" class="login-logo">
+      <h1>Admin Portal</h1>
+      <p>Hyderabad Urban Realty</p>
+    </div>
+    <div class="login-card-body">
+      <div class="login-field">
+        <label>Email / Username</label>
+        <input type="text" [(ngModel)]="loginUsername" placeholder="admin@example.com"
+               (keyup.enter)="doLogin()" autocomplete="username">
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" [(ngModel)]="loginPassword" placeholder="••••••••"
+               (keyup.enter)="doLogin()" autocomplete="current-password">
+      </div>
+      <div class="login-error" *ngIf="loginError">{{ loginError }}</div>
+      <button class="btn-login" (click)="doLogin()" [disabled]="loginLoading">
+        <span class="spinner" *ngIf="loginLoading"></span>
+        <span *ngIf="!loginLoading">Sign In</span>
+      </button>
+    </div>
   </div>
-  <div class="form-group">
-    <label>Password</label>
-    <input type="password" [(ngModel)]="loginPassword" placeholder="Password" (keyup.enter)="doLogin()">
-  </div>
-  <div class="error-msg" *ngIf="loginError">{{loginError}}</div>
-  <button class="btn-admin-primary" (click)="doLogin()" [disabled]="loginLoading">
-    <span *ngIf="!loginLoading">Sign In</span>
-    <span *ngIf="loginLoading" class="spinner-sm"></span>
-  </button>
 </div>
 
-<!-- ── ADMIN SHELL ──────────────────────────────────────────────── -->
+<!-- ══════════════════════════════════════════════════════════════
+     ADMIN SHELL
+══════════════════════════════════════════════════════════════ -->
 <div class="admin-shell" *ngIf="isLoggedIn">
 
-  <!-- Sidebar -->
-  <aside class="admin-sidebar">
+  <!-- Mobile overlay -->
+  <div class="sidebar-overlay" [class.visible]="sidebarOpen" (click)="sidebarOpen=false"></div>
+
+  <!-- ── SIDEBAR ──────────────────────────────────────────────── -->
+  <aside class="admin-sidebar" [class.collapsed]="sidebarCollapsed" [class.open]="sidebarOpen">
+
     <div class="sidebar-brand">
       <img src="assets/blue-Logo.png" alt="HydUrban" class="sidebar-logo">
-      <span class="sidebar-title">Admin</span>
+      <div class="sidebar-brand-text">
+        <span class="brand-name">HydUrban</span>
+        <span class="brand-sub">Admin Portal</span>
+      </div>
     </div>
+
     <nav class="sidebar-nav">
-      <button [class.active]="activeSection==='dashboard'" (click)="activeSection='dashboard';loadDashboard()">
-        📊 Dashboard
+      <span class="nav-section-label">Overview</span>
+
+      <button class="nav-item" [class.active]="activeSection==='dashboard'"
+              (click)="activeSection='dashboard'; loadDashboard(); sidebarOpen=false">
+        <span class="nav-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+          </svg>
+        </span>
+        <span class="nav-label">Dashboard</span>
       </button>
-      <button [class.active]="activeSection==='properties'" (click)="activeSection='properties';loadProperties()">
-        🏠 Properties
+
+      <span class="nav-section-label">Content</span>
+
+      <button class="nav-item" [class.active]="activeSection==='properties'"
+              (click)="activeSection='properties'; loadProperties(); sidebarOpen=false">
+        <span class="nav-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/>
+          </svg>
+        </span>
+        <span class="nav-label">Properties</span>
       </button>
-      <button [class.active]="activeSection==='users'" (click)="activeSection='users';loadUsers()">
-        👥 Users
+
+      <button class="nav-item" [class.active]="activeSection==='resale'"
+              (click)="activeSection='resale'; loadResaleListings(); sidebarOpen=false">
+        <span class="nav-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+          </svg>
+        </span>
+        <span class="nav-label">Resale Listings</span>
       </button>
-      <button [class.active]="activeSection==='leads'" (click)="activeSection='leads';loadLeads()">
-        📋 Leads
+
+      <button class="nav-item" [class.active]="activeSection==='social'"
+              (click)="activeSection='social'; loadTweets(); sidebarOpen=false">
+        <span class="nav-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/>
+            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/>
+          </svg>
+        </span>
+        <span class="nav-label">Social Feed</span>
       </button>
-      <button [class.active]="activeSection==='visits'" (click)="activeSection='visits';loadVisits()">
-        📅 Visits
+
+      <span class="nav-section-label">People</span>
+
+      <button class="nav-item" [class.active]="activeSection==='users'"
+              (click)="activeSection='users'; loadUsers(); sidebarOpen=false">
+        <span class="nav-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/>
+          </svg>
+        </span>
+        <span class="nav-label">Users</span>
       </button>
-      <button [class.active]="activeSection==='scraper'" (click)="activeSection='scraper'">
-        ⚙️ Scraper
+
+      <button class="nav-item" [class.active]="activeSection==='leads'"
+              (click)="activeSection='leads'; loadLeads(); sidebarOpen=false">
+        <span class="nav-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+          </svg>
+        </span>
+        <span class="nav-label">Leads</span>
       </button>
-      <button [class.active]="activeSection==='social'" (click)="activeSection='social';loadTweets()">
-        𝕏 Social Feed
+
+      <button class="nav-item" [class.active]="activeSection==='visits'"
+              (click)="activeSection='visits'; loadVisits(); sidebarOpen=false">
+        <span class="nav-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+          </svg>
+        </span>
+        <span class="nav-label">Site Visits</span>
       </button>
-      <button [class.active]="activeSection==='resale'" (click)="activeSection='resale';loadResaleListings()">
-        🏠 Resale Listings
+
+      <span class="nav-section-label">System</span>
+
+      <button class="nav-item" [class.active]="activeSection==='scraper'"
+              (click)="activeSection='scraper'; sidebarOpen=false">
+        <span class="nav-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path fill-rule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clip-rule="evenodd"/>
+          </svg>
+        </span>
+        <span class="nav-label">Scraper</span>
       </button>
     </nav>
-    <button class="sidebar-logout" (click)="logout()">🚪 Logout</button>
+
+    <div class="sidebar-footer">
+      <button class="nav-item logout" (click)="logout()">
+        <span class="nav-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path fill-rule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd"/>
+          </svg>
+        </span>
+        <span class="nav-label">Sign Out</span>
+      </button>
+    </div>
   </aside>
 
-  <!-- Main content -->
-  <main class="admin-main">
-    <div class="status-bar" *ngIf="statusMsg">
-      {{statusMsg}}
-      <button class="dismiss-btn" (click)="statusMsg=''">×</button>
+  <!-- ── TOP BAR ──────────────────────────────────────────────── -->
+  <header class="admin-topbar" [class.sidebar-collapsed]="sidebarCollapsed">
+    <!-- Hamburger (mobile) -->
+    <button class="topbar-menu-btn" (click)="sidebarOpen=!sidebarOpen" aria-label="Toggle menu">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="18" height="18">
+        <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+      </svg>
+    </button>
+
+    <!-- Collapse (desktop) -->
+    <button class="topbar-collapse-btn" (click)="sidebarCollapsed=!sidebarCollapsed"
+            [title]="sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+        <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+      </svg>
+    </button>
+
+    <h2 class="topbar-title">{{ getSectionTitle() }}</h2>
+
+    <div class="topbar-right">
+      <span class="topbar-env-badge">Admin</span>
+      <div class="topbar-avatar">A</div>
     </div>
+  </header>
 
-    <!-- ── DASHBOARD ──────────────────────────────────────────────── -->
+  <!-- Toast notification -->
+  <div class="status-toast" *ngIf="statusMsg">
+    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" style="flex-shrink:0;opacity:.7">
+      <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+    </svg>
+    {{ statusMsg }}
+    <button class="toast-dismiss" (click)="statusMsg=''">×</button>
+  </div>
+
+  <!-- ── MAIN ────────────────────────────────────────────────── -->
+  <main class="admin-main" [class.sidebar-collapsed]="sidebarCollapsed">
+
+    <!-- ════════════════════════════════════════════════════════
+         DASHBOARD
+    ════════════════════════════════════════════════════════ -->
     <section *ngIf="activeSection==='dashboard'" class="admin-section">
-      <h1 class="section-title">Dashboard</h1>
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">Platform overview</p>
+        </div>
+      </div>
+
+      <!-- Stat tiles -->
       <div class="stats-grid" *ngIf="dashStats">
-        <div class="stat-card"><div class="stat-value">{{dashStats.total_properties}}</div><div class="stat-label">Properties</div></div>
-        <div class="stat-card"><div class="stat-value">{{dashStats.total_users}}</div><div class="stat-label">Users</div></div>
-        <div class="stat-card"><div class="stat-value">{{dashStats.total_leads}}</div><div class="stat-label">Leads</div></div>
-        <div class="stat-card"><div class="stat-value">{{dashStats.active_users}}</div><div class="stat-label">Active Users</div></div>
-        <div class="stat-card"><div class="stat-value">{{dashStats.new_users_30d}}</div><div class="stat-label">New Users (30d)</div></div>
-        <div class="stat-card"><div class="stat-value">{{dashStats.new_leads_30d}}</div><div class="stat-label">New Leads (30d)</div></div>
-      </div>
-      <div *ngIf="!dashStats" class="loading-state"><span class="spinner-sm"></span> Loading stats…</div>
-      <div class="quick-actions">
-        <button class="btn-admin-primary" (click)="activeSection='properties';loadProperties()">Manage Properties</button>
-        <button class="btn-admin-secondary" (click)="activeSection='users';loadUsers()">Manage Users</button>
-        <button class="btn-admin-secondary" (click)="activeSection='leads';loadLeads()">View Leads</button>
-        <button class="btn-admin-secondary" (click)="activeSection='visits';loadVisits()">View Visits</button>
-      </div>
-    </section>
-
-    <!-- ── PROPERTIES ────────────────────────────────────────────── -->
-    <section *ngIf="activeSection==='properties'" class="admin-section">
-      <div class="section-header">
-        <h1 class="section-title">Properties ({{properties.length}})</h1>
-        <div class="section-actions">
-          <input type="text" [(ngModel)]="propertySearchQuery" (input)="searchProperties()" placeholder="Search…" class="search-input-sm">
-          <button class="btn-admin-primary" (click)="openCreateModal()">+ Add Property</button>
+        <div class="stat-tile tile-blue">
+          <div class="stat-tile-top">
+            <div class="stat-icon">🏠</div>
+          </div>
+          <div class="stat-value">{{ dashStats.total_properties }}</div>
+          <div class="stat-label">Properties</div>
+        </div>
+        <div class="stat-tile tile-purple">
+          <div class="stat-tile-top">
+            <div class="stat-icon">👥</div>
+          </div>
+          <div class="stat-value">{{ dashStats.total_users }}</div>
+          <div class="stat-label">Total Users</div>
+        </div>
+        <div class="stat-tile tile-green">
+          <div class="stat-tile-top">
+            <div class="stat-icon">✅</div>
+          </div>
+          <div class="stat-value">{{ dashStats.active_users }}</div>
+          <div class="stat-label">Active Users</div>
+        </div>
+        <div class="stat-tile tile-amber">
+          <div class="stat-tile-top">
+            <div class="stat-icon">📋</div>
+          </div>
+          <div class="stat-value">{{ dashStats.total_leads }}</div>
+          <div class="stat-label">Total Leads</div>
+        </div>
+        <div class="stat-tile tile-cyan">
+          <div class="stat-tile-top">
+            <div class="stat-icon">🆕</div>
+          </div>
+          <div class="stat-value">{{ dashStats.new_users_30d }}</div>
+          <div class="stat-label">New Users (30d)</div>
+        </div>
+        <div class="stat-tile tile-pink">
+          <div class="stat-tile-top">
+            <div class="stat-icon">📩</div>
+          </div>
+          <div class="stat-value">{{ dashStats.new_leads_30d }}</div>
+          <div class="stat-label">New Leads (30d)</div>
         </div>
       </div>
-      <div *ngIf="loading" class="loading-state"><span class="spinner-sm"></span> Loading…</div>
-      <div class="data-table-wrap" *ngIf="!loading">
-        <table class="data-table">
-          <thead><tr>
-            <th>Name</th><th>Locality</th><th>District</th><th>Status</th><th>Type</th><th>Flats</th><th>Actions</th>
-          </tr></thead>
-          <tbody>
-            <tr *ngFor="let p of filteredProperties">
-              <td class="td-name">{{p['Project Name'] || p.project_name}}</td>
-              <td>{{p['Locality'] || p.locality || '—'}}</td>
-              <td>{{p['District'] || p.district || '—'}}</td>
-              <td><span class="badge-status" [ngClass]="getStatusClass(p['Project Status'] || p.project_status)">{{p['Project Status'] || p.project_status || '—'}}</span></td>
-              <td>{{p['Project Type'] || p.project_type || '—'}}</td>
-              <td>{{p.totalFlats || p.total_flats || '—'}}</td>
-              <td class="td-actions">
-                <button class="btn-icon" title="Edit" (click)="openEditModal(p)">✏️</button>
-                <button class="btn-icon" title="Pricing" (click)="openPricingModal(p)">💰</button>
-                <button class="btn-icon" title="Media" (click)="openMediaModal(p)">🖼️</button>
-                <button class="btn-icon btn-danger-icon" title="Delete" (click)="deleteProperty(p)">🗑️</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="content-card" *ngIf="!dashStats">
+        <div class="state-loading"><span class="spinner spinner-dark"></span> Loading stats…</div>
       </div>
-    </section>
 
-    <!-- ── USERS ─────────────────────────────────────────────────── -->
-    <section *ngIf="activeSection==='users'" class="admin-section">
-      <div class="section-header">
-        <h1 class="section-title">Users ({{userTotal}})</h1>
-        <div class="section-actions">
-          <input type="text" [(ngModel)]="userSearchQuery" (input)="searchUsers()" placeholder="Search users…" class="search-input-sm">
+      <!-- Quick actions -->
+      <div class="page-header" style="margin-top:8px;margin-bottom:12px;">
+        <div class="page-header-left">
+          <h2 class="page-title" style="font-size:1rem;">Quick Actions</h2>
         </div>
       </div>
-      <div class="stats-row" *ngIf="userStats">
-        <span class="mini-stat">Total: {{userStats.total}}</span>
-        <span class="mini-stat">Active: {{userStats.active}}</span>
-        <span class="mini-stat">Verified: {{userStats.verified}}</span>
-        <span class="mini-stat">Admins: {{userStats.admins}}</span>
-        <span class="mini-stat">New (7d): {{userStats.new_this_week}}</span>
-      </div>
-      <div *ngIf="loading" class="loading-state"><span class="spinner-sm"></span> Loading…</div>
-      <div class="data-table-wrap" *ngIf="!loading">
-        <table class="data-table">
-          <thead><tr>
-            <th>Name</th><th>Email</th><th>Role</th><th>Status</th><th>Verified</th><th>Last Login</th><th>Actions</th>
-          </tr></thead>
-          <tbody>
-            <tr *ngFor="let u of filteredUsers">
-              <td>{{u.fullName || '—'}}</td>
-              <td>{{u.email}}</td>
-              <td><span class="role-badge" [class.role-admin]="u.role==='admin'">{{u.role}}</span></td>
-              <td><span class="status-dot" [class.active]="u.isActive"></span>{{u.isActive ? 'Active' : 'Inactive'}}</td>
-              <td>{{u.isVerified ? '✅' : '❌'}}</td>
-              <td>{{getTimeAgo(u.lastLoginAt)}}</td>
-              <td class="td-actions">
-                <button class="btn-icon" title="Edit Role" (click)="openUserEditModal(u)">✏️</button>
-                <button class="btn-icon" [title]="u.isActive ? 'Deactivate' : 'Activate'" (click)="toggleUserStatus(u)">{{u.isActive ? '🔒' : '🔓'}}</button>
-                <button class="btn-icon btn-danger-icon" title="Delete" (click)="deleteUser(u)">🗑️</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ── LEADS ─────────────────────────────────────────────────── -->
-    <section *ngIf="activeSection==='leads'" class="admin-section">
-      <div class="section-header">
-        <h1 class="section-title">Leads ({{leadTotal}})</h1>
-        <div class="section-actions">
-          <input type="text" [(ngModel)]="leadsSearchQuery" (input)="searchLeads()" placeholder="Search leads…" class="search-input-sm">
-        </div>
-      </div>
-      <div *ngIf="leadsLoading" class="loading-state"><span class="spinner-sm"></span> Loading…</div>
-      <div class="data-table-wrap" *ngIf="!leadsLoading">
-        <table class="data-table">
-          <thead><tr>
-            <th>Name</th><th>Email</th><th>Mobile</th><th>Area of Interest</th><th>Project</th><th>Date</th><th>Actions</th>
-          </tr></thead>
-          <tbody>
-            <tr *ngFor="let l of filteredLeads">
-              <td>{{l.name}}</td>
-              <td>{{l.email}}</td>
-              <td>{{l.mobile}}</td>
-              <td>{{l.areaOfInterest || '—'}}</td>
-              <td>{{l.projectName || '—'}}</td>
-              <td>{{getTimeAgo(l.createdAt)}}</td>
-              <td class="td-actions">
-                <button class="btn-icon btn-danger-icon" title="Delete" (click)="deleteLead(l)">🗑️</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="filteredLeads.length === 0" class="empty-table">No leads found.</div>
-      </div>
-    </section>
-
-    <!-- ── VISITS ────────────────────────────────────────────────── -->
-    <section *ngIf="activeSection==='visits'" class="admin-section">
-      <div class="section-header">
-        <h1 class="section-title">Site Visit Requests ({{visits.length}})</h1>
-        <div class="section-actions">
-          <input type="text" [(ngModel)]="visitsSearchQuery" (input)="searchVisits()" placeholder="Search visits…" class="search-input-sm">
-        </div>
-      </div>
-      <div *ngIf="visitsLoading" class="loading-state"><span class="spinner-sm"></span> Loading…</div>
-      <div class="data-table-wrap" *ngIf="!visitsLoading">
-        <table class="data-table">
-          <thead><tr>
-            <th>Name</th>
-            <th>Email / Mobile</th>
-            <th>Project</th>
-            <th>Date &amp; Time</th>
-            <th>Location</th>
-            <th>Message</th>
-            <th>Status</th>
-            <th>Received</th>
-            <th>Actions</th>
-          </tr></thead>
-          <tbody>
-            <tr *ngFor="let v of filteredVisits">
-              <td class="td-name">{{v.name}}</td>
-              <td>
-                <div>{{v.email}}</div>
-                <div style="color:#64748b;font-size:12px;">{{v.mobile}}</div>
-              </td>
-              <td>{{v.projectName || v.projectId || '—'}}</td>
-              <td>
-                <div style="font-weight:600;">{{v.visitDate | date:'dd MMM yyyy'}}</div>
-                <div style="color:#64748b;font-size:12px;">{{v.visitTime}}</div>
-              </td>
-              <td>
-                <ng-container *ngIf="v.locationAddress; else noLoc">
-                  <a *ngIf="v.locationMapUrl" [href]="v.locationMapUrl" target="_blank" rel="noopener noreferrer" class="visit-map-link" title="Open in OpenStreetMap">
-                    <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
-                    {{v.locationAddress | slice:0:40}}{{v.locationAddress.length > 40 ? '…' : ''}}
-                  </a>
-                  <span *ngIf="!v.locationMapUrl">{{v.locationAddress | slice:0:40}}</span>
-                  <div *ngIf="v.locationLat && v.locationLng" style="font-size:11px;color:#94a3b8;margin-top:2px;">
-                    {{v.locationLat | number:'1.4-4'}}, {{v.locationLng | number:'1.4-4'}}
-                  </div>
-                </ng-container>
-                <ng-template #noLoc><span style="color:#94a3b8;">—</span></ng-template>
-              </td>
-              <td style="max-width:160px;white-space:normal;font-size:12px;color:#475569;">{{v.message || '—'}}</td>
-              <td>
-                <select class="visit-status-select"
-                        [ngClass]="getVisitStatusClass(v.status)"
-                        [ngModel]="v.status"
-                        (ngModelChange)="updateVisitStatus(v, $event)">
-                  <option value="pending">⏳ Pending</option>
-                  <option value="confirmed">✅ Confirmed</option>
-                  <option value="cancelled">❌ Cancelled</option>
-                </select>
-              </td>
-              <td style="font-size:12px;color:#64748b;">{{getTimeAgo(v.createdAt)}}</td>
-              <td class="td-actions">
-                <button class="btn-icon btn-danger-icon" title="Delete" (click)="deleteVisit(v)">🗑️</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div *ngIf="filteredVisits.length === 0" class="empty-table">No visit requests yet.</div>
-      </div>
-    </section>
-
-    <!-- ── SCRAPER ────────────────────────────────────────────────── -->
-    <section *ngIf="activeSection==='scraper'" class="admin-section">
-      <h1 class="section-title">Scraper Control</h1>
-
-      <div class="scraper-card">
-        <h3>📍 Pin Code Preferences</h3>
-        <div class="pincode-row">
-          <input type="text" [(ngModel)]="newPincode" placeholder="Add pin code" (keyup.enter)="addPincode()" class="search-input-sm">
-          <button class="btn-admin-secondary" (click)="addPincode()">Add</button>
-        </div>
-        <div class="pincode-tags">
-          <span *ngFor="let pin of preferences.pincodes; let i=index" class="pincode-tag">
-            {{pin}} <button (click)="removePincode(i)">×</button>
-          </span>
-        </div>
-        <button class="btn-admin-primary" (click)="savePreferences()" [disabled]="prefsLoading">
-          {{prefsSaved ? '✅ Saved' : 'Save Preferences'}}
+      <div class="quick-grid">
+        <button class="quick-card" (click)="activeSection='properties';loadProperties()">
+          <div class="quick-card-icon">🏠</div>
+          <div class="quick-card-title">Manage Properties</div>
+          <div class="quick-card-desc">Add, edit, price & media</div>
+        </button>
+        <button class="quick-card" (click)="activeSection='users';loadUsers()">
+          <div class="quick-card-icon">👥</div>
+          <div class="quick-card-title">Manage Users</div>
+          <div class="quick-card-desc">Roles, status, verification</div>
+        </button>
+        <button class="quick-card" (click)="activeSection='leads';loadLeads()">
+          <div class="quick-card-icon">📋</div>
+          <div class="quick-card-title">View Leads</div>
+          <div class="quick-card-desc">All enquiries &amp; contacts</div>
+        </button>
+        <button class="quick-card" (click)="activeSection='visits';loadVisits()">
+          <div class="quick-card-icon">📅</div>
+          <div class="quick-card-title">Site Visits</div>
+          <div class="quick-card-desc">Confirm &amp; track requests</div>
         </button>
       </div>
+    </section>
 
-      <div class="scraper-card">
-        <h3>🏗️ RERA Scraper</h3>
-        <div class="scraper-actions">
-          <button class="btn-admin-secondary" (click)="fetchProjectNames()">Fetch Project Names</button>
-          <button class="btn-admin-primary" (click)="bulkScrape()" [disabled]="loading">Start Bulk Scrape</button>
+    <!-- ════════════════════════════════════════════════════════
+         PROPERTIES
+    ════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeSection==='properties'" class="admin-section">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Properties</h1>
+          <p class="page-subtitle">{{ properties.length }} projects</p>
         </div>
-      </div>
-
-      <div class="scraper-card">
-        <h3>📊 SRO Transactions</h3>
-        <div class="scraper-status" *ngIf="sroScrapeStatus">
-          Status: <strong>{{sroScrapeStatus.message}}</strong>
-          <span *ngIf="sroScrapeStatus.total_records"> | Records: {{sroScrapeStatus.total_records}}</span>
-        </div>
-        <div class="scraper-actions">
-          <button class="btn-admin-primary" (click)="startSroScrape()" [disabled]="sroScrapeLoading">
-            {{sroScrapeStatus?.is_running ? '⏳ Running…' : 'Start SRO Scrape'}}
+        <div class="page-actions">
+          <div class="search-box">
+            <svg class="search-box-icon" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <input type="text" class="search-input" [(ngModel)]="propertySearchQuery"
+                   (input)="searchProperties()" placeholder="Search projects…">
+          </div>
+          <button class="btn btn-primary btn-md" (click)="openCreateModal()">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+            Add Property
           </button>
         </div>
       </div>
 
-      <div class="scraper-card">
-        <h3>💰 Ready Reckoner (Unit Rates)</h3>
-        <div class="scraper-status" *ngIf="rrScrapeStatus">
-          Status: <strong>{{rrScrapeStatus.message}}</strong>
-          <span *ngIf="rrScrapeStatus.total_records"> | Records: {{rrScrapeStatus.total_records}}</span>
-        </div>
-        <div class="scraper-actions">
-          <button class="btn-admin-primary" (click)="startRrScrape()" [disabled]="rrScrapeLoading">
-            {{rrScrapeStatus?.is_running ? '⏳ Running…' : 'Start RR Scrape'}}
-          </button>
-          <button class="btn-admin-secondary" (click)="stopRrScrape()" *ngIf="rrScrapeStatus?.is_running">Stop</button>
+      <div class="content-card">
+        <div class="state-loading" *ngIf="loading"><span class="spinner spinner-dark"></span></div>
+        <div class="table-wrap" *ngIf="!loading">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Project</th><th>Locality</th><th>District</th>
+                <th>Status</th><th>Type</th><th>Flats</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of filteredProperties">
+                <td class="cell-primary">{{ p['Project Name'] || p.project_name }}</td>
+                <td>{{ p['Locality'] || p.locality || '—' }}</td>
+                <td>{{ p['District'] || p.district || '—' }}</td>
+                <td><span class="badge" [ngClass]="getStatusClass(p['Project Status'] || p.project_status)">{{ p['Project Status'] || p.project_status || '—' }}</span></td>
+                <td>{{ p['Project Type'] || p.project_type || '—' }}</td>
+                <td>{{ p.totalFlats || p.total_flats || '—' }}</td>
+                <td>
+                  <div class="cell-actions">
+                    <button class="btn-icon" title="Edit" (click)="openEditModal(p)">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                    </button>
+                    <button class="btn-icon" title="Pricing" (click)="openPricingModal(p)">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
+                    </button>
+                    <button class="btn-icon" title="Media" (click)="openMediaModal(p)">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+                    </button>
+                    <button class="btn-icon danger" title="Delete" (click)="deleteProperty(p)">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="state-empty" *ngIf="filteredProperties.length === 0">
+            <div class="state-empty-icon">🏠</div>
+            <span>No properties found</span>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- ── SOCIAL FEED ───────────────────────────────────────────── -->
-    <section *ngIf="activeSection==='social'" class="admin-section">
-      <div class="section-header">
-        <h1 class="section-title">𝕏 Social Feed — Tweet Manager</h1>
-        <p class="section-desc">Add tweet URLs from <strong>x.com/HydUrbanRealty</strong>. Each URL is fetched via oEmbed and displayed on the Social Feeds page. Toggle visibility without deleting.</p>
+    <!-- ════════════════════════════════════════════════════════
+         USERS
+    ════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeSection==='users'" class="admin-section">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Users</h1>
+          <p class="page-subtitle">{{ userTotal }} registered accounts</p>
+        </div>
+        <div class="page-actions">
+          <div class="search-box">
+            <svg class="search-box-icon" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <input type="text" class="search-input" [(ngModel)]="userSearchQuery"
+                   (input)="searchUsers()" placeholder="Search users…">
+          </div>
+        </div>
       </div>
 
-      <!-- Add tweet form -->
-      <div class="social-add-card">
-        <h3 class="social-card-title">Add a Tweet</h3>
-        <p class="social-card-hint">Go to <strong>x.com/HydUrbanRealty</strong>, open any tweet, copy the URL from the browser address bar and paste it below.</p>
+      <!-- KPI strip -->
+      <div class="kpi-strip" *ngIf="userStats">
+        <div class="kpi-chip"><b>{{ userStats.total }}</b> Total</div>
+        <div class="kpi-chip"><span style="color:#10b981">●</span> <b>{{ userStats.active }}</b> Active</div>
+        <div class="kpi-chip">✓ <b>{{ userStats.verified }}</b> Verified</div>
+        <div class="kpi-chip">⭐ <b>{{ userStats.admins }}</b> Admins</div>
+        <div class="kpi-chip">🆕 <b>{{ userStats.new_this_week }}</b> This Week</div>
+      </div>
 
-        <div class="social-add-row">
-          <div class="social-field social-field-url">
-            <label>Tweet URL <span class="req">*</span></label>
-            <input type="url" [(ngModel)]="newTweetUrl"
-                   placeholder="https://x.com/HydUrbanRealty/status/1234567890"
-                   class="admin-input" />
+      <div class="content-card">
+        <div class="state-loading" *ngIf="loading"><span class="spinner spinner-dark"></span></div>
+        <div class="table-wrap" *ngIf="!loading">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Name</th><th>Email</th><th>Role</th>
+                <th>Status</th><th>Verified</th><th>Last Login</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let u of filteredUsers">
+                <td class="cell-primary">{{ u.fullName || '—' }}</td>
+                <td style="font-size:0.77rem;color:#475569;">{{ u.email }}</td>
+                <td><span class="badge" [class.badge-admin]="u.role==='admin'" [class.badge-user]="u.role!=='admin'">{{ u.role }}</span></td>
+                <td>
+                  <span class="status-dot" [class.active]="u.isActive"></span>
+                  {{ u.isActive ? 'Active' : 'Inactive' }}
+                </td>
+                <td>
+                  <span *ngIf="u.isVerified" style="color:#10b981;font-weight:700;">✓</span>
+                  <span *ngIf="!u.isVerified" style="color:#94a3b8;">—</span>
+                </td>
+                <td style="font-size:0.75rem;color:#64748b;">{{ getTimeAgo(u.lastLoginAt) }}</td>
+                <td>
+                  <div class="cell-actions">
+                    <button class="btn-icon" title="Edit Role" (click)="openUserEditModal(u)">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+                    </button>
+                    <button class="btn-icon" [title]="u.isActive ? 'Deactivate' : 'Activate'" (click)="toggleUserStatus(u)">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15">
+                        <path *ngIf="u.isActive" fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+                        <path *ngIf="!u.isActive" fill-rule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z" clip-rule="evenodd"/>
+                      </svg>
+                    </button>
+                    <button class="btn-icon danger" title="Delete" (click)="deleteUser(u)">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="state-empty" *ngIf="filteredUsers.length === 0">
+            <div class="state-empty-icon">👥</div><span>No users found</span>
           </div>
-          <div class="social-field social-field-label">
-            <label>Label (optional)</label>
-            <input type="text" [(ngModel)]="newTweetLabel"
-                   placeholder="e.g. RERA news, Market update"
-                   class="admin-input" />
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         LEADS
+    ════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeSection==='leads'" class="admin-section">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Leads</h1>
+          <p class="page-subtitle">{{ leadTotal }} enquiries</p>
+        </div>
+        <div class="page-actions">
+          <div class="search-box">
+            <svg class="search-box-icon" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <input type="text" class="search-input" [(ngModel)]="leadsSearchQuery"
+                   (input)="searchLeads()" placeholder="Search leads…">
           </div>
-          <button class="btn-admin-primary social-add-btn"
-                  (click)="addTweet()"
-                  [disabled]="addingTweet || !newTweetUrl.trim()">
-            <span *ngIf="!addingTweet">＋ Add Tweet</span>
-            <span *ngIf="addingTweet">Adding…</span>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <div class="state-loading" *ngIf="leadsLoading"><span class="spinner spinner-dark"></span></div>
+        <div class="table-wrap" *ngIf="!leadsLoading">
+          <table class="data-table">
+            <thead>
+              <tr><th>Name</th><th>Email</th><th>Mobile</th><th>Interest</th><th>Project</th><th>Date</th><th></th></tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let l of filteredLeads">
+                <td class="cell-primary">{{ l.name }}</td>
+                <td style="font-size:0.77rem;color:#475569;">{{ l.email }}</td>
+                <td style="font-size:0.77rem;">{{ l.mobile }}</td>
+                <td>{{ l.areaOfInterest || '—' }}</td>
+                <td>{{ l.projectName || '—' }}</td>
+                <td style="font-size:0.75rem;color:#64748b;white-space:nowrap;">{{ getTimeAgo(l.createdAt) }}</td>
+                <td>
+                  <button class="btn-icon danger" title="Delete" (click)="deleteLead(l)">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="state-empty" *ngIf="filteredLeads.length === 0">
+            <div class="state-empty-icon">📋</div><span>No leads found</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         VISITS
+    ════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeSection==='visits'" class="admin-section">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Site Visit Requests</h1>
+          <p class="page-subtitle">{{ visits.length }} requests</p>
+        </div>
+        <div class="page-actions">
+          <div class="search-box">
+            <svg class="search-box-icon" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <input type="text" class="search-input" [(ngModel)]="visitsSearchQuery"
+                   (input)="searchVisits()" placeholder="Search visits…">
+          </div>
+        </div>
+      </div>
+
+      <div class="content-card">
+        <div class="state-loading" *ngIf="visitsLoading"><span class="spinner spinner-dark"></span></div>
+        <div class="table-wrap" *ngIf="!visitsLoading">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Visitor</th><th>Contact</th><th>Project</th>
+                <th>Date &amp; Time</th><th>Location</th><th>Message</th>
+                <th>Status</th><th>Received</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let v of filteredVisits">
+                <td class="cell-primary">{{ v.name }}</td>
+                <td>
+                  <div style="font-size:0.78rem;">{{ v.email }}</div>
+                  <div class="cell-secondary">{{ v.mobile }}</div>
+                </td>
+                <td style="font-size:0.78rem;">{{ v.projectName || v.projectId || '—' }}</td>
+                <td>
+                  <div style="font-weight:600;font-size:0.78rem;">{{ v.visitDate | date:'dd MMM yyyy' }}</div>
+                  <div class="cell-secondary">{{ v.visitTime }}</div>
+                </td>
+                <td>
+                  <ng-container *ngIf="v.locationAddress; else noLoc">
+                    <a *ngIf="v.locationMapUrl" [href]="v.locationMapUrl" target="_blank"
+                       rel="noopener noreferrer" class="visit-map-link">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                      </svg>
+                      {{ v.locationAddress | slice:0:35 }}{{ v.locationAddress.length > 35 ? '…' : '' }}
+                    </a>
+                    <span *ngIf="!v.locationMapUrl" style="font-size:0.75rem;">{{ v.locationAddress | slice:0:35 }}</span>
+                  </ng-container>
+                  <ng-template #noLoc><span style="color:#94a3b8;">—</span></ng-template>
+                </td>
+                <td style="max-width:140px;font-size:0.75rem;color:#475569;white-space:normal;">{{ v.message || '—' }}</td>
+                <td>
+                  <select class="visit-status-select" [ngClass]="getVisitStatusClass(v.status)"
+                          [ngModel]="v.status" (ngModelChange)="updateVisitStatus(v, $event)">
+                    <option value="pending">⏳ Pending</option>
+                    <option value="confirmed">✅ Confirmed</option>
+                    <option value="cancelled">❌ Cancelled</option>
+                  </select>
+                </td>
+                <td style="font-size:0.75rem;color:#64748b;white-space:nowrap;">{{ getTimeAgo(v.createdAt) }}</td>
+                <td>
+                  <button class="btn-icon danger" title="Delete" (click)="deleteVisit(v)">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="state-empty" *ngIf="filteredVisits.length === 0">
+            <div class="state-empty-icon">📅</div><span>No visit requests yet</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         SCRAPER
+    ════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeSection==='scraper'" class="admin-section">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Scraper Control</h1>
+          <p class="page-subtitle">Data ingestion &amp; pipeline management</p>
+        </div>
+      </div>
+
+      <div class="scraper-grid">
+        <!-- Pin Codes -->
+        <div class="scraper-card" style="grid-column: 1 / -1">
+          <div class="scraper-card-header">
+            <div class="scraper-card-icon">📍</div>
+            <h3 class="scraper-card-title">Pin Code Preferences</h3>
+          </div>
+          <div class="pincode-add-row">
+            <input type="text" class="form-control" style="max-width:200px;"
+                   [(ngModel)]="newPincode" placeholder="e.g. 500032" (keyup.enter)="addPincode()">
+            <button class="btn btn-secondary btn-sm" (click)="addPincode()">Add</button>
+          </div>
+          <div class="pincode-tags">
+            <span *ngFor="let pin of preferences.pincodes; let i=index" class="pincode-chip">
+              {{ pin }}
+              <button class="pincode-chip-remove" (click)="removePincode(i)">×</button>
+            </span>
+            <span *ngIf="preferences.pincodes.length === 0" style="font-size:0.78rem;color:#94a3b8;">No pin codes added</span>
+          </div>
+          <button class="btn btn-primary btn-sm" (click)="savePreferences()" [disabled]="prefsLoading">
+            <span class="spinner" *ngIf="prefsLoading"></span>
+            <span *ngIf="!prefsLoading">{{ prefsSaved ? '✓ Saved' : 'Save Preferences' }}</span>
           </button>
         </div>
 
-        <div class="social-feedback social-feedback-err" *ngIf="addTweetError">{{ addTweetError }}</div>
-        <div class="social-feedback social-feedback-ok"  *ngIf="addTweetSuccess">{{ addTweetSuccess }}</div>
+        <!-- RERA -->
+        <div class="scraper-card">
+          <div class="scraper-card-header">
+            <div class="scraper-card-icon">🏗️</div>
+            <h3 class="scraper-card-title">RERA Scraper</h3>
+          </div>
+          <div class="scraper-actions">
+            <button class="btn btn-secondary btn-sm" (click)="fetchProjectNames()">Fetch Names</button>
+            <button class="btn btn-primary btn-sm" (click)="bulkScrape()" [disabled]="loading">
+              <span class="spinner" *ngIf="loading"></span>
+              <span *ngIf="!loading">Start Bulk Scrape</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- SRO -->
+        <div class="scraper-card">
+          <div class="scraper-card-header">
+            <div class="scraper-card-icon">📊</div>
+            <h3 class="scraper-card-title">SRO Transactions</h3>
+          </div>
+          <div class="scraper-status-line" *ngIf="sroScrapeStatus">
+            Status: <b>{{ sroScrapeStatus.message }}</b>
+            <span *ngIf="sroScrapeStatus.total_records">· {{ sroScrapeStatus.total_records | number }} records</span>
+          </div>
+          <div class="scraper-actions">
+            <button class="btn btn-primary btn-sm" (click)="startSroScrape()" [disabled]="sroScrapeLoading">
+              <span class="spinner" *ngIf="sroScrapeLoading"></span>
+              <span *ngIf="!sroScrapeLoading">{{ sroScrapeStatus?.is_running ? '⏳ Running…' : 'Start Scrape' }}</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Ready Reckoner -->
+        <div class="scraper-card">
+          <div class="scraper-card-header">
+            <div class="scraper-card-icon">💰</div>
+            <h3 class="scraper-card-title">Ready Reckoner</h3>
+          </div>
+          <div class="scraper-status-line" *ngIf="rrScrapeStatus">
+            Status: <b>{{ rrScrapeStatus.message }}</b>
+            <span *ngIf="rrScrapeStatus.total_records">· {{ rrScrapeStatus.total_records | number }} records</span>
+          </div>
+          <div class="scraper-actions">
+            <button class="btn btn-primary btn-sm" (click)="startRrScrape()" [disabled]="rrScrapeLoading">
+              <span class="spinner" *ngIf="rrScrapeLoading"></span>
+              <span *ngIf="!rrScrapeLoading">{{ rrScrapeStatus?.is_running ? '⏳ Running…' : 'Start Scrape' }}</span>
+            </button>
+            <button class="btn btn-secondary btn-sm" (click)="stopRrScrape()" *ngIf="rrScrapeStatus?.is_running">Stop</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         SOCIAL FEED
+    ════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeSection==='social'" class="admin-section">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Social Feed</h1>
+          <p class="page-subtitle">Manage tweets shown on the Social Feeds page</p>
+        </div>
+      </div>
+
+      <!-- Add tweet -->
+      <div class="content-card" style="margin-bottom:16px;">
+        <div class="card-header">
+          <h3 class="card-title">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/></svg>
+            Add Tweet
+          </h3>
+        </div>
+        <div style="padding:20px;">
+          <p class="section-desc">Paste a tweet URL from <strong>x.com/HydUrbanRealty</strong> — it will appear on the Social Feeds page.</p>
+          <div class="social-add-row">
+            <div class="social-field">
+              <label class="form-label">Tweet URL <span style="color:#ef4444">*</span></label>
+              <input type="url" class="form-control" [(ngModel)]="newTweetUrl"
+                     placeholder="https://x.com/HydUrbanRealty/status/…">
+            </div>
+            <div class="social-field">
+              <label class="form-label">Label (optional)</label>
+              <input type="text" class="form-control" [(ngModel)]="newTweetLabel"
+                     placeholder="e.g. Market Update">
+            </div>
+            <button class="btn btn-primary btn-md" (click)="addTweet()"
+                    [disabled]="addingTweet || !newTweetUrl.trim()" style="align-self:flex-end;">
+              <span class="spinner" *ngIf="addingTweet"></span>
+              <span *ngIf="!addingTweet">＋ Add</span>
+            </button>
+          </div>
+          <div class="feedback-err" *ngIf="addTweetError">{{ addTweetError }}</div>
+          <div class="feedback-ok"  *ngIf="addTweetSuccess">{{ addTweetSuccess }}</div>
+        </div>
       </div>
 
       <!-- Tweet list -->
-      <div class="social-list-card">
-        <div class="social-list-header">
-          <h3 class="social-card-title">Configured Tweets ({{ tweets.length }})</h3>
-          <span class="social-cache-note">Feed is cached for 1 hour after changes.</span>
+      <div class="content-card">
+        <div class="card-header">
+          <h3 class="card-title">
+            Configured Tweets
+            <span class="card-count">{{ tweets.length }}</span>
+          </h3>
+          <span style="font-size:0.72rem;color:#94a3b8;">Feed cached for 1 hour</span>
         </div>
-
-        <div class="social-loading" *ngIf="tweetsLoading">
-          <span class="spinner-sm"></span> Loading…
-        </div>
-        <div class="social-error" *ngIf="tweetsError">{{ tweetsError }}</div>
-
-        <div class="social-empty" *ngIf="!tweetsLoading && tweets.length === 0">
-          No tweets added yet. Paste a tweet URL above to get started.
-        </div>
-
-        <div class="social-tweet-row" *ngFor="let t of tweets">
-          <div class="social-tweet-info">
-            <div class="social-tweet-url">
-              <a [href]="t.url" target="_blank" rel="noopener">{{ t.url }}</a>
-            </div>
-            <div class="social-tweet-meta">
-              <span class="social-tweet-label" *ngIf="t.label">{{ t.label }}</span>
-              <span class="social-status-badge"
-                    [class.badge-active]="t.isActive"
-                    [class.badge-hidden]="!t.isActive">
-                {{ t.isActive ? 'Visible' : 'Hidden' }}
-              </span>
-              <span class="social-tweet-date">Added {{ t.createdAt | date:'d MMM yyyy' }}</span>
-            </div>
+        <div style="padding:4px 20px;">
+          <div class="state-loading" *ngIf="tweetsLoading"><span class="spinner spinner-dark"></span></div>
+          <div *ngIf="tweetsError" class="feedback-err" style="margin:12px 0;">{{ tweetsError }}</div>
+          <div class="state-empty" *ngIf="!tweetsLoading && tweets.length === 0">
+            <div class="state-empty-icon">𝕏</div>
+            <span>No tweets added yet</span>
           </div>
-          <div class="social-tweet-actions">
-            <button class="btn-admin-secondary btn-sm"
-                    (click)="toggleTweet(t.id)"
-                    [title]="t.isActive ? 'Hide from feed' : 'Show in feed'">
-              {{ t.isActive ? '👁 Hide' : '👁 Show' }}
-            </button>
-            <button class="btn-admin-danger btn-sm"
-                    (click)="deleteTweet(t.id, t.url)">
-              🗑 Remove
-            </button>
+
+          <div class="social-tweet-row" *ngFor="let t of tweets">
+            <div style="flex:1;min-width:0;">
+              <div class="social-tweet-url">
+                <a [href]="t.url" target="_blank" rel="noopener">{{ t.url }}</a>
+              </div>
+              <div class="social-tweet-meta">
+                <span class="social-tweet-label" *ngIf="t.label">{{ t.label }}</span>
+                <span class="badge" [class.badge-visible]="t.isActive" [class.badge-hidden]="!t.isActive">
+                  {{ t.isActive ? 'Visible' : 'Hidden' }}
+                </span>
+                <span class="social-tweet-date">{{ t.createdAt | date:'d MMM yyyy' }}</span>
+              </div>
+            </div>
+            <div class="social-tweet-actions">
+              <button class="btn btn-secondary btn-xs" (click)="toggleTweet(t.id)">
+                {{ t.isActive ? 'Hide' : 'Show' }}
+              </button>
+              <button class="btn btn-danger btn-xs" (click)="deleteTweet(t.id, t.url)">Remove</button>
+            </div>
           </div>
         </div>
       </div>
-
     </section>
 
-    <!-- ── RESALE LISTINGS ──────────────────────────────────────── -->
+    <!-- ════════════════════════════════════════════════════════
+         RESALE LISTINGS
+    ════════════════════════════════════════════════════════ -->
     <section *ngIf="activeSection==='resale'" class="admin-section">
-      <div class="section-header">
-        <h1 class="section-title">🏠 Resale Listings</h1>
-        <div class="section-actions">
-          <input type="text" [(ngModel)]="resaleSearch" placeholder="Search by name, project, location…" class="search-input-sm">
-          <select [(ngModel)]="resaleFilter" (change)="loadResaleListings()" class="search-input-sm" style="max-width:140px">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Resale Listings</h1>
+          <p class="page-subtitle">{{ filteredResale.length }} listings</p>
+        </div>
+        <div class="page-actions">
+          <div class="search-box">
+            <svg class="search-box-icon" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <input type="text" class="search-input" [(ngModel)]="resaleSearch" placeholder="Search listings…">
+          </div>
+          <select class="filter-select" [(ngModel)]="resaleFilter" (change)="loadResaleListings()">
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
             <option value="active">Active</option>
@@ -412,22 +756,34 @@
           </select>
         </div>
       </div>
-      <div *ngIf="resaleLoading" class="loading-state"><span class="spinner-sm"></span> Loading…</div>
-      <div *ngIf="!resaleLoading && filteredResale.length === 0" class="empty-table">No resale listings found.</div>
+
+      <div class="content-card" *ngIf="resaleLoading">
+        <div class="state-loading"><span class="spinner spinner-dark"></span></div>
+      </div>
+      <div class="state-empty" *ngIf="!resaleLoading && filteredResale.length === 0">
+        <div class="state-empty-icon">🏠</div><span>No listings found</span>
+      </div>
+
       <div class="resale-grid" *ngIf="!resaleLoading && filteredResale.length > 0">
         <div class="resale-card" *ngFor="let l of filteredResale">
           <div class="resale-card-img">
-            <img *ngIf="getResaleImages(l).length > 0" [src]="getResaleImages(l)[0]" [alt]="l.project_name || 'Listing'" (error)="onImgError($event)">
-            <div *ngIf="getResaleImages(l).length === 0" class="resale-no-img">📷 No photos</div>
-            <span class="resale-img-count" *ngIf="getResaleImages(l).length > 1">+{{ getResaleImages(l).length - 1 }}</span>
+            <img *ngIf="getResaleImages(l).length > 0" [src]="getResaleImages(l)[0]"
+                 [alt]="l.project_name" (error)="onImgError($event)">
+            <div *ngIf="getResaleImages(l).length === 0" class="resale-no-img">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="20" height="20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+              No photos
+            </div>
+            <span class="resale-img-count" *ngIf="getResaleImages(l).length > 1">
+              +{{ getResaleImages(l).length - 1 }}
+            </span>
           </div>
           <div class="resale-card-body">
             <div class="resale-card-top">
               <div>
                 <h3 class="resale-title">{{ l.project_name || 'Property Listing' }}</h3>
-                <p class="resale-location" *ngIf="l.location">📍 {{ l.location | slice:0:60 }}{{ l.location.length > 60 ? '…' : '' }}</p>
+                <p class="resale-location" *ngIf="l.location">📍 {{ l.location | slice:0:55 }}{{ l.location.length > 55 ? '…' : '' }}</p>
               </div>
-              <span class="admin-badge" [ngClass]="resaleStatusClass(l.status)">{{ l.status | titlecase }}</span>
+              <span class="badge" [ngClass]="resaleStatusClass(l.status)">{{ l.status | titlecase }}</span>
             </div>
             <div class="resale-meta">
               <span *ngIf="l.configuration"><strong>Config:</strong> {{ l.configuration }}</span>
@@ -437,35 +793,26 @@
             </div>
             <div class="resale-contact">
               <strong>{{ l.owner_name }}</strong>
-              <span>{{ l.residence_type === 'overseas' ? '✈️ Overseas' : '🇮🇳 India' }}</span>
-              &nbsp;·&nbsp; 📞 {{ l.contact_phone }}
-              <span *ngIf="l.contact_email">&nbsp;·&nbsp; ✉️ {{ l.contact_email }}</span>
+              <span style="margin:0 4px;">·</span>
+              📞 {{ l.contact_phone }}
+              <span *ngIf="l.contact_email"><span style="margin:0 4px;">·</span>✉️ {{ l.contact_email }}</span>
             </div>
             <div class="resale-features" *ngIf="getResaleFeatures(l).length > 0">
               <span *ngFor="let f of getResaleFeatures(l).slice(0,4)" class="resale-feat-tag">{{ f }}</span>
               <span *ngIf="getResaleFeatures(l).length > 4" class="resale-feat-more">+{{ getResaleFeatures(l).length - 4 }}</span>
             </div>
-            <div class="resale-callback" *ngIf="l.preferred_callback">🕐 Callback: <strong>{{ l.preferred_callback }}</strong></div>
             <div class="resale-card-footer">
               <span class="resale-date">{{ formatDate(l.created_at) }}</span>
-              <span *ngIf="l.user_full_name" class="resale-user">by {{ l.user_full_name }}</span>
+              <span class="resale-user" *ngIf="l.user_full_name">by {{ l.user_full_name }}</span>
               <div class="resale-actions">
-                <button class="btn-admin-secondary btn-sm"
-                        *ngIf="l.status !== 'active'"
-                        [disabled]="resaleUpdating === l.id"
-                        (click)="updateResaleStatus(l.id, 'active')">✅ Activate</button>
-                <button class="btn-admin-secondary btn-sm"
-                        *ngIf="l.status === 'active'"
-                        [disabled]="resaleUpdating === l.id"
-                        (click)="updateResaleStatus(l.id, 'sold')">🏷 Mark Sold</button>
-                <button class="btn-admin-secondary btn-sm"
-                        *ngIf="l.status === 'active'"
-                        [disabled]="resaleUpdating === l.id"
-                        (click)="updateResaleStatus(l.id, 'pending')">↩ Revert</button>
-                <button class="btn-admin-danger btn-sm"
-                        *ngIf="l.status !== 'rejected'"
-                        [disabled]="resaleUpdating === l.id"
-                        (click)="updateResaleStatus(l.id, 'rejected')">❌ Reject</button>
+                <button class="btn btn-secondary btn-xs" *ngIf="l.status !== 'active'"
+                        [disabled]="resaleUpdating === l.id" (click)="updateResaleStatus(l.id, 'active')">Activate</button>
+                <button class="btn btn-secondary btn-xs" *ngIf="l.status === 'active'"
+                        [disabled]="resaleUpdating === l.id" (click)="updateResaleStatus(l.id, 'sold')">Mark Sold</button>
+                <button class="btn btn-secondary btn-xs" *ngIf="l.status === 'active'"
+                        [disabled]="resaleUpdating === l.id" (click)="updateResaleStatus(l.id, 'pending')">Revert</button>
+                <button class="btn btn-danger btn-xs" *ngIf="l.status !== 'rejected'"
+                        [disabled]="resaleUpdating === l.id" (click)="updateResaleStatus(l.id, 'rejected')">Reject</button>
               </div>
             </div>
           </div>
@@ -476,296 +823,399 @@
   </main>
 </div>
 
-<!-- ── EDIT PROPERTY MODAL ───────────────────────────────────────── -->
+<!-- ══════════════════════════════════════════════════════════════
+     MODAL: EDIT PROPERTY
+══════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" *ngIf="showEditModal" (click)="closeModal()">
-  <div class="modal-box" (click)="$event.stopPropagation()">
+  <div class="modal" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h3>Edit Property</h3>
+      <h3 class="modal-title">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z"/></svg>
+        Edit Property
+      </h3>
       <button class="modal-close" (click)="closeModal()">×</button>
     </div>
     <div class="modal-body">
       <div class="form-row-2">
-        <div class="form-group"><label>Project Name</label><input [(ngModel)]="editForm.project_name"></div>
-        <div class="form-group"><label>Status</label>
-          <select [(ngModel)]="editForm.project_status">
+        <div class="form-group">
+          <label class="form-label">Project Name</label>
+          <input class="form-control" [(ngModel)]="editForm.project_name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-control" [(ngModel)]="editForm.project_status">
             <option>New Project</option><option>Ongoing</option><option>Completed</option><option>Lapsed</option>
           </select>
         </div>
       </div>
       <div class="form-row-2">
-        <div class="form-group"><label>Type</label>
-          <select [(ngModel)]="editForm.project_type">
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-control" [(ngModel)]="editForm.project_type">
             <option>Residential</option><option>Commercial</option><option>Mixed Use</option><option>Plot</option>
           </select>
         </div>
-        <div class="form-group"><label>Locality</label><input [(ngModel)]="editForm.locality"></div>
+        <div class="form-group">
+          <label class="form-label">Locality</label>
+          <input class="form-control" [(ngModel)]="editForm.locality">
+        </div>
       </div>
       <div class="form-row-2">
-        <div class="form-group"><label>District</label><input [(ngModel)]="editForm.district"></div>
-        <div class="form-group"><label>Pin Code</label><input [(ngModel)]="editForm.pin_code"></div>
+        <div class="form-group">
+          <label class="form-label">District</label>
+          <input class="form-control" [(ngModel)]="editForm.district">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Pin Code</label>
+          <input class="form-control" [(ngModel)]="editForm.pin_code">
+        </div>
       </div>
       <div class="form-row-2">
-        <div class="form-group"><label>Promoter/Developer</label><input [(ngModel)]="editForm.promoter_name"></div>
-        <div class="form-group"><label>Bank Name</label><input [(ngModel)]="editForm.bank_name"></div>
+        <div class="form-group">
+          <label class="form-label">Promoter / Developer</label>
+          <input class="form-control" [(ngModel)]="editForm.promoter_name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Bank Name</label>
+          <input class="form-control" [(ngModel)]="editForm.bank_name">
+        </div>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-admin-secondary" (click)="closeModal()">Cancel</button>
-      <button class="btn-admin-primary" (click)="saveProjectDetails()" [disabled]="loading">
+      <button class="btn btn-secondary btn-md" (click)="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-md" (click)="saveProjectDetails()" [disabled]="loading">
+        <span class="spinner" *ngIf="loading"></span>
         <span *ngIf="!loading">Save Changes</span>
-        <span *ngIf="loading" class="spinner-sm"></span>
       </button>
     </div>
   </div>
 </div>
 
-<!-- ── CREATE PROPERTY MODAL ─────────────────────────────────────── -->
+<!-- ══════════════════════════════════════════════════════════════
+     MODAL: CREATE PROPERTY
+══════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" *ngIf="showCreateModal" (click)="closeModal()">
-  <div class="modal-box" (click)="$event.stopPropagation()">
-    <div class="modal-header"><h3>Add New Property</h3><button class="modal-close" (click)="closeModal()">×</button></div>
+  <div class="modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/></svg>
+        Add New Property
+      </h3>
+      <button class="modal-close" (click)="closeModal()">×</button>
+    </div>
     <div class="modal-body">
       <div class="form-row-2">
-        <div class="form-group"><label>Project Name *</label><input [(ngModel)]="createForm['Project Name']" placeholder="ALEKHYA RISE"></div>
-        <div class="form-group"><label>Status</label>
-          <select [(ngModel)]="createForm['Project Status']"><option>New Project</option><option>Ongoing</option><option>Completed</option></select>
+        <div class="form-group">
+          <label class="form-label">Project Name <span style="color:#ef4444">*</span></label>
+          <input class="form-control" [(ngModel)]="createForm['Project Name']" placeholder="ALEKHYA RISE">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-control" [(ngModel)]="createForm['Project Status']">
+            <option>New Project</option><option>Ongoing</option><option>Completed</option>
+          </select>
         </div>
       </div>
       <div class="form-row-2">
-        <div class="form-group"><label>Type</label>
-          <select [(ngModel)]="createForm['Project Type']"><option>Residential</option><option>Commercial</option><option>Mixed Use</option></select>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-control" [(ngModel)]="createForm['Project Type']">
+            <option>Residential</option><option>Commercial</option><option>Mixed Use</option>
+          </select>
         </div>
-        <div class="form-group"><label>Locality</label><input [(ngModel)]="createForm['Locality']"></div>
+        <div class="form-group">
+          <label class="form-label">Locality</label>
+          <input class="form-control" [(ngModel)]="createForm['Locality']">
+        </div>
       </div>
       <div class="form-row-2">
-        <div class="form-group"><label>District</label><input [(ngModel)]="createForm['District']"></div>
-        <div class="form-group"><label>Pin Code</label><input [(ngModel)]="createForm['Pin Code']"></div>
-      </div>
-      <div class="form-group"><label>Total Area (sqmts)</label><input type="number" [(ngModel)]="createForm['Total Area(In sqmts)']"></div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-admin-secondary" (click)="closeModal()">Cancel</button>
-      <button class="btn-admin-primary" (click)="createProject()" [disabled]="loading">
-        <span *ngIf="!loading">Create Property</span>
-        <span *ngIf="loading" class="spinner-sm"></span>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ── PRICING MODAL ──────────────────────────────────────────────── -->
-<div class="modal-overlay" *ngIf="showPricingModal" (click)="closeModal()">
-  <div class="modal-box modal-wide" (click)="$event.stopPropagation()">
-    <div class="modal-header"><h3>Manage Pricing — {{selectedProperty?.['Project Name'] || selectedProperty?.project_name}}</h3><button class="modal-close" (click)="closeModal()">×</button></div>
-    <div class="modal-body">
-      <h4>Add Unit Type</h4>
-      <div class="form-row-4">
-        <div class="form-group"><label>Type</label>
-          <select [(ngModel)]="newUnit.type"><option *ngFor="let t of unitTypes">{{t}}</option></select>
+        <div class="form-group">
+          <label class="form-label">District</label>
+          <input class="form-control" [(ngModel)]="createForm['District']">
         </div>
-        <div class="form-group"><label>Size (sqft)</label><input [(ngModel)]="newUnit.size" placeholder="e.g. 850-1100"></div>
-        <div class="form-group"><label>Price/sqft (₹)</label><input type="number" [(ngModel)]="newUnit.pricePerSqft"></div>
-        <div class="form-group" style="align-self:flex-end"><button class="btn-admin-secondary" (click)="addPricingUnit()">+ Add</button></div>
+        <div class="form-group">
+          <label class="form-label">Pin Code</label>
+          <input class="form-control" [(ngModel)]="createForm['Pin Code']">
+        </div>
       </div>
-      <table class="data-table" *ngIf="pricingUnits.length > 0">
-        <thead><tr><th>Type</th><th>Size</th><th>₹/sqft</th><th></th></tr></thead>
-        <tbody>
-          <tr *ngFor="let u of pricingUnits; let i=index">
-            <td>{{u.type}}</td><td>{{u.size || '—'}}</td><td>{{u.pricePerSqft | number}}</td>
-            <td><button class="btn-icon btn-danger-icon" (click)="removePricingUnit(i)">🗑️</button></td>
-          </tr>
-        </tbody>
-      </table>
-      <div *ngIf="pricingUnits.length === 0" class="empty-table">No units added yet.</div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-admin-secondary" (click)="closeModal()">Cancel</button>
-      <button class="btn-admin-primary" (click)="savePricing()" [disabled]="loading">
-        <span *ngIf="!loading">Save Pricing</span>
-        <span *ngIf="loading" class="spinner-sm"></span>
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- ── USER EDIT MODAL ───────────────────────────────────────────── -->
-<div class="modal-overlay" *ngIf="showUserEditModal" (click)="closeModal()">
-  <div class="modal-box" (click)="$event.stopPropagation()">
-    <div class="modal-header"><h3>Edit User Role</h3><button class="modal-close" (click)="closeModal()">×</button></div>
-    <div class="modal-body" *ngIf="selectedUser">
-      <p class="user-info-line"><strong>{{selectedUser.fullName}}</strong> — {{selectedUser.email}}</p>
       <div class="form-group">
-        <label>Role</label>
-        <select [(ngModel)]="userEditRole">
+        <label class="form-label">Total Area (sqmts)</label>
+        <input type="number" class="form-control" [(ngModel)]="createForm['Total Area(In sqmts)']">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-md" (click)="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-md" (click)="createProject()" [disabled]="loading">
+        <span class="spinner" *ngIf="loading"></span>
+        <span *ngIf="!loading">Create Property</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MODAL: PRICING
+══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showPricingModal" (click)="closeModal()">
+  <div class="modal modal-lg" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path d="M8.433 7.418c.155-.103.346-.196.567-.267v1.698a2.305 2.305 0 01-.567-.267C8.07 8.34 8 8.114 8 8c0-.114.07-.34.433-.582zM11 12.849v-1.698c.22.071.412.164.567.267.364.243.433.468.433.582 0 .114-.07.34-.433.582a2.305 2.305 0 01-.567.267z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v.092a4.535 4.535 0 00-1.676.662C6.602 6.234 6 7.009 6 8c0 .99.602 1.765 1.324 2.246.48.32 1.054.545 1.676.662v1.941c-.391-.127-.68-.317-.843-.504a1 1 0 10-1.51 1.31c.562.649 1.413 1.076 2.353 1.253V15a1 1 0 102 0v-.092a4.535 4.535 0 001.676-.662C13.398 13.766 14 12.991 14 12c0-.99-.602-1.765-1.324-2.246A4.535 4.535 0 0011 9.092V7.151c.391.127.68.317.843.504a1 1 0 101.511-1.31c-.563-.649-1.413-1.076-2.354-1.253V5z" clip-rule="evenodd"/></svg>
+        Pricing — {{ selectedProperty?.['Project Name'] || selectedProperty?.project_name }}
+      </h3>
+      <button class="modal-close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <h4 style="font-size:0.85rem;font-weight:700;color:#374151;margin:0 0 14px;">Add Unit Type</h4>
+      <div class="form-row-4">
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <select class="form-control" [(ngModel)]="newUnit.type">
+            <option *ngFor="let t of unitTypes">{{ t }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Size (sqft)</label>
+          <input class="form-control" [(ngModel)]="newUnit.size" placeholder="850–1100">
+        </div>
+        <div class="form-group">
+          <label class="form-label">₹ / sqft</label>
+          <input type="number" class="form-control" [(ngModel)]="newUnit.pricePerSqft">
+        </div>
+        <div class="form-group" style="align-self:flex-end;">
+          <button class="btn btn-secondary btn-md" (click)="addPricingUnit()">+ Add</button>
+        </div>
+      </div>
+
+      <div class="content-card" style="margin-top:8px;" *ngIf="pricingUnits.length > 0">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Type</th><th>Size</th><th>₹/sqft</th><th></th></tr></thead>
+            <tbody>
+              <tr *ngFor="let u of pricingUnits; let i=index">
+                <td>{{ u.type }}</td>
+                <td>{{ u.size || '—' }}</td>
+                <td>{{ u.pricePerSqft | number }}</td>
+                <td>
+                  <button class="btn-icon danger" (click)="removePricingUnit(i)">
+                    <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="state-empty" *ngIf="pricingUnits.length === 0" style="padding:24px 0;">
+        <div class="state-empty-icon">💰</div><span>No units added yet</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary btn-md" (click)="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-md" (click)="savePricing()" [disabled]="loading">
+        <span class="spinner" *ngIf="loading"></span>
+        <span *ngIf="!loading">Save Pricing</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MODAL: USER ROLE
+══════════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" *ngIf="showUserEditModal" (click)="closeModal()">
+  <div class="modal" style="max-width:420px;" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3 class="modal-title">Edit User Role</h3>
+      <button class="modal-close" (click)="closeModal()">×</button>
+    </div>
+    <div class="modal-body" *ngIf="selectedUser">
+      <div class="user-info-line">
+        <strong>{{ selectedUser.fullName }}</strong> — {{ selectedUser.email }}
+      </div>
+      <div class="form-group">
+        <label class="form-label">Role</label>
+        <select class="form-control" [(ngModel)]="userEditRole">
           <option value="user">User</option>
           <option value="admin">Admin</option>
         </select>
       </div>
     </div>
     <div class="modal-footer">
-      <button class="btn-admin-secondary" (click)="closeModal()">Cancel</button>
-      <button class="btn-admin-primary" (click)="saveUserRole()">Save Role</button>
+      <button class="btn btn-secondary btn-md" (click)="closeModal()">Cancel</button>
+      <button class="btn btn-primary btn-md" (click)="saveUserRole()">Save Role</button>
     </div>
   </div>
 </div>
 
-<!-- ── MEDIA MODAL ────────────────────────────────────────────────── -->
+<!-- ══════════════════════════════════════════════════════════════
+     MODAL: MEDIA MANAGER
+══════════════════════════════════════════════════════════════ -->
 <div class="modal-overlay" *ngIf="showMediaModal" (click)="closeModal()">
-  <div class="modal-box modal-wide" (click)="$event.stopPropagation()">
+  <div class="modal modal-xl" (click)="$event.stopPropagation()">
     <div class="modal-header">
-      <h3>📁 Media Manager — {{selectedProperty?.['Project Name'] || selectedProperty?.project_name}}</h3>
+      <h3 class="modal-title">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/></svg>
+        Media — {{ selectedProperty?.['Project Name'] || selectedProperty?.project_name }}
+      </h3>
       <button class="modal-close" (click)="closeModal()">×</button>
     </div>
     <div class="modal-body">
 
-      <!-- Upload tabs -->
-      <div class="media-tabs">
-        <button [class.active]="mediaTab==='image'" (click)="mediaTab='image'">🖼️ Images</button>
-        <button [class.active]="mediaTab==='floorplan'" (click)="mediaTab='floorplan'">📐 Floor Plans</button>
-        <button [class.active]="mediaTab==='document'" (click)="mediaTab='document'">📄 Documents</button>
-        <button [class.active]="mediaTab==='video'" (click)="mediaTab='video'">▶️ Videos</button>
+      <!-- Tab bar -->
+      <div class="media-tab-bar">
+        <button class="media-tab-btn" [class.active]="mediaTab==='image'"     (click)="mediaTab='image'">🖼️ Images</button>
+        <button class="media-tab-btn" [class.active]="mediaTab==='floorplan'" (click)="mediaTab='floorplan'">📐 Floor Plans</button>
+        <button class="media-tab-btn" [class.active]="mediaTab==='document'"  (click)="mediaTab='document'">📄 Documents</button>
+        <button class="media-tab-btn" [class.active]="mediaTab==='video'"     (click)="mediaTab='video'">▶️ Videos</button>
       </div>
 
-      <!-- Image / FloorPlan / Document Upload -->
+      <!-- Upload zone (image / floorplan / document) -->
       <div *ngIf="mediaTab !== 'video'" class="upload-zone">
-        <label class="upload-label">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="32" height="32"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-          <span>Click to upload {{mediaTab}}s</span>
-          <span class="upload-hint" *ngIf="mediaTab!=='document'">JPEG, PNG, WebP — max 10 MB each</span>
-          <span class="upload-hint" *ngIf="mediaTab==='document'">PDF, DOC, DOCX — max 50 MB each</span>
+        <label style="cursor:pointer;display:block;">
+          <div class="upload-icon">⬆️</div>
+          <div class="upload-label-text">Click to upload {{ mediaTab }}s</div>
+          <div class="upload-hint" *ngIf="mediaTab!=='document'">JPEG, PNG, WebP — max 10 MB each</div>
+          <div class="upload-hint" *ngIf="mediaTab==='document'">PDF, DOC, DOCX — max 50 MB</div>
           <input type="file" multiple [accept]="getAcceptTypes()" (change)="onFilesSelected($event)" style="display:none">
         </label>
         <div class="upload-queue" *ngIf="uploadQueue.length > 0">
           <div *ngFor="let f of uploadQueue; let i=index" class="queue-item">
-            <span>{{f.name}}</span>
-            <span class="file-size">{{formatFileSize(f.size)}}</span>
-            <button class="btn-icon btn-danger-icon" (click)="removeFromQueue(i)">×</button>
+            <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" style="flex-shrink:0;color:#94a3b8"><path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd"/></svg>
+            <span>{{ f.name }}</span>
+            <span class="file-size">{{ formatFileSize(f.size) }}</span>
+            <button class="btn-icon danger" (click)="removeFromQueue(i)">×</button>
           </div>
-          <button class="btn-admin-primary" (click)="uploadFiles()" [disabled]="uploading">
-            <span *ngIf="!uploading">Upload {{uploadQueue.length}} file(s)</span>
-            <span *ngIf="uploading" class="spinner-sm"></span>
+          <button class="btn btn-primary btn-sm" style="margin-top:10px;" (click)="uploadFiles()" [disabled]="uploading">
+            <span class="spinner" *ngIf="uploading"></span>
+            <span *ngIf="!uploading">Upload {{ uploadQueue.length }} file(s)</span>
           </button>
         </div>
       </div>
 
-      <!-- YouTube Video URL -->
-      <div *ngIf="mediaTab === 'video'" class="video-upload-zone">
-        <div class="form-group">
-          <label>YouTube URL</label>
-          <input type="url" [(ngModel)]="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
+      <!-- Video URL -->
+      <div *ngIf="mediaTab === 'video'" style="padding-bottom:16px;">
+        <div class="form-row-2">
+          <div class="form-group">
+            <label class="form-label">YouTube URL</label>
+            <input type="url" class="form-control" [(ngModel)]="videoUrl"
+                   placeholder="https://www.youtube.com/watch?v=…">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Title (optional)</label>
+            <input type="text" class="form-control" [(ngModel)]="videoTitle" placeholder="Property Tour">
+          </div>
         </div>
-        <div class="form-group">
-          <label>Title (optional)</label>
-          <input type="text" [(ngModel)]="videoTitle" placeholder="Property Tour">
-        </div>
-        <button class="btn-admin-primary" (click)="addVideoUrl()" [disabled]="!videoUrl || uploading">Add Video</button>
+        <button class="btn btn-primary btn-md" (click)="addVideoUrl()" [disabled]="!videoUrl || uploading">Add Video</button>
       </div>
 
-      <!-- Add Image by URL (image / floorplan tab) -->
+      <!-- Add by URL zone -->
       <div *ngIf="mediaTab === 'image' || mediaTab === 'floorplan'" class="url-add-zone">
         <div class="url-add-header">
-          <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"/></svg>
-          Or paste an image URL directly
+          <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path d="M12.586 4.586a2 2 0 112.828 2.828l-3 3a2 2 0 01-2.828 0 1 1 0 00-1.414 1.414 4 4 0 005.656 0l3-3a4 4 0 00-5.656-5.656l-1.5 1.5a1 1 0 101.414 1.414l1.5-1.5zm-5 5a2 2 0 012.828 0 1 1 0 101.414-1.414 4 4 0 00-5.656 0l-3 3a4 4 0 105.656 5.656l1.5-1.5a1 1 0 10-1.414-1.414l-1.5 1.5a2 2 0 11-2.828-2.828l3-3z"/></svg>
+          Add by URL
         </div>
         <div class="url-add-row">
-          <input type="url" [(ngModel)]="imageUrlInput"
-                 placeholder="https://cdn.example.com/property-photo.jpg"
-                 class="admin-input url-add-input">
-          <input type="text" [(ngModel)]="imageUrlTitle"
-                 placeholder="Photo title (optional)"
-                 class="admin-input" style="max-width:200px">
-          <button class="btn-admin-secondary"
-                  (click)="addImageByUrl()"
+          <input type="url" class="form-control url-add-input" [(ngModel)]="imageUrlInput"
+                 placeholder="https://cdn.example.com/photo.jpg">
+          <input type="text" class="form-control" style="max-width:180px;" [(ngModel)]="imageUrlTitle"
+                 placeholder="Title (optional)">
+          <button class="btn btn-secondary btn-sm" (click)="addImageByUrl()"
                   [disabled]="!imageUrlInput.trim() || uploading">
+            <span class="spinner spinner-dark" *ngIf="uploading"></span>
             <span *ngIf="!uploading">+ Add URL</span>
-            <span *ngIf="uploading" class="spinner-sm"></span>
           </button>
         </div>
-        <p class="url-add-hint">Paste any public image URL — useful for developer site CDN images that can't be downloaded directly.</p>
+        <p class="url-add-hint">Paste any public image URL — for CDN images that can't be uploaded directly.</p>
       </div>
 
-      <!-- Existing Media Grid -->
-      <div class="media-grid-section">
-        <h4>Existing {{mediaTab}}s ({{getMediaByType(mediaTab).length}})</h4>
-        <div *ngIf="mediaLoading" class="loading-state"><span class="spinner-sm"></span></div>
+      <!-- Existing media grid -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+          <h4 style="font-size:0.85rem;font-weight:700;color:#374151;margin:0;">
+            Existing {{ mediaTab }}s
+            <span style="font-weight:400;color:#94a3b8;">({{ getMediaByType(mediaTab).length }})</span>
+          </h4>
+        </div>
+        <div class="state-loading" *ngIf="mediaLoading"><span class="spinner spinner-dark"></span></div>
         <div class="media-grid" *ngIf="!mediaLoading">
           <div *ngFor="let m of getMediaByType(mediaTab)" class="media-item">
-            <!-- Image preview -->
-            <div class="media-thumb" *ngIf="mediaTab==='image' || mediaTab==='floorplan'">
-              <img [src]="m.fileUrl || m.file_url" [alt]="m.title" (error)="onImgError($event)">
+            <div class="media-thumb" *ngIf="mediaTab==='image'||mediaTab==='floorplan'">
+              <img [src]="m.fileUrl||m.file_url" [alt]="m.title" (error)="onImgError($event)">
             </div>
-            <!-- Document icon -->
             <div class="media-thumb media-doc" *ngIf="mediaTab==='document'">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="40" height="40"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-              <a [href]="m.fileUrl || m.file_url" target="_blank" class="doc-link">Open</a>
+              <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <a [href]="m.fileUrl||m.file_url" target="_blank" class="doc-link">Open</a>
             </div>
-            <!-- Video thumbnail -->
             <div class="media-thumb" *ngIf="mediaTab==='video'">
-              <img [src]="getYTThumb(m.fileUrl || m.file_url)" [alt]="m.title" (error)="onImgError($event)">
+              <img [src]="getYTThumb(m.fileUrl||m.file_url)" [alt]="m.title" (error)="onImgError($event)">
               <span class="play-badge">▶</span>
             </div>
             <div class="media-info">
-              <span class="media-title" *ngIf="editingMediaId !== m.id">{{m.title}}</span>
+              <span class="media-title" *ngIf="editingMediaId !== m.id">{{ m.title }}</span>
               <input *ngIf="editingMediaId === m.id" [(ngModel)]="editingMediaTitle" class="media-title-input">
               <div class="media-actions">
                 <button *ngIf="editingMediaId !== m.id" class="btn-icon" title="Edit" (click)="startEditMedia(m)">✏️</button>
                 <button *ngIf="editingMediaId === m.id" class="btn-icon" title="Save" (click)="saveMediaEdit(m)">💾</button>
                 <button *ngIf="editingMediaId === m.id" class="btn-icon" title="Cancel" (click)="editingMediaId=null">✕</button>
-                <button class="btn-icon btn-danger-icon" title="Delete" (click)="deleteMediaItem(m)">🗑️</button>
+                <button class="btn-icon danger" title="Delete" (click)="deleteMediaItem(m)">🗑️</button>
               </div>
             </div>
           </div>
-          <div *ngIf="getMediaByType(mediaTab).length === 0" class="empty-table">No {{mediaTab}}s uploaded yet.</div>
+          <div class="state-empty" *ngIf="getMediaByType(mediaTab).length === 0" style="padding:24px 0;grid-column:1/-1;">
+            <div class="state-empty-icon" style="font-size:1.5rem;">📭</div>
+            <span>No {{ mediaTab }}s uploaded yet</span>
+          </div>
         </div>
       </div>
 
-      <!-- ── SCRAPED FLOOR PLANS SECTION (shown on floorplan tab) ────────── -->
+      <!-- Scraped floor plans -->
       <div class="scraped-section" *ngIf="mediaTab === 'floorplan'">
-        <div class="scraped-section-header">
-          <h4>
-            📥 Scraped RERA Floor Plans
-            <span class="scraped-count" *ngIf="scrapedPageCount > 0">({{scrapedPageCount}} pages)</span>
-          </h4>
-          <small class="scraped-hint">Downloaded from RERA portal by <code>download_project_docs.py</code>. Click <strong>+ Add</strong> to register a page into the media library, or 🗑️ to remove it from disk.</small>
-        </div>
+        <h4>
+          📥 Scraped RERA Floor Plans
+          <span class="scraped-count" *ngIf="scrapedPageCount > 0">({{ scrapedPageCount }} pages)</span>
+        </h4>
+        <small class="scraped-hint">
+          Downloaded from RERA portal by <code>download_project_docs.py</code>.
+          Click <strong>+ Add</strong> to register into the media library.
+        </small>
 
-        <div *ngIf="scrapedLoading" class="loading-state"><span class="spinner-sm"></span> Loading scraped files…</div>
+        <div class="state-loading" *ngIf="scrapedLoading"><span class="spinner spinner-dark"></span></div>
 
-        <div *ngIf="!scrapedLoading && scrapedFloorPlans.length === 0" class="empty-table">
-          No scraped floor plans found. Run <code>python download_project_docs.py "{{selectedProperty?.['Project Name']}}"</code> in the backend folder to fetch them from RERA.
+        <div class="state-empty" *ngIf="!scrapedLoading && scrapedFloorPlans.length === 0" style="padding:16px 0;">
+          <span>No scraped floor plans found. Run <code>download_project_docs.py "{{ selectedProperty?.['Project Name'] }}"</code></span>
         </div>
 
         <div *ngIf="!scrapedLoading && scrapedFloorPlans.length > 0">
           <div *ngFor="let entry of scrapedFloorPlans" class="scraped-doc-group">
             <div class="scraped-doc-label">
-              <span class="scraped-doc-name">{{entry.docName}}</span>
-              <span class="scraped-doc-tag">{{entry.label}}</span>
-              <span class="scraped-page-count">{{entry.pages?.length || 0}} page(s)</span>
+              <span class="scraped-doc-name">{{ entry.docName }}</span>
+              <span class="scraped-doc-tag">{{ entry.label }}</span>
+              <span class="scraped-page-count">{{ entry.pages?.length || 0 }} page(s)</span>
             </div>
             <div class="scraped-pages-grid">
               <div *ngFor="let pageUrl of entry.pages" class="scraped-page-item">
                 <div class="scraped-thumb">
                   <img [src]="pageUrl" [alt]="scrapedFilename(pageUrl)" (error)="onImgError($event)">
                 </div>
-                <div class="scraped-page-name">{{scrapedFilename(pageUrl)}}</div>
+                <div class="scraped-page-name">{{ scrapedFilename(pageUrl) }}</div>
                 <div class="scraped-page-actions">
-                  <button class="btn-scrape-add" title="Add to floor plans library"
-                    [disabled]="promotingPage === scrapedFilename(pageUrl)"
-                    (click)="promoteScrapedPage(pageUrl, entry.docName)">
+                  <button class="btn-scrape-add" [disabled]="promotingPage === scrapedFilename(pageUrl)"
+                          (click)="promoteScrapedPage(pageUrl, entry.docName)">
+                    <span class="spinner" *ngIf="promotingPage === scrapedFilename(pageUrl)"></span>
                     <span *ngIf="promotingPage !== scrapedFilename(pageUrl)">+ Add</span>
-                    <span *ngIf="promotingPage === scrapedFilename(pageUrl)" class="spinner-sm"></span>
                   </button>
-                  <button class="btn-icon btn-danger-icon" title="Delete from disk" (click)="deleteScrapedPage(pageUrl)">🗑️</button>
+                  <button class="btn-icon danger" title="Delete from disk" (click)="deleteScrapedPage(pageUrl)">🗑️</button>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
     </div>
     <div class="modal-footer">
-      <button class="btn-admin-secondary" (click)="closeModal()">Done</button>
+      <button class="btn btn-secondary btn-md" (click)="closeModal()">Done</button>
     </div>
   </div>
 </div>
-
-

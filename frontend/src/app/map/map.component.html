@@ -97,7 +97,7 @@
         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 14l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
       </div>
       <div class="stat-body">
-        <div class="stat-number">32<span class="stat-plus">+</span></div>
+        <div class="stat-number" [class.updated]="statsUpdated">{{ totalProjects }}<span class="stat-plus" *ngIf="totalProjects > 0">+</span></div>
         <div class="stat-label">RERA Verified Projects</div>
       </div>
     </div>
@@ -121,7 +121,7 @@
         <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
       </div>
       <div class="stat-body">
-        <div class="stat-number">8</div>
+        <div class="stat-number" [class.updated]="statsUpdated">{{ districtCount || 8 }}</div>
         <div class="stat-label">Districts Covered</div>
       </div>
     </div>
