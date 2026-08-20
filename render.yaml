@@ -50,7 +50,7 @@ services:
       - key: FeatureFlags__UsePostgresRepository
         value: "true"
       - key: AppSettings__AllowedOrigins
-        value: "https://hydurbanrealty.onrender.com,https://www.hyderabadurbanrealty.com,https://hyderabadurbanrealty.com"
+        value: "https://hydurbanrealty.onrender.com,https://www.hyderabadurbanrealty.com,https://hyderabadurbanrealty.com,http://localhost:4200,https://localhost:4200"
 
   # ── Angular Static Site ─────────────────────────────────────
   - type: web

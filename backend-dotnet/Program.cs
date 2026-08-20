@@ -157,8 +157,14 @@ builder.Services.Configure<SeleniumSettings>(builder.Configuration.GetSection("S
 
 // Get allowed origins from configuration
 var appSettings = builder.Configuration.GetSection("AppSettings").Get<AppSettings>();
-var allowedOrigins = appSettings?.AllowedOrigins?.Split(',', StringSplitOptions.RemoveEmptyEntries) 
-    ?? new[] { "http://localhost:4200" };
+var allowedOrigins = (appSettings?.AllowedOrigins ?? "http://localhost:4200")
+    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+    .Select(o => o.Trim())
+    .Where(o => !string.IsNullOrEmpty(o))
+    .ToArray();
+
+// Log resolved origins at startup for diagnostics
+Console.WriteLine($"CORS OK: Allowed origins ({allowedOrigins.Length}): {string.Join(" | ", allowedOrigins)}");
 
 // Add CORS with restricted origins
 builder.Services.AddCors(options =>
