@@ -2148,59 +2148,192 @@
   font-style: italic;
 }
 
-/* Contact Section */
+/* ── CTA / Contact Section ─────────────────────────────────────────── */
 .contact-section {
-  background: linear-gradient(135deg, #0d3b73, #1565c0);
-  color: white;
-  border-radius: 16px;
-  padding: 40px 24px;
+  position: relative;
+  background: linear-gradient(145deg, #0a1f4e 0%, #0d3b73 55%, #1251a3 100%);
+  border-radius: 20px;
+  padding: 40px 32px 32px;
   text-align: center;
-  margin-top: 24px;
+  margin-top: 28px;
+  overflow: hidden;
+  /* Ambient glow depth */
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.07) inset,
+    0 20px 60px rgba(10,31,78,0.35);
 }
 
-.contact-section .section-title {
-  color: white;
-  border-bottom: 2px solid rgba(255,255,255,0.2);
-  font-size: 24px;
+/* Decorative radial glow — top right */
+.contact-section::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -60px;
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(0,184,212,0.18) 0%, transparent 70%);
+  pointer-events: none;
 }
 
-.contact-actions {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  flex-wrap: wrap;
+/* Decorative radial glow — bottom left */
+.contact-section::after {
+  content: '';
+  position: absolute;
+  bottom: -40px;
+  left: -40px;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+  pointer-events: none;
 }
 
-.btn-large {
-  padding: 14px 28px;
-  font-size: 15px;
-  border-radius: 10px;
+/* Eyebrow label */
+.cta-eyebrow {
   display: inline-flex;
   align-items: center;
+  gap: 6px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #34d399;
+  background: rgba(52,211,153,0.12);
+  border: 1px solid rgba(52,211,153,0.25);
+  border-radius: 100px;
+  padding: 4px 12px;
+  margin-bottom: 18px;
+}
+
+/* Primary headline — large, high contrast */
+.cta-headline {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 10px;
+  letter-spacing: -0.03em;
+  line-height: 1.15;
+}
+
+/* Supporting copy — WCAG AA: white at 80% opacity on dark bg = ~7:1 */
+.cta-sub {
+  font-size: 0.925rem;
+  color: rgba(255,255,255,0.78);
+  margin: 0 auto 22px;
+  max-width: 480px;
+  line-height: 1.6;
+}
+
+/* Social proof strip */
+.cta-proof {
+  display: flex;
+  align-items: center;
   justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 28px;
 }
 
-.btn-primary {
-  background: white;
-  color: var(--primary);
+.cta-proof-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+}
+
+.cta-proof-item svg { opacity: 0.7; flex-shrink: 0; }
+
+.cta-proof-sep {
+  color: rgba(255,255,255,0.25);
+  font-size: 0.9rem;
+}
+
+/* Button row */
+.cta-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+/* Primary CTA — highest visual weight */
+.cta-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #00b8d4 0%, #0099b8 100%);
+  color: #ffffff;
   border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: -0.01em;
+  box-shadow: 0 4px 18px rgba(0,184,212,0.4);
+  transition: transform 0.14s, box-shadow 0.14s, background 0.14s;
+  min-height: 50px;
 }
 
-.btn-primary:hover {
-  background: #f0f9ff;
+.cta-btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 28px rgba(0,184,212,0.55);
+  background: linear-gradient(135deg, #00cae8 0%, #00a8cc 100%);
 }
 
-.btn-secondary {
-  background: transparent;
-  color: white;
-  border: 2px solid white;
+.cta-btn-primary:active { transform: translateY(0); }
+
+/* Secondary CTA — clear but subordinate weight */
+.cta-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 26px;
+  background: rgba(255,255,255,0.08);
+  color: #ffffff;
+  border: 1.5px solid rgba(255,255,255,0.32);
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  backdrop-filter: blur(4px);
+  transition: background 0.14s, border-color 0.14s, transform 0.14s;
+  min-height: 50px;
 }
 
-.btn-secondary:hover {
-  background: rgba(255,255,255,0.1);
+.cta-btn-secondary:hover {
+  background: rgba(255,255,255,0.15);
+  border-color: rgba(255,255,255,0.55);
   transform: translateY(-2px);
+}
+
+.cta-btn-secondary:active { transform: translateY(0); }
+
+/* Trust line */
+.cta-trust {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.38);
+  margin: 0;
+}
+
+.cta-trust svg { opacity: 0.45; flex-shrink: 0; }
+
+/* Responsive */
+@media (max-width: 560px) {
+  .contact-section { padding: 32px 20px 24px; }
+  .cta-headline { font-size: 1.4rem; }
+  .cta-sub { font-size: 0.875rem; }
+  .cta-actions { flex-direction: column; align-items: stretch; }
+  .cta-btn-primary,
+  .cta-btn-secondary { justify-content: center; width: 100%; }
+  .cta-proof { gap: 8px; }
+  .cta-proof-sep { display: none; }
 }
 
 /* Section Title Icons */

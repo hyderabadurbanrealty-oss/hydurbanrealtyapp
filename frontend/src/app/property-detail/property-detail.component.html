@@ -1304,24 +1304,57 @@
           </div>
         </div>
 
-        <!-- Contact Section (always visible at bottom of any tab) -->
+        <!-- Contact Section -->
         <div class="contact-section">
-          <h2 class="section-title">Interested in this property?</h2>
-          <p style="margin-bottom: 24px; color: #666;">Get in touch with our experts for site visits, pricing, and more details.</p>
-          <div class="contact-actions">
-            <button class="btn btn-primary btn-large" (click)="contactAgent()">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" style="margin-right: 8px;">
+          <!-- Top eyebrow -->
+          <div class="cta-eyebrow">
+            <svg viewBox="0 0 10 10" fill="currentColor" width="8" height="8"><circle cx="5" cy="5" r="5"/></svg>
+            Available for enquiry
+          </div>
+
+          <!-- Headline hierarchy -->
+          <h2 class="cta-headline">Ready to make it yours?</h2>
+          <p class="cta-sub">Talk to our property experts — free site visits, pricing guidance &amp; RERA verification included.</p>
+
+          <!-- Social proof strip -->
+          <div class="cta-proof">
+            <span class="cta-proof-item">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path d="M9 12l-4-4 1.41-1.41L9 9.17l4.59-4.58L15 6l-6 6z"/><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V5z" clip-rule="evenodd"/></svg>
+              Response within 2 hours
+            </span>
+            <span class="cta-proof-sep">·</span>
+            <span class="cta-proof-item">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+              RERA verified listing
+            </span>
+            <span class="cta-proof-sep">·</span>
+            <span class="cta-proof-item">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"/></svg>
+              No broker fees
+            </span>
+          </div>
+
+          <!-- CTA buttons — clear primary/secondary hierarchy -->
+          <div class="cta-actions">
+            <button class="cta-btn-primary" (click)="contactAgent()">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
                 <path d="M20.01 15.38c-1.23 0-2.42-.2-3.53-.56-.35-.12-.74-.03-1.01.24l-1.57 1.97c-2.83-1.35-5.48-3.9-6.89-6.83l1.95-1.66c.27-.28.35-.67.24-1.02-.37-1.11-.56-2.3-.56-3.53 0-.54-.45-.99-.99-.99H4.19C3.65 3 3 3.24 3 3.99 3 13.28 10.73 21 20.01 21c.71 0 .99-.63.99-1.18v-3.45c0-.54-.45-.99-.99-.99z"/>
               </svg>
               Contact Agent
             </button>
-            <button class="btn btn-secondary btn-large" (click)="openScheduleVisit()">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20" style="margin-right: 8px;">
+            <button class="cta-btn-secondary" (click)="openScheduleVisit()">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
                 <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
               </svg>
-              Schedule Visit
+              Schedule a Visit
             </button>
           </div>
+
+          <!-- Trust line -->
+          <p class="cta-trust">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+            Your contact details are never shared without your consent
+          </p>
         </div>
 
       </div><!-- Close gated-content -->
