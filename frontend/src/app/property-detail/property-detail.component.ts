@@ -194,10 +194,21 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     rating: 5,
     review: ''
   };
-  
+
   submittingReview = false;
   reviewError = '';
   reviewSuccess = '';
+
+  // Review captcha (separate from the unlock-modal captcha)
+  reviewCaptchaA: number = 0;
+  reviewCaptchaB: number = 0;
+  reviewCaptchaAnswer: number | string | null = null;
+
+  refreshReviewCaptcha() {
+    this.reviewCaptchaA = Math.floor(Math.random() * 9) + 1;
+    this.reviewCaptchaB = Math.floor(Math.random() * 9) + 1;
+    this.reviewCaptchaAnswer = null;
+  }
   
   projectFields = [
     { key: 'Project Status', label: 'Status' },
@@ -607,6 +618,11 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     this.averageRating = Math.round((sum / this.reviews.length) * 10) / 10;
   }
 
+  toggleReviewForm() {
+    this.showReviewForm = !this.showReviewForm;
+    if (this.showReviewForm) this.refreshReviewCaptcha();
+  }
+
   submitReview() {
     const id = this.route.snapshot.paramMap.get('id');
     if (!id) return;
@@ -649,6 +665,7 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
           rating: 5,
           review: ''
         };
+        this.refreshReviewCaptcha();
         
         // Reload reviews
         this.loadReviews(id);

@@ -29,7 +29,7 @@ export class AdminComponent implements OnInit, OnDestroy {
   loginLoading = false;
 
   // ── UI state ───────────────────────────────────────────────────────────────
-  activeSection: 'dashboard' | 'properties' | 'users' | 'leads' | 'visits' | 'scraper' | 'social' | 'resale' = 'dashboard';
+  activeSection: 'dashboard' | 'properties' | 'users' | 'leads' | 'visits' | 'scraper' | 'social' | 'resale' | 'reviews' = 'dashboard';
   statusMsg = '';
   loading = false;
 
@@ -134,6 +134,12 @@ export class AdminComponent implements OnInit, OnDestroy {
   resaleFilter   = 'all';
   resaleSearch   = '';
   resaleUpdating: string | null = null;
+
+  // ── Reviews ───────────────────────────────────────────────────────────────
+  adminReviews: any[]  = [];
+  reviewsLoading       = false;
+  reviewsFilter: 'all' | 'pending' | 'approved' = 'pending';
+  reviewsSearch        = '';
 
   constructor(
     private adminService: AdminService,
@@ -805,7 +811,8 @@ export class AdminComponent implements OnInit, OnDestroy {
       visits:     'Site Visits',
       scraper:    'Scraper Control',
       social:     'Social Feed',
-      resale:     'Resale Listings'
+      resale:     'Resale Listings',
+      reviews:    'Reviews'
     };
     return titles[this.activeSection] ?? 'Admin';
   }
@@ -938,5 +945,59 @@ export class AdminComponent implements OnInit, OnDestroy {
   resaleStatusClass(s: string): string {
     const m: Record<string, string> = { pending: 'badge-pending', active: 'badge-active', sold: 'badge-sold', rejected: 'badge-rejected' };
     return m[s] || 'badge-pending';
+  }
+
+  // ── Reviews ───────────────────────────────────────────────────────────────
+
+  loadReviews(): void {
+    this.reviewsLoading = true;
+    this.adminService.getReviews().subscribe({
+      next: (reviews) => { this.adminReviews = reviews; this.reviewsLoading = false; },
+      error: () => { this.reviewsLoading = false; this.statusMsg = '❌ Failed to load reviews'; }
+    });
+  }
+
+  get filteredAdminReviews(): any[] {
+    let list = this.adminReviews;
+    if (this.reviewsFilter === 'pending')  list = list.filter(r => !r.isApproved);
+    if (this.reviewsFilter === 'approved') list = list.filter(r =>  r.isApproved);
+    const q = this.reviewsSearch.trim().toLowerCase();
+    if (q) list = list.filter(r =>
+      (r.name || '').toLowerCase().includes(q) ||
+      (r.projectId || '').toLowerCase().includes(q) ||
+      (r.review || '').toLowerCase().includes(q)
+    );
+    return list;
+  }
+
+  get pendingReviewCount(): number {
+    return this.adminReviews.filter(r => !r.isApproved).length;
+  }
+
+  get approvedReviewCount(): number {
+    return this.adminReviews.filter(r => r.isApproved).length;
+  }
+
+  approveAdminReview(review: any): void {
+    this.adminService.approveReview(review.id).subscribe({
+      next: () => {
+        review.isApproved = true;
+        this.statusMsg = `✅ Review by "${review.name}" approved`;
+        setTimeout(() => this.statusMsg = '', 3000);
+      },
+      error: () => { this.statusMsg = '❌ Failed to approve review'; }
+    });
+  }
+
+  deleteAdminReview(review: any): void {
+    if (!confirm(`Delete review by "${review.name}"?`)) return;
+    this.adminService.deleteReview(review.id).subscribe({
+      next: () => {
+        this.adminReviews = this.adminReviews.filter(r => r.id !== review.id);
+        this.statusMsg = `🗑 Review deleted`;
+        setTimeout(() => this.statusMsg = '', 3000);
+      },
+      error: () => { this.statusMsg = '❌ Failed to delete review'; }
+    });
   }
 }

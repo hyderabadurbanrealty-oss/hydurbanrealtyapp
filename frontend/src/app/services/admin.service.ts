@@ -77,4 +77,18 @@ export class AdminService {
   deleteVisit(id: number): Observable<any> {
     return this.http.delete(`/api/admin/schedule-visits/${id}`);
   }
+
+  // ── Reviews ────────────────────────────────────────────────────────────────
+  getReviews(page = 1, pageSize = 50): Observable<any[]> {
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<any[]>('/api/admin/reviews', { params });
+  }
+
+  approveReview(id: number): Observable<any> {
+    return this.http.put(`/api/admin/reviews/${id}/approve`, {});
+  }
+
+  deleteReview(id: number): Observable<any> {
+    return this.http.delete(`/api/admin/reviews/${id}`);
+  }
 }

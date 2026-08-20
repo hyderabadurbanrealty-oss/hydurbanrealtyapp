@@ -128,6 +128,17 @@
 
       <span class="nav-section-label">System</span>
 
+      <button class="nav-item" [class.active]="activeSection==='reviews'"
+              (click)="activeSection='reviews'; loadReviews(); sidebarOpen=false">
+        <span class="nav-icon">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+          </svg>
+        </span>
+        <span class="nav-label">Reviews</span>
+        <span *ngIf="pendingReviewCount > 0" style="background:#ef4444;color:#fff;border-radius:100px;font-size:0.65rem;font-weight:700;padding:1px 6px;margin-left:auto;">{{ pendingReviewCount }}</span>
+      </button>
+
       <button class="nav-item" [class.active]="activeSection==='scraper'"
               (click)="activeSection='scraper'; sidebarOpen=false">
         <span class="nav-icon">
@@ -815,6 +826,97 @@
                         [disabled]="resaleUpdating === l.id" (click)="updateResaleStatus(l.id, 'rejected')">Reject</button>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════════════════════════════════════
+         REVIEWS
+    ════════════════════════════════════════════════════════ -->
+    <section *ngIf="activeSection==='reviews'" class="admin-section">
+      <div class="page-header">
+        <div class="page-header-left">
+          <h1 class="page-title">Reviews</h1>
+          <p class="page-subtitle">Moderate user-submitted property reviews before they go public</p>
+        </div>
+        <div class="page-actions">
+          <div class="search-box">
+            <svg class="search-box-icon" viewBox="0 0 20 20" fill="currentColor" width="14" height="14">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+            </svg>
+            <input type="text" class="search-input" [(ngModel)]="reviewsSearch" placeholder="Search reviews…">
+          </div>
+        </div>
+      </div>
+
+      <!-- Filter tabs -->
+      <div class="kpi-strip" style="margin-bottom:16px;">
+        <button class="kpi-chip" [style.background]="reviewsFilter==='pending'?'#0d1f3c':''" [style.color]="reviewsFilter==='pending'?'#fff':''"
+                (click)="reviewsFilter='pending'" style="cursor:pointer;border:none;">
+          ⏳ Pending <b>{{ pendingReviewCount }}</b>
+        </button>
+        <button class="kpi-chip" [style.background]="reviewsFilter==='approved'?'#0d1f3c':''" [style.color]="reviewsFilter==='approved'?'#fff':''"
+                (click)="reviewsFilter='approved'" style="cursor:pointer;border:none;">
+          ✅ Approved <b>{{ approvedReviewCount }}</b>
+        </button>
+        <button class="kpi-chip" [style.background]="reviewsFilter==='all'?'#0d1f3c':''" [style.color]="reviewsFilter==='all'?'#fff':''"
+                (click)="reviewsFilter='all'" style="cursor:pointer;border:none;">
+          All <b>{{ adminReviews.length }}</b>
+        </button>
+      </div>
+
+      <div class="content-card">
+        <div class="state-loading" *ngIf="reviewsLoading"><span class="spinner spinner-dark"></span></div>
+        <div class="table-wrap" *ngIf="!reviewsLoading">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Reviewer</th><th>Project</th><th>Rating</th>
+                <th style="min-width:220px;">Review</th><th>Contact</th>
+                <th>Status</th><th>Date</th><th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of filteredAdminReviews">
+                <td>
+                  <div class="cell-primary">{{ r.name }}</div>
+                  <div class="cell-secondary">{{ r.email }}</div>
+                </td>
+                <td style="font-size:0.78rem;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                  {{ r.projectId }}
+                </td>
+                <td>
+                  <span style="color:#f59e0b;font-size:1rem;letter-spacing:-1px;">
+                    <span *ngFor="let s of [1,2,3,4,5]">{{ s <= r.rating ? '★' : '☆' }}</span>
+                  </span>
+                </td>
+                <td style="font-size:0.78rem;color:#475569;max-width:220px;white-space:normal;line-height:1.4;">
+                  {{ r.review | slice:0:120 }}{{ (r.review?.length || 0) > 120 ? '…' : '' }}
+                </td>
+                <td style="font-size:0.75rem;color:#64748b;">{{ r.contact || '—' }}</td>
+                <td>
+                  <span class="badge" [class.badge-pending]="!r.isApproved" [class.badge-active]="r.isApproved">
+                    {{ r.isApproved ? 'Approved' : 'Pending' }}
+                  </span>
+                </td>
+                <td style="font-size:0.75rem;color:#64748b;white-space:nowrap;">{{ getTimeAgo(r.date) }}</td>
+                <td>
+                  <div class="cell-actions">
+                    <button class="btn btn-accent btn-xs" *ngIf="!r.isApproved" (click)="approveAdminReview(r)" title="Approve">
+                      ✓ Approve
+                    </button>
+                    <button class="btn-icon danger" title="Delete" (click)="deleteAdminReview(r)">
+                      <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="state-empty" *ngIf="filteredAdminReviews.length === 0 && !reviewsLoading">
+            <div class="state-empty-icon">⭐</div>
+            <span>No reviews found</span>
           </div>
         </div>
       </div>

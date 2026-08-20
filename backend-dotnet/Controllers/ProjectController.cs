@@ -490,27 +490,6 @@ namespace HyderabadUrbanReality.Controllers
         }
 
         /// <summary>
-        /// Gets reviews for a specific project
-        /// </summary>
-        [HttpGet("projects/{id}/reviews")]
-        [ProducesResponseType(typeof(List<object>), 200)]
-        public IActionResult GetProjectReviews(string id)
-        {
-            try
-            {
-                _logger.LogInformation("GET /api/projects/{Id}/reviews", id);
-                
-                // Return empty array for now (reviews feature to be implemented)
-                return Ok(new List<object>());
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error fetching reviews for project: {Id}", id);
-                return StatusCode(500, new { error = ex.Message });
-            }
-        }
-
-        /// <summary>
         /// Gets neighborhood data for a specific project using OpenStreetMap
         /// Uses smart geocoding with multiple fallback strategies for accuracy
         /// </summary>
