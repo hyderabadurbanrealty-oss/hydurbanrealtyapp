@@ -243,5 +243,26 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
             await using var conn = new NpgsqlConnection(_connectionString);
             await conn.ExecuteAsync(sql, new { userId, isActive });
         }
+
+        // ── Google OAuth ──────────────────────────────────────────────────────
+
+        public async Task<User?> GetByGoogleIdAsync(string googleId)
+        {
+            const string sql = "SELECT * FROM users WHERE google_id = @googleId LIMIT 1";
+            await using var conn = new NpgsqlConnection(_connectionString);
+            return await conn.QueryFirstOrDefaultAsync<User>(sql, new { googleId });
+        }
+
+        public async Task SetGoogleIdAsync(Guid userId, string googleId)
+        {
+            const string sql = @"
+                UPDATE users
+                SET google_id  = @googleId,
+                    is_verified = TRUE,
+                    updated_at  = NOW()
+                WHERE id = @userId";
+            await using var conn = new NpgsqlConnection(_connectionString);
+            await conn.ExecuteAsync(sql, new { userId, googleId });
+        }
     }
 }

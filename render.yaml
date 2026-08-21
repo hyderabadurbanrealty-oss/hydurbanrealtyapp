@@ -51,6 +51,11 @@ services:
         value: "true"
       - key: AppSettings__AllowedOrigins
         value: "https://hydurbanrealty.onrender.com,https://www.hyderabadurbanrealty.com,https://hyderabadurbanrealty.com,http://localhost:4200,https://localhost:4200"
+      - key: GoogleAuth__ClientId
+        value: "718846981675-ecdrldo2mls1k0qej6cu8h2jtphtovij.apps.googleusercontent.com"
+      - key: GoogleAuth__ClientSecret
+        sync: false
+        # Set manually in Render dashboard — do NOT commit the actual value
 
   # ── Angular Static Site ─────────────────────────────────────
   - type: web

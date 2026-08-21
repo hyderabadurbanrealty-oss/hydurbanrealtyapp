@@ -23,6 +23,8 @@ import { LoadingComponent } from './loading/loading.component';
 import { MarketIntelligenceComponent } from './market-intelligence/market-intelligence.component';
 import { FavoritesComponent } from './favorites/favorites.component';
 import { ReplacePipe } from './replace.pipe';
+import { PrivacyComponent } from './privacy/privacy.component';
+import { TermsComponent } from './terms/terms.component';
 import { SafePipe } from './safe.pipe';
 
 // New auth & user components
@@ -55,6 +57,8 @@ const routes: Routes = [
   { path: 'comparison', component: ComparisonComponent },
   { path: 'property/:id', component: PropertyDetailComponent },
   { path: 'about', component: AboutComponent },
+  { path: 'privacy', component: PrivacyComponent },
+  { path: 'terms', component: TermsComponent },
   { path: 'market-intelligence', component: MarketIntelligenceComponent },
   { path: 'map-view', component: MapViewComponent },
   { path: 'social-feeds', component: SocialFeedsComponent },
@@ -93,6 +97,8 @@ const routes: Routes = [
     ReraComplianceComponent,
     LoginComponent,
     AboutComponent,
+    PrivacyComponent,
+    TermsComponent,
     ChatbotComponent,
     LoadingComponent,
     MarketIntelligenceComponent,

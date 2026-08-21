@@ -113,6 +113,19 @@ export class AuthService {
     );
   }
 
+  loginWithGoogle(idToken: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${API}/auth/google-login`, { idToken }).pipe(
+      timeout(30000),
+      tap(resp => {
+        this.saveSession(resp);
+        if (resp.user.role === 'admin') {
+          localStorage.setItem('isAdmin', 'true');
+          localStorage.setItem('authToken', resp.accessToken);
+        }
+      })
+    );
+  }
+
   logout(): Observable<any> {
     const refreshToken = this.getRefreshToken();
     const req = refreshToken

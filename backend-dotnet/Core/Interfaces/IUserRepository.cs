@@ -40,5 +40,9 @@ namespace HyderabadUrbanReality.Core.Interfaces
         Task DeleteUserAsync(Guid userId);
         Task UpdateUserRoleAsync(Guid userId, string role);
         Task UpdateUserStatusAsync(Guid userId, bool isActive);
+
+        // ── Google OAuth ──────────────────────────────────────────────────────
+        Task<User?> GetByGoogleIdAsync(string googleId);
+        Task SetGoogleIdAsync(Guid userId, string googleId);
     }
 }

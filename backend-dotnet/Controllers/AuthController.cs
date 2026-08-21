@@ -411,6 +411,129 @@ namespace HyderabadUrbanReality.Controllers
             return (new JwtSecurityTokenHandler().WriteToken(token), expires);
         }
 
+        // ── POST /api/auth/google-login ───────────────────────────────────────
+
+        /// <summary>
+        /// Authenticate or register via Google One Tap / Sign-In.
+        /// Accepts the credential ID token from the Google client SDK, validates it
+        /// server-side using Google.Apis.Auth, then issues the app's own JWT pair.
+        ///
+        /// Flow:
+        ///   1. Validate Google ID token — ensures it was issued by Google for our client.
+        ///   2. Look up user by google_id; fall back to email match (links existing accounts).
+        ///   3. Create new user if no match (auto-verified, no password).
+        ///   4. Issue access + refresh tokens identical to the email/password login response.
+        /// </summary>
+        [HttpPost("google-login")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GoogleLogin([FromBody] GoogleLoginRequestDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.IdToken))
+                return BadRequest(new { error = "id_token_required" });
+
+            var clientId = _config["GoogleAuth:ClientId"];
+            if (string.IsNullOrWhiteSpace(clientId) || clientId == "REPLACE_WITH_GOOGLE_CLIENT_ID")
+            {
+                _logger.LogError("GoogleAuth:ClientId is not configured");
+                return StatusCode(503, new { error = "google_auth_not_configured" });
+            }
+
+            // ── 1. Validate ID token with Google ──────────────────────────────
+            Google.Apis.Auth.GoogleJsonWebSignature.Payload payload;
+            try
+            {
+                var settings = new Google.Apis.Auth.GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { clientId }
+                };
+                payload = await Google.Apis.Auth.GoogleJsonWebSignature.ValidateAsync(dto.IdToken, settings);
+            }
+            catch (Google.Apis.Auth.InvalidJwtException ex)
+            {
+                _logger.LogWarning(ex, "Google ID token validation failed");
+                return Unauthorized(new { error = "invalid_google_token" });
+            }
+
+            var email      = payload.Email?.ToLowerInvariant();
+            var googleId   = payload.Subject;   // stable, unique per user per app
+            var fullName   = payload.Name ?? email ?? "Google User";
+            var avatarUrl  = payload.Picture;
+            var emailVerified = payload.EmailVerified;
+
+            if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(googleId))
+                return BadRequest(new { error = "incomplete_google_profile" });
+
+            // ── 2 & 3. Find or create user ────────────────────────────────────
+            var user = await _userRepo.GetByGoogleIdAsync(googleId);
+
+            if (user is null)
+            {
+                // Check if an account exists with this email (link it)
+                user = await _userRepo.GetByEmailAsync(email);
+
+                if (user is not null)
+                {
+                    // Existing email account — link Google ID
+                    await _userRepo.SetGoogleIdAsync(user.Id, googleId);
+                    user.GoogleId   = googleId;
+                    user.IsVerified = true;
+                    if (user.AvatarUrl is null && avatarUrl is not null)
+                    {
+                        user.AvatarUrl = avatarUrl;
+                        await _userRepo.UpdateAsync(user);
+                    }
+                }
+                else
+                {
+                    // Brand new user — create account (no password)
+                    user = new User
+                    {
+                        Id         = Guid.NewGuid(),
+                        Email      = email,
+                        PasswordHash = null,   // Google-only; nullable after migration 007
+                        FullName   = _sanitizer.Sanitize(fullName),
+                        AvatarUrl  = avatarUrl,
+                        GoogleId   = googleId,
+                        IsVerified = emailVerified,
+                        IsActive   = true,
+                        Role       = "user",
+                    };
+                    user = await _userRepo.CreateAsync(user);
+                    await _userRepo.SetGoogleIdAsync(user.Id, googleId);
+                }
+            }
+
+            if (!user.IsActive)
+                return Unauthorized(new { error = "account_deactivated" });
+
+            // ── 4. Issue tokens ───────────────────────────────────────────────
+            user.LastLoginAt = DateTime.UtcNow;
+            await _userRepo.UpdateAsync(user);
+
+            var (accessToken, expiresAt) = GenerateAccessToken(user);
+            var (rawRefresh, refreshHash) = GenerateToken();
+
+            var refreshToken = new RefreshToken
+            {
+                Id         = Guid.NewGuid(),
+                UserId     = user.Id,
+                TokenHash  = refreshHash,
+                ExpiresAt  = DateTime.UtcNow.AddDays(30),
+                DeviceInfo = "Google OAuth",
+            };
+            await _userRepo.SaveRefreshTokenAsync(refreshToken);
+
+            _logger.LogInformation("Google login: {Email} ({IsNew})",
+                email, user.CreatedAt > DateTime.UtcNow.AddSeconds(-5) ? "new" : "existing");
+
+            return Ok(new AuthResponseDto(
+                AccessToken:  accessToken,
+                RefreshToken: rawRefresh,
+                ExpiresAt:    expiresAt,
+                User:         MapToProfileDto(user)
+            ));
+        }
+
         private static UserProfileDto MapToProfileDto(User user) =>
             new(user.Id, user.FullName, user.Email, user.Mobile,
                 user.AvatarUrl, user.IsVerified, user.CreatedAt, user.Role ?? "user");

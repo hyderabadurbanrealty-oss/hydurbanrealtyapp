@@ -190,9 +190,16 @@
 
           <p class="auth-terms">
             By creating an account you agree to our
-            <a href="#" tabindex="-1">Terms of Service</a> and
-            <a href="#" tabindex="-1">Privacy Policy</a>.
+            <a [routerLink]="['/terms']">Terms of Service</a> and
+            <a [routerLink]="['/privacy']">Privacy Policy</a>.
           </p>
+
+          <!-- Google Sign-Up -->
+          <div class="auth-divider"><span>or</span></div>
+          <div id="google-register-btn" style="width:100%;display:flex;justify-content:center;min-height:44px;"></div>
+          <div class="google-loading-row" *ngIf="googleLoading">
+            <span class="spinner spinner-dark"></span> Signing you in with Google…
+          </div>
         </form>
 
         <div class="auth-footer">

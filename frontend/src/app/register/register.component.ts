@@ -1,7 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, NgZone } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { environment } from '../../environments/environment';
+
+declare const google: any;
 
 function passwordMatchValidator(g: AbstractControl): ValidationErrors | null {
   const pass = g.get('password')?.value;
@@ -14,9 +17,10 @@ function passwordMatchValidator(g: AbstractControl): ValidationErrors | null {
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']
 })
-export class RegisterComponent {
+export class RegisterComponent implements OnInit {
   form: FormGroup;
   loading = false;
+  googleLoading = false;
   success = false;
   error = '';
   showPassword = false;
@@ -24,7 +28,8 @@ export class RegisterComponent {
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private zone: NgZone
   ) {
     this.form = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(2)]],
@@ -33,6 +38,37 @@ export class RegisterComponent {
       confirmPassword: ['', Validators.required],
       mobile: ['', [Validators.pattern(/^[6-9]\d{9}$/)]]
     }, { validators: passwordMatchValidator });
+  }
+
+  ngOnInit(): void {
+    this.initGoogleSignIn();
+  }
+
+  private initGoogleSignIn(): void {
+    setTimeout(() => {
+      if (typeof google === 'undefined') return;
+      google.accounts.id.initialize({
+        client_id: environment.googleClientId,
+        callback: (resp: any) => this.zone.run(() => this.handleGoogleResponse(resp))
+      });
+      google.accounts.id.renderButton(
+        document.getElementById('google-register-btn'),
+        { theme: 'outline', size: 'large', width: '100%', text: 'signup_with', shape: 'rectangular' }
+      );
+    }, 400);
+  }
+
+  handleGoogleResponse(response: any): void {
+    if (!response?.credential) { this.error = 'Google sign-in failed. Please try again.'; return; }
+    this.googleLoading = true;
+    this.error = '';
+    this.auth.loginWithGoogle(response.credential).subscribe({
+      next: () => { this.googleLoading = false; this.router.navigate(['/']); },
+      error: err => {
+        this.googleLoading = false;
+        this.error = err.error?.message || 'Google sign-in failed. Please try again.';
+      }
+    });
   }
 
   get f() { return this.form.controls; }

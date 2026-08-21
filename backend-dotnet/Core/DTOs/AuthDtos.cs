@@ -10,6 +10,7 @@ namespace HyderabadUrbanReality.Core.DTOs
     public record ResendVerificationRequestDto(string Email);
     public record ChangePasswordRequestDto(string CurrentPassword, string NewPassword);
     public record UpdateProfileRequestDto(string? FullName, string? Mobile, string? AvatarUrl);
+    public record GoogleLoginRequestDto(string IdToken);    // Google credential token from client SDK
 
     // Response DTOs
     public record UserProfileDto(

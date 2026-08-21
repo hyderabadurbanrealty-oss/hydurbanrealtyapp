@@ -128,9 +128,21 @@
         </button>
       </form>
 
+      <!-- Google Sign-In -->
+      <div class="auth-divider"><span>or</span></div>
+      <div id="google-signin-btn" style="width:100%;display:flex;justify-content:center;min-height:44px;"></div>
+      <div class="google-loading-row" *ngIf="googleLoading">
+        <span class="spinner spinner-dark"></span> Signing you in…
+      </div>
+
       <div class="auth-footer">
         New to Hyderabad Urban Realty?
         <a [routerLink]="['/register']">Create a free account</a>
+      </div>
+      <div class="auth-footer" style="margin-top:10px;font-size:0.75rem;color:#94a3b8;">
+        <a [routerLink]="['/privacy']" style="color:#94a3b8;">Privacy Policy</a>
+        &nbsp;·&nbsp;
+        <a [routerLink]="['/terms']" style="color:#94a3b8;">Terms of Service</a>
       </div>
     </div>
   </main>

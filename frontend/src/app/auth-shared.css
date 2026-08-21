@@ -695,3 +695,45 @@
 .auth-terms a:hover {
   color: #00b8d4;
 }
+
+/* ── Google Sign-In / divider ────────────────────────────────── */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 18px 0 14px;
+  color: #94a3b8;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.google-loading-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  color: #64748b;
+  margin-top: 10px;
+  min-height: 28px;
+}
+
+.spinner-dark {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid #e2e8f0;
+  border-top-color: #0d1f3c;
+  border-radius: 50%;
+  animation: spin 0.65s linear infinite;
+}
