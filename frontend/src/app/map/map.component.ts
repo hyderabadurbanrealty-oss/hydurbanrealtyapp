@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { SearchService } from '../services/search.service';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
@@ -62,14 +63,23 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   showSuggestions = false;
   private autocompleteSubject = new Subject<string>();
 
-  constructor(private searchService: SearchService) {
-    // Debounce autocomplete suggestions
+  // ── Hero enquiry form ────────────────────────────────────────────────────
+  enquiryForm = { name: '', mobile: '', interest: '' };
+  enquirySubmitting = false;
+  enquirySuccess = false;
+  enquiryError = '';
+  enquiryCaptchaA = 0;
+  enquiryCaptchaB = 0;
+  enquiryCaptchaAnswer: number | string | null = null;
+
+  constructor(private searchService: SearchService, private http: HttpClient) {
     this.autocompleteSubject.pipe(
       debounceTime(200),
       distinctUntilChanged()
     ).subscribe(query => {
       this.updateSuggestions(query);
     });
+    this.refreshEnquiryCaptcha();
   }
 
   ngOnInit(): void {
@@ -181,6 +191,56 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     this.suggestions = [];
     this.showSuggestions = false;
     this.search.emit('');
+  }
+
+  // ── Enquiry form ──────────────────────────────────────────────────────────
+  refreshEnquiryCaptcha(): void {
+    this.enquiryCaptchaA = Math.floor(Math.random() * 9) + 1;
+    this.enquiryCaptchaB = Math.floor(Math.random() * 9) + 1;
+    this.enquiryCaptchaAnswer = null;
+  }
+
+  get enquiryCaptchaValid(): boolean {
+    return this.enquiryCaptchaAnswer !== null &&
+           this.enquiryCaptchaAnswer !== '' &&
+           +this.enquiryCaptchaAnswer === this.enquiryCaptchaA + this.enquiryCaptchaB;
+  }
+
+  submitEnquiry(): void {
+    this.enquiryError = '';
+
+    if (!this.enquiryForm.name.trim() || !this.enquiryForm.mobile.trim()) {
+      this.enquiryError = 'Name and mobile number are required.';
+      return;
+    }
+    if (!/^\d{10}$/.test(this.enquiryForm.mobile.trim())) {
+      this.enquiryError = 'Enter a valid 10-digit mobile number.';
+      return;
+    }
+    if (!this.enquiryCaptchaValid) {
+      this.enquiryError = 'Please answer the verification question correctly.';
+      return;
+    }
+
+    this.enquirySubmitting = true;
+    this.http.post('/api/submit_lead', {
+      name:           this.enquiryForm.name.trim(),
+      mobile:         this.enquiryForm.mobile.trim(),
+      areaOfInterest: this.enquiryForm.interest.trim() || 'General Enquiry',
+      email:          '',
+      source:         'hero-enquiry-form'
+    }).subscribe({
+      next: () => {
+        this.enquirySubmitting = false;
+        this.enquirySuccess = true;
+        this.enquiryForm = { name: '', mobile: '', interest: '' };
+        this.refreshEnquiryCaptcha();
+      },
+      error: () => {
+        this.enquirySubmitting = false;
+        this.enquiryError = 'Could not submit. Please try again or call us directly.';
+      }
+    });
   }
 
   ngOnDestroy(): void {
