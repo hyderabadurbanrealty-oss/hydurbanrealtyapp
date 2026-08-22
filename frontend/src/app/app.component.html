@@ -82,62 +82,133 @@
 
 <router-outlet></router-outlet>
 
-<!-- Footer (visible on non-auth pages) -->
+<!-- ── Pre-footer CTA ───────────────────────────────────────────────────── -->
+<div class="prefooter-cta" *ngIf="!isLoginOrAdminRoute()">
+  <div class="pfcta-overlay"></div>
+  <div class="pfcta-inner">
+    <div class="pfcta-left">
+      <span class="pfcta-eyebrow">
+        <svg viewBox="0 0 10 10" fill="#34d399" width="7" height="7"><circle cx="5" cy="5" r="5"/></svg>
+        Independent Advisory · No Broker Fees
+      </span>
+      <h2 class="pfcta-title">
+        Have a project in mind?<br>
+        <em>Tell us what you're weighing.</em>
+      </h2>
+      <p class="pfcta-sub">
+        RERA data, SRO transaction records, floor plan analysis —
+        brought together into one honest read, before you decide.
+      </p>
+      <div class="pfcta-proof">
+        <div class="pfcta-proof-item">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          <span>Response within 2 hours</span>
+        </div>
+        <div class="pfcta-proof-item">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          <span>RERA-verified data, no guesswork</span>
+        </div>
+        <div class="pfcta-proof-item">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+          <span>Zero brokerage, zero spam</span>
+        </div>
+      </div>
+    </div>
+    <div class="pfcta-right">
+      <button class="pfcta-btn-primary" (click)="openEnquiryModal()">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="17" height="17"><path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z"/><path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z"/></svg>
+        Start the Conversation
+      </button>
+      <a href="https://wa.me/918143369988" target="_blank" rel="noopener noreferrer" class="pfcta-btn-wa">
+        <svg viewBox="0 0 32 32" fill="currentColor" width="17" height="17"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.469 2.027 7.77L0 32l8.454-2.007A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.006 22.394c-.34.957-1.99 1.826-2.738 1.942-.72.113-1.624.161-2.619-.165-1.609-.52-3.748-2.126-5.233-3.59C11.93 19.12 10.3 17.02 9.74 15.43c-.557-1.587-.128-2.888.217-3.568.347-.682.778-.86 1.039-.882.261-.022.522-.027.752-.018.239.01.56-.09.875.671.32.778 1.083 2.664 1.179 2.857.097.192.16.417.032.672-.127.255-.19.414-.38.638-.188.224-.396.5-.565.672-.188.19-.384.396-.165.776.219.38.975 1.608 2.095 2.605 1.434 1.276 2.644 1.67 3.022 1.857.377.188.598.16.822-.096.224-.255.957-1.12 1.213-1.503.255-.384.51-.32.86-.192.35.128 2.22 1.048 2.6 1.238.38.19.634.286.728.446.094.16.094.926-.246 1.882z"/></svg>
+        WhatsApp Us
+      </a>
+      <p class="pfcta-trust">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="11" height="11"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+        Your details are never shared with third parties
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Footer ────────────────────────────────────────────────────────────── -->
 <footer class="footer" *ngIf="!isLoginOrAdminRoute()">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-column">
+  <div class="footer-top">
+    <div class="footer-grid">
+
+      <!-- Brand column -->
+      <div class="footer-brand-col">
         <a routerLink="/" class="footer-brand-link">
           <img src="assets/blue-Logo.png" alt="Hyderabad Urban Realty" class="footer-logo-img">
         </a>
-        <p>Your trusted partner for buying, selling &amp; investing in Hyderabad real estate.</p>
-        <p class="footer-memberships">
+        <p class="footer-brand-tagline">
+          Hyderabad's independent property intelligence platform.
+          RERA data, SRO transactions and market insights — free, always.
+        </p>
+        <div class="footer-badges">
           <a href="https://hraindia.org" target="_blank" rel="noopener noreferrer" class="footer-member-badge">HRA India Member</a>
           <a href="https://www.narindia.org" target="_blank" rel="noopener noreferrer" class="footer-member-badge">NAR India Member</a>
-        </p>
+        </div>
       </div>
-      <div class="footer-column">
-        <h4>Quick Links</h4>
-        <a [routerLink]="['/about']">About Us</a>
+
+      <!-- Quick links -->
+      <div class="footer-links-col">
+        <h5 class="footer-col-title">Explore</h5>
         <a [routerLink]="['/properties']">Properties</a>
         <a [routerLink]="['/map-view']">Map View</a>
-        <a [routerLink]="['/market-intelligence']">Market IQ</a>
+        <a [routerLink]="['/market-intelligence']">Market Intelligence</a>
+        <a [routerLink]="['/comparison']">Compare Projects</a>
         <a [routerLink]="['/loan-calculator']">Loan Calculator</a>
         <a [routerLink]="['/blog']">Property Insights</a>
-        <a [routerLink]="['/resale/submit']">List Property for Resale</a>
-        <a href="#featured">Contact</a>
       </div>
-      <div class="footer-column">
-        <h4>Contact</h4>
-        <p>📞 +91 81433 69988</p>
-        <p>📧 info@hyderabadurbanrealty.com</p>
+
+      <!-- Company -->
+      <div class="footer-links-col">
+        <h5 class="footer-col-title">Company</h5>
+        <a [routerLink]="['/about']">About Us</a>
+        <a [routerLink]="['/social-feeds']">Social Feeds</a>
+        <a [routerLink]="['/resale/submit']">List for Resale</a>
+        <a [routerLink]="['/privacy']">Privacy Policy</a>
+        <a [routerLink]="['/terms']">Terms of Service</a>
       </div>
-      <div class="footer-column">
-        <h4>Follow Us</h4>
-        <a [routerLink]="['/social-feeds']" class="footer-social-link sf-feeds-link">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M4 6h16v2H4zm0 5h16v2H4zm0 5h16v2H4z"/></svg>
-          All Social Feeds
+
+      <!-- Contact -->
+      <div class="footer-contact-col">
+        <h5 class="footer-col-title">Get in Touch</h5>
+        <a href="tel:+918143369988" class="footer-contact-row">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+          +91 81433 69988
         </a>
-        <a href="https://whatsapp.com/channel/0029VadkpHVBKfhrgy5SKY1Q" target="_blank" rel="noopener noreferrer" class="footer-social-link">
-          <svg viewBox="0 0 32 32" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.469 2.027 7.77L0 32l8.454-2.007A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.006 22.394c-.34.957-1.99 1.826-2.738 1.942-.72.113-1.624.161-2.619-.165-1.609-.52-3.748-2.126-5.233-3.59C11.93 19.12 10.3 17.02 9.74 15.43c-.557-1.587-.128-2.888.217-3.568.347-.682.778-.86 1.039-.882.261-.022.522-.027.752-.018.239.01.56-.09.875.671.32.778 1.083 2.664 1.179 2.857.097.192.16.417.032.672-.127.255-.19.414-.38.638-.188.224-.396.5-.565.672-.188.19-.384.396-.165.776.219.38.975 1.608 2.095 2.605 1.434 1.276 2.644 1.67 3.022 1.857.377.188.598.16.822-.096.224-.255.957-1.12 1.213-1.503.255-.384.51-.32.86-.192.35.128 2.22 1.048 2.6 1.238.38.19.634.286.728.446.094.16.094.926-.246 1.882z"/></svg>
-          WhatsApp Channel
+        <a href="tel:00918977367700" class="footer-contact-row">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M6.6 10.8c1.4 2.8 3.8 5.1 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1-9.4 0-17-7.6-17-17 0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z"/></svg>
+          0091 8977 367700
         </a>
-        <a href="https://www.instagram.com/hyderabadurbanrealty" target="_blank" rel="noopener noreferrer" class="footer-social-link">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-          Instagram
+        <a href="mailto:hyderabadurbanrealty@gmail.com" class="footer-contact-row">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+          hyderabadurbanrealty&#64;gmail.com
         </a>
-        <a href="https://x.com/hydurbanrealty" target="_blank" rel="noopener noreferrer" class="footer-social-link">
-          <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
-          Follow on X
-        </a>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/hyderabadurbanrealty" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          </a>
+          <a href="https://x.com/hydurbanrealty" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="X (Twitter)">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="15" height="15"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.259 5.63L18.244 2.25zm-1.161 17.52h1.833L7.084 4.126H5.117L17.083 19.77z"/></svg>
+          </a>
+          <a href="https://whatsapp.com/channel/0029VadkpHVBKfhrgy5SKY1Q" target="_blank" rel="noopener noreferrer" class="footer-social-icon" aria-label="WhatsApp Channel">
+            <svg viewBox="0 0 32 32" fill="currentColor" width="15" height="15"><path d="M16 0C7.163 0 0 7.163 0 16c0 2.822.736 5.469 2.027 7.77L0 32l8.454-2.007A15.938 15.938 0 0016 32c8.837 0 16-7.163 16-16S24.837 0 16 0zm8.006 22.394c-.34.957-1.99 1.826-2.738 1.942-.72.113-1.624.161-2.619-.165-1.609-.52-3.748-2.126-5.233-3.59C11.93 19.12 10.3 17.02 9.74 15.43c-.557-1.587-.128-2.888.217-3.568.347-.682.778-.86 1.039-.882.261-.022.522-.027.752-.018.239.01.56-.09.875.671.32.778 1.083 2.664 1.179 2.857.097.192.16.417.032.672-.127.255-.19.414-.38.638-.188.224-.396.5-.565.672-.188.19-.384.396-.165.776.219.38.975 1.608 2.095 2.605 1.434 1.276 2.644 1.67 3.022 1.857.377.188.598.16.822-.096.224-.255.957-1.12 1.213-1.503.255-.384.51-.32.86-.192.35.128 2.22 1.048 2.6 1.238.38.19.634.286.728.446.094.16.094.926-.246 1.882z"/></svg>
+          </a>
+        </div>
       </div>
+
     </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 Hyderabad Urban Realty. All rights reserved.</p>
-      <p style="margin-top:8px;font-size:0.76rem;">
-        <a [routerLink]="['/privacy']" style="color:rgba(255,255,255,0.6);text-decoration:none;margin-right:16px;">Privacy Policy</a>
-        <a [routerLink]="['/terms']" style="color:rgba(255,255,255,0.6);text-decoration:none;">Terms of Service</a>
-      </p>
+  </div>
+
+  <div class="footer-bottom">
+    <span>&copy; 2026 Hyderabad Urban Realty. All rights reserved.</span>
+    <div class="footer-bottom-links">
+      <a [routerLink]="['/privacy']">Privacy Policy</a>
+      <span class="footer-bottom-sep">·</span>
+      <a [routerLink]="['/terms']">Terms of Service</a>
     </div>
   </div>
 </footer>
@@ -158,3 +229,85 @@
 </a>
 
 <app-loading></app-loading>
+
+<!-- ── Enquiry Modal ──────────────────────────────────────────────────────── -->
+<div class="enq-modal-overlay" *ngIf="showEnquiryModal" (click)="closeEnquiryModal()" role="dialog" aria-modal="true">
+  <div class="enq-modal" (click)="$event.stopPropagation()">
+
+    <button class="enq-modal-close" (click)="closeEnquiryModal()" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+    </button>
+
+    <!-- Success -->
+    <div class="enq-modal-success" *ngIf="enquirySuccess">
+      <div class="enq-success-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+      <h3>We'll be in touch!</h3>
+      <p>Our team will call you within 2 hours.</p>
+      <button class="enq-modal-reset" (click)="closeEnquiryModal()">Close</button>
+    </div>
+
+    <!-- Form -->
+    <ng-container *ngIf="!enquirySuccess">
+      <div class="enq-modal-header">
+        <span class="enq-modal-eyebrow">Free Advisory</span>
+        <h2 class="enq-modal-title">Tell us what you're weighing.</h2>
+        <p class="enq-modal-sub">No call centre. No spam. Direct response within 2 hours.</p>
+      </div>
+
+      <div class="enq-modal-field">
+        <label>Your Name <span style="color:#ef4444">*</span></label>
+        <input type="text" [(ngModel)]="enquiryForm.name" placeholder="Full name" autocomplete="name" />
+      </div>
+
+      <div class="enq-modal-field">
+        <label>Mobile Number <span style="color:#ef4444">*</span></label>
+        <input type="tel" [(ngModel)]="enquiryForm.mobile" placeholder="10-digit mobile" maxlength="10" autocomplete="tel" />
+      </div>
+
+      <div class="enq-modal-field">
+        <label>Area of Interest <span style="color:#94a3b8;font-weight:400">(optional)</span></label>
+        <select [(ngModel)]="enquiryForm.interest">
+          <option value="">Select area or project type</option>
+          <option>Kokapet</option>
+          <option>Narsingi</option>
+          <option>Financial District</option>
+          <option>Gachibowli</option>
+          <option>Kondapur</option>
+          <option>Tellapur</option>
+          <option>Jubilee Hills</option>
+          <option>Banjara Hills</option>
+          <option>Residential Apartment</option>
+          <option>Plotted Development</option>
+          <option>Villa</option>
+        </select>
+      </div>
+
+      <div class="enq-modal-captcha">
+        <span class="enq-modal-captcha-eq">{{ enquiryCaptchaA }} + {{ enquiryCaptchaB }} = ?</span>
+        <button type="button" class="enq-modal-captcha-refresh" (click)="refreshCaptcha()" title="New question">
+          <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13"><path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/></svg>
+        </button>
+        <input type="number" [(ngModel)]="enquiryCaptchaAnswer" placeholder="Answer" class="enq-modal-captcha-input" />
+        <span class="enq-captcha-ok"  *ngIf="enquiryCaptchaValid">✓</span>
+        <span class="enq-captcha-err" *ngIf="enquiryCaptchaAnswer !== null && enquiryCaptchaAnswer !== '' && !enquiryCaptchaValid">✗</span>
+      </div>
+
+      <div class="enq-modal-error" *ngIf="enquiryError">{{ enquiryError }}</div>
+
+      <button class="enq-modal-submit" (click)="submitEnquiry()" [disabled]="enquirySubmitting">
+        <span *ngIf="!enquirySubmitting">
+          Submit Enquiry
+          <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+        </span>
+        <span *ngIf="enquirySubmitting" class="enq-modal-spinner"></span>
+      </button>
+
+      <p class="enq-modal-trust">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="11" height="11"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+        Your details are never shared without consent
+      </p>
+    </ng-container>
+  </div>
+</div>
