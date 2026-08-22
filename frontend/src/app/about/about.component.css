@@ -10,31 +10,32 @@
 /* ── HERO ──────────────────────────────────────────────────── */
 .ab-hero {
   position: relative;
-  background: #0d1f3c;
+  background:
+    url('https://images.unsplash.com/photo-1486325212027-8081e485255e?w=1800&h=900&fit=crop&q=85')
+    center 40% / cover no-repeat;
   overflow: hidden;
-  padding: 88px 28px 0;
+  padding: 96px 28px 0;
   text-align: center;
   color: #fff;
 }
 
 .ab-hero-bg {
   position: absolute; inset: 0;
-  background: linear-gradient(150deg, #0d1f3c 0%, #0a1240 50%, #0d3a5c 100%);
+  background: linear-gradient(
+    160deg,
+    rgba(7, 14, 52, 0.96) 0%,
+    rgba(10, 20, 68, 0.91) 40%,
+    rgba(8, 18, 62, 0.88) 100%
+  );
 }
 
-.ab-hero-grid {
-  position: absolute; inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
-  background-size: 40px 40px;
-  pointer-events: none;
-}
+/* Suppress the dot-grid — photo provides enough texture */
+.ab-hero-grid { display: none; }
 
 .ab-hero::before {
   content: '';
   position: absolute; inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,184,212,.22) 0%, transparent 70%);
+  background: radial-gradient(ellipse 70% 50% at 50% 0%, rgba(0,184,212,.16) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -144,30 +145,40 @@
 
 /* ── CONSULTANT ───────────────────────────────────────────── */
 .ab-consultant-wrap {
-  display: grid; grid-template-columns: 380px 1fr; gap: 56px; align-items: start;
+  display: grid; grid-template-columns: 340px 1fr; gap: 56px; align-items: start;
 }
 
 .ab-con-left {
   background: linear-gradient(160deg, #0d1f3c 0%, #0d3b73 100%);
-  border-radius: 20px; padding: 40px 36px;
+  border-radius: 20px; padding: 36px 32px;
   display: flex; flex-direction: column; align-items: center; text-align: center; color: #fff;
   position: sticky; top: 80px;
 }
 
-.ab-con-avatar {
-  width: 96px; height: 96px; border-radius: 50%;
-  background: rgba(255,255,255,.15); border: 3px solid rgba(0,184,212,.5);
-  display: flex; align-items: center; justify-content: center; color: #fff;
-  margin-bottom: 20px;
+/* Monogram — replaces avatar placeholder */
+.ab-con-monogram {
+  width: 80px; height: 80px; border-radius: 20px;
+  background: rgba(0,184,212,0.18);
+  border: 2px solid rgba(0,184,212,0.45);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px; font-weight: 900; color: #00d4f0;
+  letter-spacing: -1px; margin-bottom: 18px;
+  flex-shrink: 0;
 }
 
-.ab-con-name { font-size: 24px; font-weight: 900; color: #fff; margin-bottom: 5px; }
-.ab-con-title { font-size: 13px; color: rgba(255,255,255,.7); line-height: 1.5; margin-bottom: 4px; }
-.ab-con-subtitle { font-size: 12px; color: rgba(255,255,255,.5); margin-bottom: 16px; }
+.ab-con-sep {
+  width: 100%; height: 1px;
+  background: rgba(255,255,255,0.1);
+  margin: 16px 0;
+}
+
+.ab-con-name { font-size: 22px; font-weight: 900; color: #fff; margin-bottom: 4px; }
+.ab-con-title { font-size: 13px; color: rgba(255,255,255,.72); line-height: 1.5; margin-bottom: 3px; }
+.ab-con-subtitle { font-size: 12px; color: rgba(255,255,255,.48); margin-bottom: 14px; }
 
 .ab-con-uni {
   display: flex; align-items: center; gap: 6px; justify-content: center;
-  font-size: 12px; color: rgba(255,255,255,.6); margin-bottom: 16px;
+  font-size: 12px; color: rgba(255,255,255,.58); margin-bottom: 0;
 }
 
 .ab-con-badges { display: flex; flex-direction: column; gap: 8px; width: 100%; margin-bottom: 20px; }
