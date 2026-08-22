@@ -401,6 +401,8 @@
   padding: 18px 20px;
   transition: box-shadow 0.15s, border-color 0.15s;
   min-width: 0;
+  text-decoration: none;   /* kill browser <a> underline */
+  cursor: pointer;
 }
 
 .ab-contact-item:hover {
@@ -422,7 +424,7 @@
 
 .ab-contact-icon svg { display: block; }
 
-.ab-contact-text { min-width: 0; flex: 1; }
+.ab-contact-text { min-width: 0; flex: 1; overflow: hidden; }
 
 .ab-contact-label {
   font-size: 10.5px;
@@ -432,20 +434,28 @@
   font-weight: 700;
   margin-bottom: 4px;
   white-space: nowrap;
+  text-decoration: none;
 }
 
 .ab-contact-value {
   font-size: 13.5px;
   font-weight: 600;
   color: #0d3b73;
-  text-decoration: none;
+  text-decoration: none;    /* no underline */
   display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  max-width: 100%;
 }
 
-.ab-contact-value:hover { text-decoration: underline; }
+/* Show full email — no ellipsis needed when the grid gives it room */
+.ab-contact-value--email {
+  white-space: normal;
+  word-break: break-all;
+  overflow: visible;
+  text-overflow: unset;
+}
 
 /* ── RESPONSIVE ───────────────────────────────────────────── */
 @media (max-width: 900px) {
