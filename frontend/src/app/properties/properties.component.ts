@@ -44,6 +44,9 @@ export class PropertiesComponent implements OnInit, OnDestroy {
   toastType: 'success' | 'error' | 'info' = 'info';
   private toastTimer: any;
 
+  // Schedule Visit Modal
+  showScheduleVisitModal = false;
+
   constructor(
     private propertyService: PropertyService,
     private router: Router,
@@ -353,5 +356,14 @@ export class PropertiesComponent implements OnInit, OnDestroy {
     this.toastMessage = message;
     this.toastType = type;
     this.toastTimer = setTimeout(() => { this.toastMessage = ''; }, 3000);
+  }
+
+  // ── Schedule Visit Modal ──────────────────────────────────────────────────
+  openScheduleVisitModal() {
+    this.showScheduleVisitModal = true;
+  }
+
+  closeScheduleVisitModal() {
+    this.showScheduleVisitModal = false;
   }
 }

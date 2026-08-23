@@ -5,7 +5,7 @@
 @keyframes abFade { from { opacity:0;transform:translateY(20px) } to { opacity:1;transform:translateY(0) } }
 
 .ab-page { background: #f8fafc; min-height: 100vh; font-family: 'Segoe UI', Arial, sans-serif; }
-.ab-container { max-width: 1120px; margin: 0 auto; padding: 0 28px; }
+.ab-container { max-width: 1400px; margin: 0 auto; padding: 0 28px; }
 
 /* ── HERO ──────────────────────────────────────────────────── */
 .ab-hero {
@@ -42,7 +42,7 @@
 .ab-hero-inner {
   position: relative; z-index: 1;
   width: 100%;
-  max-width: 1280px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 100px 64px 56px;
   animation: abFade .5s ease both;
@@ -479,4 +479,139 @@
   .ab-mem-card { min-width: unset; width: 100%; max-width: 100%; }
   .ab-hero-title { font-size: 36px; }
   .ab-hero-sub { font-size: 15px; }
+}
+
+
+/* ── HERO TWO-COLUMN LAYOUT ───────────────────────────────── */
+.ab-hero-content-wrapper {
+  position: relative; z-index: 1;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 100px 64px 56px;
+  display: grid;
+  grid-template-columns: 1fr 420px;
+  gap: 64px;
+  align-items: start;
+  animation: abFade .5s ease both;
+}
+
+.ab-hero-left {
+  /* Existing content stays on left */
+}
+
+.ab-hero-right {
+  /* Enquiry card on right */
+}
+
+/* ── ENQUIRY CARD IN HERO ─────────────────────────────────── */
+.ab-hero-enquiry-card {
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+  animation: abFade 0.6s 0.2s ease both;
+}
+
+.ab-enq-header {
+  margin-bottom: 24px;
+}
+
+.ab-enq-eyebrow {
+  display: inline-flex;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #00b8d4;
+  background: rgba(0, 184, 212, 0.08);
+  padding: 5px 11px;
+  border-radius: 50px;
+  margin-bottom: 12px;
+}
+
+.ab-enq-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0d1f3c;
+  line-height: 1.3;
+  margin: 12px 0 8px;
+}
+
+.ab-enq-sub {
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.ab-enq-cta-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #0d1f3c 0%, #162d55 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 15px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(13, 31, 60, 0.26);
+  transition: transform 0.15s, box-shadow 0.15s;
+  margin: 24px 0 20px;
+}
+
+.ab-enq-cta-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(13, 31, 60, 0.34);
+}
+
+.ab-enq-trust-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ab-enq-trust-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #475569;
+}
+
+.ab-enq-trust-item svg {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+/* ── RESPONSIVE ───────────────────────────────────────────── */
+@media (max-width: 992px) {
+  .ab-hero-content-wrapper {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 80px 48px 48px;
+  }
+
+  .ab-hero-right {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .ab-hero-content-wrapper {
+    padding: 60px 24px 40px;
+  }
+
+  .ab-hero-enquiry-card {
+    padding: 24px 20px;
+  }
+
+  .ab-enq-title {
+    font-size: 1.25rem;
+  }
 }

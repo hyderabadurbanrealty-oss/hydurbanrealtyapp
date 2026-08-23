@@ -110,7 +110,7 @@
           </div>
           <h3>We'll be in touch!</h3>
           <p>Our property experts will call you within 2 hours.</p>
-          <button class="enq-reset-btn" (click)="enquirySuccess=false; enquiryForm={name:'',mobile:'',interest:''}; refreshEnquiryCaptcha()">
+          <button class="enq-reset-btn" (click)="enquirySuccess=false; enquiryForm={name:'',email:'',mobile:'',interest:''}; refreshEnquiryCaptcha()">
             Submit another enquiry
           </button>
         </div>
@@ -128,6 +128,13 @@
             <input type="text" [(ngModel)]="enquiryForm.name"
                    placeholder="Full name"
                    autocomplete="name" />
+          </div>
+
+          <div class="enq-field">
+            <label>Email Address <span class="enq-req">*</span></label>
+            <input type="email" [(ngModel)]="enquiryForm.email"
+                   placeholder="your.email@example.com"
+                   autocomplete="email" />
           </div>
 
           <div class="enq-field">

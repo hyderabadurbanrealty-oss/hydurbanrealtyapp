@@ -44,6 +44,7 @@ import { BlogListComponent } from './blog/blog-list/blog-list.component';
 import { BlogDetailComponent } from './blog/blog-detail/blog-detail.component';
 import { ResaleSubmitComponent } from './resale/resale-submit/resale-submit.component';
 import { ResaleListingsComponent } from './resale/resale-listings/resale-listings.component';
+import { EnquiryModalComponent } from './shared/enquiry-modal/enquiry-modal.component';
 
 import { AuthInterceptor } from './auth.interceptor';
 import { ApiUrlInterceptor } from './api-url.interceptor';
@@ -123,6 +124,7 @@ const routes: Routes = [
     BlogDetailComponent,
     ResaleSubmitComponent,
     ResaleListingsComponent,
+    EnquiryModalComponent,
   ],
   imports: [
     BrowserModule,

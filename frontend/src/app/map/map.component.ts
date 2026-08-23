@@ -64,7 +64,7 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   private autocompleteSubject = new Subject<string>();
 
   // ── Hero enquiry form ────────────────────────────────────────────────────
-  enquiryForm = { name: '', mobile: '', interest: '' };
+  enquiryForm = { name: '', email: '', mobile: '', interest: '' };
   enquirySubmitting = false;
   enquirySuccess = false;
   enquiryError = '';
@@ -209,14 +209,26 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
   submitEnquiry(): void {
     this.enquiryError = '';
 
-    if (!this.enquiryForm.name.trim() || !this.enquiryForm.mobile.trim()) {
-      this.enquiryError = 'Name and mobile number are required.';
+    // Validate required fields
+    if (!this.enquiryForm.name.trim() || !this.enquiryForm.email.trim() || !this.enquiryForm.mobile.trim()) {
+      this.enquiryError = 'Name, email, and mobile number are required.';
       return;
     }
+    
+    // Validate email format
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!emailRegex.test(this.enquiryForm.email.trim())) {
+      this.enquiryError = 'Please enter a valid email address.';
+      return;
+    }
+    
+    // Validate mobile format
     if (!/^\d{10}$/.test(this.enquiryForm.mobile.trim())) {
       this.enquiryError = 'Enter a valid 10-digit mobile number.';
       return;
     }
+    
+    // Validate captcha
     if (!this.enquiryCaptchaValid) {
       this.enquiryError = 'Please answer the verification question correctly.';
       return;
@@ -225,20 +237,21 @@ export class MapComponent implements OnInit, OnChanges, OnDestroy {
     this.enquirySubmitting = true;
     this.http.post('/api/submit_lead', {
       name:           this.enquiryForm.name.trim(),
+      email:          this.enquiryForm.email.trim(),
       mobile:         this.enquiryForm.mobile.trim(),
       areaOfInterest: this.enquiryForm.interest.trim() || 'General Enquiry',
-      email:          '',
       source:         'hero-enquiry-form'
     }).subscribe({
       next: () => {
         this.enquirySubmitting = false;
         this.enquirySuccess = true;
-        this.enquiryForm = { name: '', mobile: '', interest: '' };
+        this.enquiryForm = { name: '', email: '', mobile: '', interest: '' };
         this.refreshEnquiryCaptcha();
       },
-      error: () => {
+      error: (err) => {
         this.enquirySubmitting = false;
-        this.enquiryError = 'Could not submit. Please try again or call us directly.';
+        const errorMessage = err?.error?.message || 'Could not submit. Please try again or call us directly.';
+        this.enquiryError = errorMessage;
       }
     });
   }

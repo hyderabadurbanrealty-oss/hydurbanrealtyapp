@@ -25,14 +25,35 @@
 }
 
 .sv-close-btn {
-  position: absolute; top: 13px; right: 13px; z-index: 10;
-  width: 32px; height: 32px; border-radius: 50%; border: none;
-  background: rgba(255,255,255,.18); backdrop-filter: blur(4px);
-  color: rgba(255,255,255,.85); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .15s, transform .15s;
+  position: absolute !important; 
+  top: 13px !important; 
+  right: 13px !important; 
+  z-index: 100 !important;
+  width: 32px !important; 
+  height: 32px !important; 
+  border-radius: 50% !important; 
+  border: none !important;
+  background: rgba(255,255,255,.22) !important; 
+  backdrop-filter: blur(4px) !important;
+  -webkit-backdrop-filter: blur(4px) !important;
+  color: #000000 !important; 
+  cursor: pointer !important;
+  display: flex !important; 
+  align-items: center !important; 
+  justify-content: center !important;
+  transition: background .15s, transform .15s !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2) !important;
+  font-size: 28px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
+  font-family: Arial, sans-serif !important;
+  padding: 0 !important;
+  text-align: center !important;
 }
-.sv-close-btn:hover { background: rgba(255,255,255,.3); transform: scale(1.1); }
+.sv-close-btn:hover { 
+  background: rgba(255,255,255,.4) !important; 
+  transform: scale(1.1) !important; 
+}
 
 /* LEFT */
 .sv-left {

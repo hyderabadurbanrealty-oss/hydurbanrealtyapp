@@ -901,6 +901,8 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
 
   // ── Schedule Visit ───────────────────────────────────────────────────────
   showScheduleVisitForm = false;
+  showEnquiryModal = false;
+  
   scheduleVisitForm = {
     name: '',
     email: '',
@@ -1076,7 +1078,11 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   }
 
   contactAgent() {
-    this.openScheduleVisit();
+    this.showEnquiryModal = true;
+  }
+  
+  closeEnquiryModal() {
+    this.showEnquiryModal = false;
   }
 
   // (submitScheduleVisit defined above in the Schedule Visit block)
