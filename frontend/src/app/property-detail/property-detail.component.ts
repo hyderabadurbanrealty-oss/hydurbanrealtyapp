@@ -44,6 +44,10 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   lightboxImages: PropertyMedia[] = [];
   lightboxIndex = 0;
 
+  // ── Latest Properties ─────────────────────────────────────────────────────
+  latestProperties: Property[] = [];
+  loadingLatestProperties = false;
+
   private favSub?: Subscription;
 
   // Price history / trend chart
@@ -335,6 +339,9 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
           const pName = prop['Project Name'] || prop['projectName'] || '';
           if (pName) this.loadSroTrend(pName);
           if (pName) this.loadSroUnits(pName);
+          
+          // Load latest properties
+          this.loadLatestProperties(id);
         },
         error: (err) => {
           console.error('Error loading property:', err);
@@ -469,6 +476,29 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     });
   }
 
+  loadLatestProperties(currentId: string) {
+    this.loadingLatestProperties = true;
+    this.service.getProperties().subscribe({
+      next: (allProps) => {
+        // Filter out current property and get 4 most recent ones
+        const filtered = allProps
+          .filter(p => this.getItemId(p) !== currentId)
+          .sort((a, b) => {
+            const dateA = new Date(a['Approved Date'] || a['approvedDate'] || 0).getTime();
+            const dateB = new Date(b['Approved Date'] || b['approvedDate'] || 0).getTime();
+            return dateB - dateA; // Most recent first
+          })
+          .slice(0, 4);
+        this.latestProperties = filtered;
+        this.loadingLatestProperties = false;
+      },
+      error: () => {
+        this.loadingLatestProperties = false;
+        this.latestProperties = [];
+      }
+    });
+  }
+
   getSroSoldPct(): number {
     if (!this.property?.['totalFlats'] || !this.sroUnits?.unique_flats_registered) return 0;
     return Math.min(100, Math.round((this.sroUnits.unique_flats_registered / this.property['totalFlats']) * 100));
@@ -477,6 +507,34 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   getSroAvailableFlats(): number {
     if (!this.property?.['totalFlats'] || !this.sroUnits) return 0;
     return Math.max(0, this.property['totalFlats'] - this.sroUnits.unique_flats_registered);
+  }
+
+  // ── Latest Properties Helpers ────────────────────────────────────────────
+  getPropertyThumbnail(property: Property): string {
+    return property.image || '/assets/placeholder-property.png';
+  }
+
+  getPropertyName(property: Property): string {
+    return property['Project Name'] || property['projectName'] || 'Untitled Project';
+  }
+
+  getPropertyLocation(property: Property): string {
+    const locality = property['Locality'] || property['locality'] || property['Village/City/Town'] || property['city'] || '';
+    const district = property['District'] || property['district'] || '';
+    if (locality && district) return `${locality}, ${district}`;
+    return locality || district || 'Location not specified';
+  }
+
+  getPropertyType(property: Property): string {
+    return property['Project Type'] || property['projectType'] || 'Residential';
+  }
+
+  navigateToProperty(property: Property) {
+    const id = this.getItemId(property);
+    if (id) {
+      this.router.navigate(['/property', id]);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   }
 
   buildPriceChart() {
