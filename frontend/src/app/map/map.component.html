@@ -206,28 +206,23 @@
     </div>
 
   </div><!-- /hero-grid -->
-
-  <!-- Bottom wave -->
-  <div class="hero-wave">
-    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,28 C360,56 1080,0 1440,28 L1440,56 L0,56 Z" fill="#f8f9fc"/>
-    </svg>
-  </div>
 </div>
 
 <!-- ══════════════════════════════════════════════════
-     STATS STRIP
+     STATS STRIP - Enhanced Visual Hierarchy
      ══════════════════════════════════════════════════ -->
 <div class="stats-section">
   <div class="stats-container">
 
     <div class="stat-item">
       <div class="stat-icon-wrap" style="--c:#3b82f6">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 14l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-1 14l-3-3 1.41-1.41L11 12.17l4.59-4.58L17 9l-6 6z"/></svg>
       </div>
       <div class="stat-body">
-        <div class="stat-number" [class.updated]="statsUpdated">{{ totalProjects }}<span class="stat-plus" *ngIf="totalProjects > 0">+</span></div>
         <div class="stat-label">RERA Verified Projects</div>
+        <div class="stat-number" [class.updated]="statsUpdated">
+          {{ totalProjects }}<span class="stat-plus" *ngIf="totalProjects > 0">+</span>
+        </div>
       </div>
     </div>
 
@@ -235,11 +230,11 @@
 
     <div class="stat-item">
       <div class="stat-icon-wrap" style="--c:#10b981">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
       </div>
       <div class="stat-body">
-        <div class="stat-number">100<span class="stat-plus">%</span></div>
         <div class="stat-label">Transparent Data</div>
+        <div class="stat-number">100<span class="stat-percent">%</span></div>
       </div>
     </div>
 
@@ -247,11 +242,11 @@
 
     <div class="stat-item">
       <div class="stat-icon-wrap" style="--c:#f59e0b">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
       </div>
       <div class="stat-body">
-        <div class="stat-number" [class.updated]="statsUpdated">{{ districtCount || 8 }}</div>
         <div class="stat-label">Districts Covered</div>
+        <div class="stat-number" [class.updated]="statsUpdated">{{ districtCount || 8 }}</div>
       </div>
     </div>
 
@@ -259,11 +254,11 @@
 
     <div class="stat-item">
       <div class="stat-icon-wrap" style="--c:#8b5cf6">
-        <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+        <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
       </div>
       <div class="stat-body">
-        <div class="stat-number">24<span class="stat-plus">/7</span></div>
         <div class="stat-label">Live Data Access</div>
+        <div class="stat-number">24<span class="stat-slash">/</span>7</div>
       </div>
     </div>
 
