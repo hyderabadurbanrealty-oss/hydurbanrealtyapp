@@ -394,13 +394,30 @@
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
   box-sizing: border-box;
+  appearance: none;
+  -webkit-appearance: none;
 }
+
+/* Custom chevron for select */
+.enq-field select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 20 20' fill='%2394a3b8'%3E%3Cpath fill-rule='evenodd' d='M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z' clip-rule='evenodd'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 13px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
 .enq-field input:focus,
 .enq-field select:focus {
   border-color: #00b8d4;
   box-shadow: 0 0 0 3px rgba(0,184,212,0.12);
 }
 .enq-field input::placeholder { color: #94a3b8; }
+
+/* Remove number spinner arrows */
+.enq-field input[type="number"]::-webkit-outer-spin-button,
+.enq-field input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.enq-field input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
 
 /* Captcha row */
 .enq-captcha {
@@ -412,40 +429,61 @@
 }
 
 .enq-captcha-eq {
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
   border-radius: 8px;
-  padding: 8px 12px;
-  font-size: 0.9rem;
+  padding: 9px 14px;
+  font-size: 0.875rem;
   font-weight: 700;
   color: #0d1f3c;
   white-space: nowrap;
   letter-spacing: 0.04em;
+  flex-shrink: 0;
 }
 
 .enq-captcha-refresh {
-  background: none;
+  background: #f8fafc;
   border: 1.5px solid #e2e8f0;
-  border-radius: 7px;
-  padding: 7px 8px;
+  border-radius: 8px;
+  padding: 9px 10px;
   cursor: pointer;
   color: #64748b;
   display: flex;
   align-items: center;
+  justify-content: center;
   transition: background 0.14s, border-color 0.14s;
   flex-shrink: 0;
+  min-height: 38px;
 }
-.enq-captcha-refresh:hover { background: #f1f5f9; border-color: #cbd5e1; }
+.enq-captcha-refresh:hover { background: #f1f5f9; border-color: #cbd5e1; color: #0d1f3c; }
 
 .enq-captcha-input {
-  width: 72px !important;
+  flex: 1;
+  min-width: 0;
+  padding: 9px 13px !important;
+  border: 1.5px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  font-size: 0.875rem !important;
+  font-weight: 600;
+  color: #1e293b;
+  background: #fff;
+  outline: none;
   text-align: center;
-  font-weight: 700;
-  flex-shrink: 0;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  -moz-appearance: textfield;
+  appearance: textfield;
+  width: auto !important;
 }
+.enq-captcha-input::-webkit-outer-spin-button,
+.enq-captcha-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.enq-captcha-input:focus {
+  border-color: #00b8d4 !important;
+  box-shadow: 0 0 0 3px rgba(0,184,212,0.12) !important;
+}
+.enq-captcha-input::placeholder { color: #94a3b8; font-weight: 400; }
 
-.enq-captcha-ok  { color: #10b981; font-weight: 800; font-size: 1rem; }
-.enq-captcha-err { color: #ef4444; font-weight: 800; font-size: 1rem; }
+.enq-captcha-ok  { color: #10b981; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; }
+.enq-captcha-err { color: #ef4444; font-weight: 700; font-size: 0.95rem; flex-shrink: 0; }
 
 /* Error */
 .enq-error {
