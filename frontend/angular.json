@@ -22,6 +22,11 @@
                 "glob": "_redirects",
                 "input": "src",
                 "output": "/"
+              },
+              {
+                "glob": "google288465e01fcd39e4.html",
+                "input": "src",
+                "output": "/"
               }
             ],
             "styles": ["src/styles.css"],
