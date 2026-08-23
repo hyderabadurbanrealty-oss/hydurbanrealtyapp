@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 import { catchError, of } from 'rxjs';
 import { Property } from '../map/map.component';
 import { FavoriteService } from '../services/favorite.service';
@@ -10,6 +10,7 @@ import { AuthService } from '../services/auth.service';
 import { MediaService, PropertyMedia } from '../services/media.service';
 import { LoadingService } from '../services/loading.service';
 import { ChartData, ChartOptions } from 'chart.js';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-property-detail',
@@ -47,6 +48,7 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   // ── Latest Properties ─────────────────────────────────────────────────────
   latestProperties: Property[] = [];
   loadingLatestProperties = false;
+  latestPropertyThumbnails: Record<string, string> = {};
 
   private favSub?: Subscription;
 
@@ -491,11 +493,40 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
           .slice(0, 4);
         this.latestProperties = filtered;
         this.loadingLatestProperties = false;
+        
+        // Load thumbnails for these properties
+        this.loadLatestPropertyThumbnails(filtered);
       },
       error: () => {
         this.loadingLatestProperties = false;
         this.latestProperties = [];
       }
+    });
+  }
+
+  private loadLatestPropertyThumbnails(props: Property[]) {
+    const requests = props.map(p => {
+      const id = this.getItemId(p);
+      if (!id) return of([]);
+      return this.mediaService.getMedia(id, 'image').pipe(catchError(() => of([])));
+    });
+
+    forkJoin(requests).subscribe(results => {
+      results.forEach((mediaList, i) => {
+        const id = this.getItemId(props[i]);
+        if (!id) return;
+        
+        if (Array.isArray(mediaList) && mediaList.length > 0) {
+          // Use first image from media service
+          this.latestPropertyThumbnails[id] = mediaList[0].fileUrl || mediaList[0].file_url || '';
+        } else {
+          // Fallback to legacy media structure
+          const legacyImg = (props[i] as any)?.media?.images?.[0];
+          if (legacyImg) {
+            this.latestPropertyThumbnails[id] = `${environment.apiUrl}/projects/${id}/media/${legacyImg}`;
+          }
+        }
+      });
     });
   }
 
@@ -511,7 +542,8 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
 
   // ── Latest Properties Helpers ────────────────────────────────────────────
   getPropertyThumbnail(property: Property): string {
-    return property.image || '/assets/placeholder-property.png';
+    const id = this.getItemId(property);
+    return this.latestPropertyThumbnails[id] || '';
   }
 
   getPropertyName(property: Property): string {

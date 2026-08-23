@@ -1399,7 +1399,16 @@
     <div class="latest-props-grid">
       <div class="latest-prop-card" *ngFor="let prop of latestProperties" (click)="navigateToProperty(prop)">
         <div class="lp-image">
-          <img [src]="getPropertyThumbnail(prop)" [alt]="getPropertyName(prop)" loading="lazy" />
+          <img *ngIf="getPropertyThumbnail(prop)" 
+               [src]="getPropertyThumbnail(prop)" 
+               [alt]="getPropertyName(prop)" 
+               loading="lazy" 
+               (error)="$any($event.target).style.display='none'" />
+          <div *ngIf="!getPropertyThumbnail(prop)" class="lp-placeholder">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
+              <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+            </svg>
+          </div>
           <div class="lp-type-badge">{{getPropertyType(prop)}}</div>
         </div>
         <div class="lp-content">
