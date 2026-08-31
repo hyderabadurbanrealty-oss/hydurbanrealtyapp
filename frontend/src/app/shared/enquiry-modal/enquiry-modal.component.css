@@ -273,3 +273,23 @@
 .enq-modal-captcha-input {
   -moz-appearance: textfield;
 }
+
+@media (max-width: 480px) {
+  .enq-modal {
+    padding: 24px 16px;
+    border-radius: 16px;
+  }
+  .enq-modal-title { font-size: 1.15rem; }
+  .enq-modal-captcha { flex-wrap: wrap; }
+  .enq-modal-captcha-input { width: 100%; text-align: left; }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  .enq-modal-field input,
+  .enq-modal-field select {
+    font-size: 16px;
+    min-height: 46px;
+  }
+  .enq-modal-captcha-input { font-size: 16px; min-height: 46px; }
+  .enq-modal-submit { min-height: 52px; }
+}
