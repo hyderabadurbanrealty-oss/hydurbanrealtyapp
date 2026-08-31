@@ -71,10 +71,10 @@ services:
     routes:
       - type: rewrite
         source: /api/*
-        destination: https://hydurban-api.onrender.com/api/:splat
+        destination: https://hydurban.onrender.com/api/*
       - type: rewrite
         source: /media/*
-        destination: https://hydurban-api.onrender.com/media/:splat
+        destination: https://hydurban.onrender.com/media/*
       - type: rewrite
         source: /*
         destination: /index.html
