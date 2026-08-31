@@ -71,10 +71,10 @@ services:
     routes:
       - type: rewrite
         source: /api/*
-        destination: https://hyderabadurbanrealty.com/api/*
+        destination: https://hydurban.onrender.com/api/*
       - type: rewrite
         source: /media/*
-        destination: https://hyderabadurbanrealty.com/media/*
+        destination: https://hydurban.onrender.com/media/*
       - type: rewrite
         source: /*
         destination: /index.html
