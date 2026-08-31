@@ -27,6 +27,11 @@
                 "glob": "google288465e01fcd39e4.html",
                 "input": "src",
                 "output": "/"
+              },
+              {
+                "glob": "sw.js",
+                "input": "src",
+                "output": "/"
               }
             ],
             "styles": ["src/styles.css"],
