@@ -26,6 +26,7 @@ const CALLBACK_SLOTS = [
 ];
 
 @Component({
+  standalone: false,
   selector: 'app-resale-submit',
   templateUrl: './resale-submit.component.html',
   styleUrls: ['./resale-submit.component.css'],

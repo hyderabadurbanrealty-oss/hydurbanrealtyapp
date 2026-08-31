@@ -47,6 +47,7 @@ export interface Property {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-map',
   templateUrl: './map.component.html',
   styleUrls: ['./map.component.css']

@@ -10,6 +10,7 @@ function passwordMatchValidator(g: AbstractControl): ValidationErrors | null {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-user-profile',
   templateUrl: './user-profile.component.html',
   styleUrls: ['./user-profile.component.css']

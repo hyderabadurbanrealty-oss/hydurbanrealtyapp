@@ -5,6 +5,7 @@ import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 
 @Component({
+  standalone: false,
   selector: 'app-market-intelligence',
   templateUrl: './market-intelligence.component.html',
   styleUrls: ['./market-intelligence.component.css']

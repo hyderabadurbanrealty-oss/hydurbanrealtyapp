@@ -7,6 +7,7 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { Subscription } from 'rxjs';
 
 @Component({
+  standalone: false,
   selector: 'app-comparison',
   templateUrl: './comparison.component.html',
   styleUrls: ['./comparison.component.css']

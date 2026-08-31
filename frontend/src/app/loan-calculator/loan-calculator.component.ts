@@ -43,6 +43,7 @@ interface NriInfo {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-loan-calculator',
   templateUrl: './loan-calculator.component.html',
   styleUrls: ['./loan-calculator.component.css']

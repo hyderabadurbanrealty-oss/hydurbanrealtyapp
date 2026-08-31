@@ -10,6 +10,7 @@ interface Message {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-chatbot',
   templateUrl: './chatbot.component.html',
   styleUrls: ['./chatbot.component.css']

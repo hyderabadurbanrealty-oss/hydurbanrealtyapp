@@ -7,6 +7,7 @@ import { environment } from '../environments/environment';
 declare const google: any;
 
 @Component({
+  standalone: false,
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']

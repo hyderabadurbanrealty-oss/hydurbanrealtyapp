@@ -5,6 +5,7 @@ import { environment } from '../../../environments/environment';
 const API = environment.apiUrl;
 
 @Component({
+  standalone: false,
   selector: 'app-resale-listings',
   templateUrl: './resale-listings.component.html',
   styleUrls: ['./resale-listings.component.css']

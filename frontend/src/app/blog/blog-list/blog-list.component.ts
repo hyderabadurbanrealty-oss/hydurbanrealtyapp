@@ -3,6 +3,7 @@ import { Title, Meta } from '@angular/platform-browser';
 import { BlogService, BlogArticle } from '../blog.service';
 
 @Component({
+  standalone: false,
   selector: 'app-blog-list',
   templateUrl: './blog-list.component.html',
   styleUrls: ['./blog-list.component.css']

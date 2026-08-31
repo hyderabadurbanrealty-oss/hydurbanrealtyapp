@@ -58,6 +58,7 @@ function buildPinSvg(fill: string, label: string): string {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-map-view',
   templateUrl: './map-view.component.html',
   styleUrls: ['./map-view.component.css'],

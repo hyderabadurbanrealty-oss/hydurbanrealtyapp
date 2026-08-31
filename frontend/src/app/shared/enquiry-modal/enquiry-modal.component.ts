@@ -9,6 +9,7 @@ export interface EnquiryFormData {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-enquiry-modal',
   templateUrl: './enquiry-modal.component.html',
   styleUrls: ['./enquiry-modal.component.css']

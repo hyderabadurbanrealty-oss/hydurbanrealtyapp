@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { UserDataService } from '../services/user-data.service';
 
 @Component({
+  standalone: false,
   selector: 'app-saved-searches',
   templateUrl: './saved-searches.component.html',
   styleUrls: ['./saved-searches.component.css']

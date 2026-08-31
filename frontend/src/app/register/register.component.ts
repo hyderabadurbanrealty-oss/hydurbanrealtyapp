@@ -13,6 +13,7 @@ function passwordMatchValidator(g: AbstractControl): ValidationErrors | null {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-register',
   templateUrl: './register.component.html',
   styleUrls: ['./register.component.css']

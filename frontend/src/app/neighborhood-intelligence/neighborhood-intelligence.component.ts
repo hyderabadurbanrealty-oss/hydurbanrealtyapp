@@ -92,6 +92,7 @@ function lsSet(key: string, value: any, ttlMs: number): void {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-neighborhood-intelligence',
   templateUrl: './neighborhood-intelligence.component.html',
   styleUrls: ['./neighborhood-intelligence.component.css']

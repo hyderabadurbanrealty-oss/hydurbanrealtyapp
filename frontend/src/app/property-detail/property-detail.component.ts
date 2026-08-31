@@ -13,6 +13,7 @@ import { ChartData, ChartOptions } from 'chart.js';
 import { environment } from '../../environments/environment';
 
 @Component({
+  standalone: false,
   selector: 'app-property-detail',
   templateUrl: './property-detail.component.html',
   styleUrls: ['./property-detail.component.css']

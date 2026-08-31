@@ -4,6 +4,7 @@ import {
 import { PropertyService } from '../services/property.service';
 
 @Component({
+  standalone: false,
   selector: 'app-schedule-visit-modal',
   templateUrl: './schedule-visit-modal.component.html',
   styleUrls: ['./schedule-visit-modal.component.css']

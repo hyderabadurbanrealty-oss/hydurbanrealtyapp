@@ -11,6 +11,7 @@ import { AuthService } from '../services/auth.service';
 import { MediaService } from '../services/media.service';
 
 @Component({
+  standalone: false,
   selector: 'app-properties',
   templateUrl: './properties.component.html',
   styleUrls: ['./properties.component.css']

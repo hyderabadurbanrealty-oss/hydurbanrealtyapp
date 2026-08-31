@@ -4,6 +4,7 @@ import { UserDataService } from '../services/user-data.service';
 import { LoadingService } from '../services/loading.service';
 
 @Component({
+  standalone: false,
   selector: 'app-saved-properties',
   templateUrl: './saved-properties.component.html',
   styleUrls: ['./saved-properties.component.css']

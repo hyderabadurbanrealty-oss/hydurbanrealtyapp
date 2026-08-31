@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
 @Component({
+  standalone: false,
   selector: 'app-rera-compliance',
   templateUrl: './rera-compliance.component.html',
   styleUrls: ['./rera-compliance.component.css']

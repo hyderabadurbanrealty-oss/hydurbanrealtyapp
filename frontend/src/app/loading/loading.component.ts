@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { LoadingService } from '../services/loading.service';
 
 @Component({
+  standalone: false,
   selector: 'app-loading',
   templateUrl: './loading.component.html',
   styleUrls: ['./loading.component.css']

@@ -11,6 +11,7 @@ interface TweetEmbed {
 }
 
 @Component({
+  standalone: false,
   selector: 'app-social-feeds',
   templateUrl: './social-feeds.component.html',
   styleUrls: ['./social-feeds.component.css']

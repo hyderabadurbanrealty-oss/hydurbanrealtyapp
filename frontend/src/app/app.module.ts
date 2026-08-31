@@ -105,7 +105,6 @@ const routes: Routes = [
     MarketIntelligenceComponent,
     ReplacePipe,
     SafePipe,
-    // New
     RegisterComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
