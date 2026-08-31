@@ -634,7 +634,7 @@ export class MapViewComponent implements OnInit, AfterViewInit, OnDestroy {
     const waMsg     = encodeURIComponent(
       `Hi, I'm interested in ${p['Project Name'] || 'a property'} in ${locality || district}. Please share more details.`
     );
-    const waUrl     = `https://wa.me/918143369988?text=${waMsg}`;
+    const waUrl     = `https://wa.me/918977367700?text=${waMsg}`;
     const mapsUrl   = `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}`;
     const statusCls = this.getStatusClass(status);
 

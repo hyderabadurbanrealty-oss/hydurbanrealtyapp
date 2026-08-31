@@ -269,8 +269,8 @@ namespace HyderabadUrbanReality.Infrastructure.Services
     </a>
     <hr style=""border:none;border-top:1px solid #e5e7eb;margin:24px 0;"" />
     <p style=""color:#94a3b8;font-size:12px;margin:0;"">
-      You can also reach us on WhatsApp: 
-      <a href=""https://wa.me/918143369988"" style=""color:#25d366;font-weight:600;"">+91 81433 69988</a>
+      You can also reach us on WhatsApp:
+      <a href=""https://wa.me/918977367700"" style=""color:#25d366;font-weight:600;"">+91 8977 367700</a>
     </p>
   </div>
   <p style=""font-size:12px;color:#94a3b8;text-align:center;margin-top:12px;"">
