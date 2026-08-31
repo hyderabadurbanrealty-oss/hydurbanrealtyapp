@@ -165,12 +165,14 @@ export class MarketIntelligenceComponent implements OnInit {
     }).subscribe(({ projects, cityAgg, localityAgg, priceRank, volRank, unitRates }) => {
       this.allProjects = projects as any[];
       this._localityAgg = localityAgg;
-      this.buildSroCharts(cityAgg, priceRank, volRank);
-      this.buildUnitRatesChart(unitRates as any[]);
-      this.buildRrVsMarket();
-      this.loading = false;
-      this.sroLoading = false;
-      this.rrLoading = false;
+      setTimeout(() => {
+        this.buildSroCharts(cityAgg, priceRank, volRank);
+        this.buildUnitRatesChart(unitRates as any[]);
+        this.buildRrVsMarket();
+        this.loading = false;
+        this.sroLoading = false;
+        this.rrLoading = false;
+      }, 0);
     });
   }
 
