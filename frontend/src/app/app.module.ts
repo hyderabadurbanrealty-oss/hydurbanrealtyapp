@@ -48,6 +48,7 @@ import { EnquiryModalComponent } from './shared/enquiry-modal/enquiry-modal.comp
 
 import { AuthInterceptor } from './auth.interceptor';
 import { ApiUrlInterceptor } from './api-url.interceptor';
+import { ZoneInterceptor } from './zone.interceptor';
 import { AuthGuard } from './auth.guard';
 import { AdminGuard } from './admin.guard';
 
@@ -143,6 +144,11 @@ const routes: Routes = [
     {
       provide: HTTP_INTERCEPTORS,
       useClass: AuthInterceptor,
+      multi: true
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: ZoneInterceptor,
       multi: true
     }
   ],
