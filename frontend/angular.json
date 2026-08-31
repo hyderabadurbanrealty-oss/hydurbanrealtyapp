@@ -74,15 +74,15 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "hyderabad-urban-realty:build:development",
+            "buildTarget": "hyderabad-urban-realty:build:development",
             "proxyConfig": "proxy.conf.json"
           },
           "configurations": {
             "production": {
-              "browserTarget": "hyderabad-urban-realty:build:production"
+              "buildTarget": "hyderabad-urban-realty:build:production"
             },
             "development": {
-              "browserTarget": "hyderabad-urban-realty:build:development"
+              "buildTarget": "hyderabad-urban-realty:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -9,7 +9,7 @@ import { CompareService, COMPARE_MAX } from '../services/compare.service';
 import { AuthService } from '../services/auth.service';
 import { MediaService } from '../services/media.service';
 import { environment } from '../../environments/environment';
-import { Subject, Subscription, forkJoin, of } from 'rxjs';
+import { Subject, Subscription, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, catchError } from 'rxjs/operators';
 
 @Component({
@@ -95,33 +95,20 @@ export class HomeComponent implements OnInit, OnDestroy {
   // ── Thumbnails ───────────────────────────────────────────────────────────
 
   private loadThumbnails(props: Property[]) {
-    const BATCH = 6;
-    const chunks: Property[][] = [];
-    for (let i = 0; i < props.length; i += BATCH) chunks.push(props.slice(i, i + BATCH));
-
-    const processChunk = (idx: number) => {
-      if (idx >= chunks.length) return;
-      const chunk = chunks[idx];
-      const requests = chunk.map(p => {
-        const id = this.getPropId(p);
-        if (!id) return of([]);
-        return this.mediaService.getMedia(id, 'image').pipe(catchError(() => of([])));
+    props.forEach(p => {
+      const id = this.getPropId(p);
+      if (!id) return;
+      this.mediaService.getMedia(id, 'image').pipe(
+        catchError(() => of([]))
+      ).subscribe((mediaList: any) => {
+        if (Array.isArray(mediaList) && mediaList.length > 0) {
+          this.thumbnails[id] = mediaList[0].fileUrl || mediaList[0].file_url || '';
+        } else {
+          const legacyImg = (p as any)?.media?.images?.[0];
+          if (legacyImg) this.thumbnails[id] = `${environment.apiUrl}/projects/${id}/media/${legacyImg}`;
+        }
       });
-      forkJoin(requests).subscribe(results => {
-        results.forEach((mediaList: any, i) => {
-          const id = this.getPropId(chunk[i]);
-          if (!id) return;
-          if (Array.isArray(mediaList) && mediaList.length > 0) {
-            this.thumbnails[id] = mediaList[0].fileUrl || mediaList[0].file_url || '';
-          } else {
-            const legacyImg = (chunk[i] as any)?.media?.images?.[0];
-            if (legacyImg) this.thumbnails[id] = `${environment.apiUrl}/projects/${id}/media/${legacyImg}`;
-          }
-        });
-        setTimeout(() => processChunk(idx + 1), 200);
-      });
-    };
-    processChunk(0);
+    });
   }
 
   getThumbnail(p: Property): string {

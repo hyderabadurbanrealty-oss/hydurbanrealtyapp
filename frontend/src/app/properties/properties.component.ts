@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take, catchError } from 'rxjs/operators';
-import { forkJoin, of, Subscription } from 'rxjs';
+import { of, Subscription } from 'rxjs';
 import { Property } from '../map/map.component';
 import { PropertyService } from '../services/property.service';
 import { LoadingService } from '../services/loading.service';
@@ -98,47 +98,27 @@ export class PropertiesComponent implements OnInit, OnDestroy {
     });
   }
 
-  /** Load first image for each property — batch in groups of 10 to avoid hammering the API */
+  /** Load first image for each property in parallel without batching delays */
   private loadThumbnails(props: Property[]) {
-    const BATCH = 10;
-    const chunks: Property[][] = [];
-    for (let i = 0; i < props.length; i += BATCH) {
-      chunks.push(props.slice(i, i + BATCH));
-    }
-
-    const processChunk = (idx: number) => {
-      if (idx >= chunks.length) return;
-      const chunk = chunks[idx];
-      const requests = chunk.map(p => {
-        const id = this.getPropId(p);
-        if (!id) return of(null);
-        return this.mediaService.getMedia(id, 'image').pipe(
-          catchError(() => of([]))
-        );
-      });
-
-      forkJoin(requests).subscribe(results => {
-        results.forEach((mediaList: any, i) => {
-          const id = this.getPropId(chunk[i]);
-          if (!id) return;
-          if (Array.isArray(mediaList) && mediaList.length > 0) {
-            const first = mediaList[0];
-            this.thumbnails[id] = first.fileUrl || first.file_url || '';
-          } else {
-            // Try legacy image from property data
-            const prop = chunk[i] as any;
-            const legacyImg = prop?.media?.images?.[0];
-            if (legacyImg) {
-              this.thumbnails[id] = `/api/projects/${id}/media/${legacyImg}`;
-            }
+    props.forEach(p => {
+      const id = this.getPropId(p);
+      if (!id) return;
+      this.mediaService.getMedia(id, 'image').pipe(
+        catchError(() => of([]))
+      ).subscribe((mediaList: any) => {
+        if (Array.isArray(mediaList) && mediaList.length > 0) {
+          const first = mediaList[0];
+          this.thumbnails[id] = first.fileUrl || first.file_url || '';
+        } else {
+          // Try legacy image from property data
+          const prop = p as any;
+          const legacyImg = prop?.media?.images?.[0];
+          if (legacyImg) {
+            this.thumbnails[id] = `/api/projects/${id}/media/${legacyImg}`;
           }
-        });
-        // Process next batch after a short delay
-        setTimeout(() => processChunk(idx + 1), 200);
+        }
       });
-    };
-
-    processChunk(0);
+    });
   }
 
   getThumbnail(property: Property): string {
