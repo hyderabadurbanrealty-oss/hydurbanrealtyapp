@@ -122,6 +122,7 @@ export class PropertiesComponent implements OnInit, OnDestroy {
             this.thumbnails[id] = `/api/projects/${id}/media/${legacyImg}`;
           }
         }
+        this.cdr.detectChanges();
       });
     });
   }

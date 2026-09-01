@@ -112,6 +112,7 @@ export class HomeComponent implements OnInit, OnDestroy {
           const legacyImg = (p as any)?.media?.images?.[0];
           if (legacyImg) this.thumbnails[id] = `${environment.apiUrl}/projects/${id}/media/${legacyImg}`;
         }
+        this.cdr.detectChanges();
       });
     });
   }
