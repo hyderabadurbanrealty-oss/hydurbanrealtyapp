@@ -80,13 +80,11 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.sortProperties();
         this.prepareDistrictData();
         this.loadThumbnails(props.slice(0, 12)); // preload first page
-        console.debug('[Home] properties loaded', props.length);
         this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'Failed to load properties. Please try again later.';
         this.loading = false;
-        console.debug('[Home] properties failed to load');
         this.cdr.detectChanges();
       }
     });

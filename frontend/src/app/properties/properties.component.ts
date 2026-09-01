@@ -91,13 +91,11 @@ export class PropertiesComponent implements OnInit, OnDestroy {
         this.applyFilters();
         // Load thumbnails lazily for visible properties
         this.loadThumbnails(props);
-        console.debug('[Properties] properties loaded', props.length);
         this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'Failed to load properties';
         this.loading = false;
-        console.debug('[Properties] properties failed to load');
         this.cdr.detectChanges();
       }
     });

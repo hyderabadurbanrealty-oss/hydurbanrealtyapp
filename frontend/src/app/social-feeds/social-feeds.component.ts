@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 
@@ -16,7 +16,7 @@ interface TweetEmbed {
   templateUrl: './social-feeds.component.html',
   styleUrls: ['./social-feeds.component.css']
 })
-export class SocialFeedsComponent implements OnInit, AfterViewInit, OnDestroy {
+export class SocialFeedsComponent implements OnInit, OnDestroy {
 
   activeFeed: 'instagram' | 'twitter' = 'instagram';
 
@@ -38,7 +38,6 @@ export class SocialFeedsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   scriptLoaded = false;
   private twitterScriptEl?: HTMLScriptElement;
-  private instagramScriptEl?: HTMLScriptElement;
 
   constructor(private sanitizer: DomSanitizer, private http: HttpClient) {}
 
@@ -46,31 +45,13 @@ export class SocialFeedsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadTweets();
   }
 
-  ngAfterViewInit(): void {
-    this.loadInstagramEmbed();
-  }
-
   ngOnDestroy(): void {
     if (this.twitterScriptEl) this.twitterScriptEl.remove();
-    if (this.instagramScriptEl) this.instagramScriptEl.remove();
   }
 
   switchFeed(feed: 'instagram' | 'twitter'): void {
     this.activeFeed = feed;
     if (feed !== 'instagram') setTimeout(() => this.loadWidgetsJs(), 200);
-    else this.processInstagramEmbeds();
-  }
-
-  private loadInstagramEmbed(): void {
-    if ((window as any).instgrm) {
-      this.processInstagramEmbeds();
-      return;
-    }
-    this.instagramScriptEl = document.createElement('script');
-    this.instagramScriptEl.src = 'https://www.instagram.com/embed.js';
-    this.instagramScriptEl.async = true;
-    this.instagramScriptEl.onload = () => this.processInstagramEmbeds();
-    document.head.appendChild(this.instagramScriptEl);
   }
 
   // Load tweets via backend proxy (oEmbed — no API key needed)
@@ -105,13 +86,6 @@ export class SocialFeedsComponent implements OnInit, AfterViewInit, OnDestroy {
     s.async = true;
     s.charset = 'utf-8';
     document.head.appendChild(s);
-  }
-
-  processInstagramEmbeds(): void {
-    const instgrm = (window as any).instgrm;
-    if (instgrm?.Embeds) {
-      instgrm.Embeds.process();
-    }
   }
 
   get showInstagram(): boolean {

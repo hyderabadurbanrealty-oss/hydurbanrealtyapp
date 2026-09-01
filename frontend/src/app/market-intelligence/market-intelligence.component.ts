@@ -175,7 +175,6 @@ export class MarketIntelligenceComponent implements OnInit {
         this.loading = false;
         this.sroLoading = false;
         this.rrLoading = false;
-        console.debug('[Market IQ] data loaded', { projects: this.allProjects.length });
         this.cdr.detectChanges();
       }, 0);
     });
