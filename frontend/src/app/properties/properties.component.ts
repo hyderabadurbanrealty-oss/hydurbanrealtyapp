@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { take, catchError } from 'rxjs/operators';
 import { of, Subscription } from 'rxjs';
@@ -56,7 +56,8 @@ export class PropertiesComponent implements OnInit, OnDestroy {
     public favoriteService: FavoriteService,
     public compareService: CompareService,
     public auth: AuthService,
-    private mediaService: MediaService
+    private mediaService: MediaService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -90,10 +91,14 @@ export class PropertiesComponent implements OnInit, OnDestroy {
         this.applyFilters();
         // Load thumbnails lazily for visible properties
         this.loadThumbnails(props);
+        console.debug('[Properties] properties loaded', props.length);
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'Failed to load properties';
         this.loading = false;
+        console.debug('[Properties] properties failed to load');
+        this.cdr.detectChanges();
       }
     });
   }

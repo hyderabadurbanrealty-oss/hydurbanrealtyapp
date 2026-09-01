@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+﻿import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { PropertyService } from '../services/property.service';
 import { ChartData, ChartOptions } from 'chart.js';
 import { forkJoin, of } from 'rxjs';
@@ -152,7 +152,10 @@ export class MarketIntelligenceComponent implements OnInit {
   };
   rrVsMarketRows: { locality: string; circle: number; market: number; premium: number }[] = [];
 
-  constructor(private propertyService: PropertyService) { }
+  constructor(
+    private propertyService: PropertyService,
+    private cdr: ChangeDetectorRef
+  ) { }
 
   ngOnInit(): void {
     forkJoin({
@@ -172,6 +175,8 @@ export class MarketIntelligenceComponent implements OnInit {
         this.loading = false;
         this.sroLoading = false;
         this.rrLoading = false;
+        console.debug('[Market IQ] data loaded', { projects: this.allProjects.length });
+        this.cdr.detectChanges();
       }, 0);
     });
   }

@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Property } from '../map/map.component';
 import { PropertyService } from '../services/property.service';
@@ -55,7 +55,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     public favoriteService: FavoriteService,
     public compareService: CompareService,
     public auth: AuthService,
-    private mediaService: MediaService
+    private mediaService: MediaService,
+    private cdr: ChangeDetectorRef
   ) {
     this.searchSubject.pipe(
       debounceTime(300),
@@ -79,10 +80,14 @@ export class HomeComponent implements OnInit, OnDestroy {
         this.sortProperties();
         this.prepareDistrictData();
         this.loadThumbnails(props.slice(0, 12)); // preload first page
+        console.debug('[Home] properties loaded', props.length);
+        this.cdr.detectChanges();
       },
       error: () => {
         this.error = 'Failed to load properties. Please try again later.';
         this.loading = false;
+        console.debug('[Home] properties failed to load');
+        this.cdr.detectChanges();
       }
     });
   }
