@@ -36,29 +36,32 @@ export class ReraComplianceComponent implements OnInit {
   calculateComplianceScore(): number {
     let score = 0;
     
-    // RERA Registration (30 points)
-    if (this.property.registrationNumber && this.property.registrationNumber.length > 5) {
+    // RERA Registration - check raw_data for registration details (30 points)
+    const reraReg = this.property.rawData?.['RERA Registration Details']?.['RERA Registration Number'] 
+                    || this.property.rawData?.['Registration Number']
+                    || this.property.id; // Use project ID as fallback since it's based on RERA
+    if (reraReg && reraReg.length > 5) {
       score += 30;
     }
     
-    // Plan Approval (25 points)
-    if (this.property.approvalOfPlan) {
+    // Plan Approval (25 points) - check for plan approval number
+    if (this.property.planApprovalNumber || this.property.rawData?.['Plan Approval Number']) {
       score += 25;
     }
     
-    // Registration Date (20 points)
-    if (this.property.dateOfRegistration) {
+    // Registration Date (20 points) - check approved_date
+    if (this.property.approvedDate || this.property.rawData?.['Date of Registration']) {
       score += 20;
     }
     
     // Completion Date Specified (15 points)
-    if (this.property.proposedDateOfCompletion) {
+    if (this.property.completionDate || this.property.revisedCompletionDate) {
       score += 15;
     }
     
     // Project Status (10 points)
     const status = (this.property.projectStatus || '').toLowerCase();
-    if (status.includes('active') || status.includes('ongoing') || status.includes('completed')) {
+    if (status.includes('active') || status.includes('ongoing') || status.includes('completed') || status.includes('registered')) {
       score += 10;
     }
     
@@ -67,45 +70,55 @@ export class ReraComplianceComponent implements OnInit {
   }
 
   buildComplianceMetrics(): void {
+    const reraReg = this.property.rawData?.['RERA Registration Details']?.['RERA Registration Number'] 
+                    || this.property.rawData?.['Registration Number']
+                    || this.property.id;
+    const planApproval = this.property.planApprovalNumber || this.property.rawData?.['Plan Approval Number'];
+    const regDate = this.property.approvedDate || this.property.rawData?.['Date of Registration'];
+    const completionDate = this.property.completionDate || this.property.revisedCompletionDate;
+    
     this.complianceMetrics = [
       {
         label: 'RERA Registration',
-        status: this.property.registrationNumber ? 'Verified' : 'Pending',
+        status: reraReg ? 'Verified' : 'Pending',
         icon: '📋',
-        value: this.property.registrationNumber || 'Not Available',
-        isGood: !!this.property.registrationNumber
+        value: reraReg || 'Not Available',
+        isGood: !!reraReg
       },
       {
         label: 'Plan Approval',
-        status: this.property.approvalOfPlan ? 'Approved' : 'Pending',
+        status: planApproval ? 'Approved' : 'Pending',
         icon: '✅',
-        value: this.property.approvalOfPlan || 'Awaiting Approval',
-        isGood: !!this.property.approvalOfPlan
+        value: planApproval || 'Awaiting Approval',
+        isGood: !!planApproval
       },
       {
         label: 'Registration Date',
-        status: this.property.dateOfRegistration ? 'Registered' : 'Not Registered',
+        status: regDate ? 'Registered' : 'Not Registered',
         icon: '📅',
-        value: this.property.dateOfRegistration || 'N/A',
-        isGood: !!this.property.dateOfRegistration
+        value: regDate || 'N/A',
+        isGood: !!regDate
       },
       {
         label: 'Expected Completion',
-        status: this.property.proposedDateOfCompletion ? 'Scheduled' : 'TBD',
+        status: completionDate ? 'Scheduled' : 'TBD',
         icon: '🎯',
-        value: this.property.proposedDateOfCompletion || 'To Be Decided',
-        isGood: !!this.property.proposedDateOfCompletion
+        value: completionDate || 'To Be Decided',
+        isGood: !!completionDate
       }
     ];
   }
 
   hasDoc(keywords: string[]): boolean {
-    const docs: string[] = (this.property.scrapedDocuments || []).map((d: string) => d.toLowerCase());
+    const docs: string[] = (this.property.availableDocuments || this.property.scrapedDocuments || []).map((d: string) => d.toLowerCase());
     return keywords.some(kw => docs.some((d: string) => d.includes(kw.toLowerCase())));
   }
 
   buildDocumentsList(): void {
-    const hasReraReg = !!this.property.registrationNumber;
+    const reraReg = this.property.rawData?.['RERA Registration Details']?.['RERA Registration Number'] 
+                    || this.property.rawData?.['Registration Number']
+                    || this.property.id;
+    const hasReraReg = !!reraReg;
 
     this.documents = [
       {
@@ -160,8 +173,8 @@ export class ReraComplianceComponent implements OnInit {
   }
 
   calculateTimelineCompliance(): void {
-    const regDate = this.parseDate(this.property.dateOfRegistration || '');
-    const compDate = this.parseDate(this.property.proposedDateOfCompletion || '');
+    const regDate = this.parseDate(this.property.approvedDate || this.property.rawData?.['Date of Registration'] || '');
+    const compDate = this.parseDate(this.property.completionDate || this.property.revisedCompletionDate || '');
     const today = new Date();
     
     if (regDate && compDate) {
