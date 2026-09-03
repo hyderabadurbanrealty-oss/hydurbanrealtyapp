@@ -53,12 +53,17 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
         {
             const string sql = @"
                 SELECT id, project_name, project_status, project_type,
-                       district, mandal, locality, pin_code,
+                       district, mandal, locality, pin_code, village,
+                       approved_date, completion_date, revised_completion_date,
+                       total_area_sqmt, net_area_sqmt, built_up_area_sqmt, mortgage_area_sqmt,
+                       promoter_name, org_type, bank_name, branch_name,
+                       plan_approval_number, survey_number,
+                       is_msb, has_litigation,
                        total_flats, total_booked, saleable_area_sqmt,
                        raw_data::text   AS raw_data,
                        pricing::text    AS pricing,
                        available_documents,
-                       scraped_at
+                       scraped_at, updated_at
                 FROM   projects
                 ORDER  BY project_name";
 
@@ -84,12 +89,17 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
         {
             const string sql = @"
                 SELECT id, project_name, project_status, project_type,
-                       district, mandal, locality, pin_code,
+                       district, mandal, locality, pin_code, village,
+                       approved_date, completion_date, revised_completion_date,
+                       total_area_sqmt, net_area_sqmt, built_up_area_sqmt, mortgage_area_sqmt,
+                       promoter_name, org_type, bank_name, branch_name,
+                       plan_approval_number, survey_number,
+                       is_msb, has_litigation,
                        total_flats, total_booked, saleable_area_sqmt,
                        raw_data::text   AS raw_data,
                        pricing::text    AS pricing,
                        available_documents,
-                       scraped_at
+                       scraped_at, updated_at
                 FROM   projects
                 WHERE  id = @id";
 
@@ -129,12 +139,17 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
         {
             const string sql = @"
                 SELECT id, project_name, project_status, project_type,
-                       district, mandal, locality, pin_code,
+                       district, mandal, locality, pin_code, village,
+                       approved_date, completion_date, revised_completion_date,
+                       total_area_sqmt, net_area_sqmt, built_up_area_sqmt, mortgage_area_sqmt,
+                       promoter_name, org_type, bank_name, branch_name,
+                       plan_approval_number, survey_number,
+                       is_msb, has_litigation,
                        total_flats, total_booked, saleable_area_sqmt,
                        raw_data::text   AS raw_data,
                        pricing::text    AS pricing,
                        available_documents,
-                       scraped_at
+                       scraped_at, updated_at
                 FROM   projects
                 WHERE  pin_code = @pinCode
                 ORDER  BY project_name";
@@ -331,12 +346,31 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
             }
 
             // ── Structured column aliases (camelCase for frontend) ────────────
-            if (dict.TryGetValue("project_name", out var pn))   dict["projectName"]      = pn;
-            if (dict.TryGetValue("project_status", out var ps)) dict["projectStatus"]    = ps;
-            if (dict.TryGetValue("project_type", out var pt))   dict["projectType"]      = pt;
-            if (dict.TryGetValue("pin_code", out var pc))       dict["pinCode"]          = pc;
-            if (dict.TryGetValue("total_flats", out var tf))    dict["totalFlats"]       = tf;
-            if (dict.TryGetValue("total_booked", out var tb))   dict["totalBookedFlats"] = tb;
+            if (dict.TryGetValue("project_name", out var pn))              dict["projectName"]           = pn;
+            if (dict.TryGetValue("project_status", out var ps))            dict["projectStatus"]         = ps;
+            if (dict.TryGetValue("project_type", out var pt))              dict["projectType"]           = pt;
+            if (dict.TryGetValue("pin_code", out var pc))                  dict["pinCode"]               = pc;
+            if (dict.TryGetValue("total_flats", out var tf))               dict["totalFlats"]            = tf;
+            if (dict.TryGetValue("total_booked", out var tb))              dict["totalBookedFlats"]      = tb;
+            if (dict.TryGetValue("approved_date", out var ad))             dict["approvedDate"]          = ad;
+            if (dict.TryGetValue("completion_date", out var cd))           dict["completionDate"]        = cd;
+            if (dict.TryGetValue("revised_completion_date", out var rcd))  dict["revisedCompletionDate"] = rcd;
+            if (dict.TryGetValue("plan_approval_number", out var pan))     dict["planApprovalNumber"]    = pan;
+            if (dict.TryGetValue("survey_number", out var sn))             dict["surveyNumber"]          = sn;
+            if (dict.TryGetValue("promoter_name", out var prn))            dict["promoterName"]          = prn;
+            if (dict.TryGetValue("org_type", out var ot))                  dict["orgType"]               = ot;
+            if (dict.TryGetValue("bank_name", out var bn))                 dict["bankName"]              = bn;
+            if (dict.TryGetValue("branch_name", out var brn))              dict["branchName"]            = brn;
+            if (dict.TryGetValue("total_area_sqmt", out var tas))          dict["totalAreaSqmt"]         = tas;
+            if (dict.TryGetValue("net_area_sqmt", out var nas))            dict["netAreaSqmt"]           = nas;
+            if (dict.TryGetValue("built_up_area_sqmt", out var bas))       dict["builtUpAreaSqmt"]       = bas;
+            if (dict.TryGetValue("mortgage_area_sqmt", out var mas))       dict["mortgageAreaSqmt"]      = mas;
+            if (dict.TryGetValue("saleable_area_sqmt", out var sas))       dict["saleableAreaSqmt"]      = sas;
+            if (dict.TryGetValue("is_msb", out var msb))                   dict["isMsb"]                 = msb;
+            if (dict.TryGetValue("has_litigation", out var hl))            dict["hasLitigation"]         = hl;
+            if (dict.TryGetValue("available_documents", out var avd))      dict["availableDocuments"]    = avd;
+            if (dict.TryGetValue("scraped_at", out var sa))                dict["scrapedAt"]             = sa;
+            if (dict.TryGetValue("updated_at", out var ua))                dict["updatedAt"]             = ua;
 
             return dict;
         }
