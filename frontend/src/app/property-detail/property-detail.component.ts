@@ -296,6 +296,9 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+      // Store the route ID for media operations
+      this.projectRouteId = id;
+      
       this.loading = true;
       
       // Ensure loading overlay shows for minimum duration
@@ -994,7 +997,7 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
 
     if (matchingDbDoc) {
       const mediaId = (matchingDbDoc as any).id || (matchingDbDoc as any).mediaId;
-      const projectId = this.property?.id;
+      const projectId = this.projectRouteId || this.property?.id; // Use route ID first
       if (mediaId && projectId) {
         this.service.downloadDocument(projectId, mediaId).subscribe({
           next: (blob) => {
@@ -1390,6 +1393,17 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
       this.propertyDocuments = items.filter((m: any) => (m.mediaType || m.media_type) === 'document');
       this.propertyVideos    = items.filter((m: any) => (m.mediaType || m.media_type) === 'video');
       this.mediaLoaded = true;
+      
+      // Debug logging
+      console.log('Media loaded:', {
+        total: items.length,
+        images: this.propertyImages.length,
+        floorplans: this.propertyFloorplans.length,
+        documents: this.propertyDocuments.length,
+        videos: this.propertyVideos.length
+      });
+      console.log('Documents:', this.propertyDocuments);
+      
       // Reset hero index when new images load
       this.currentImageIndex = 0;
     });
@@ -1550,36 +1564,47 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   // Document/Image Preview Methods
   previewMedia(media: PropertyMedia): void {
     const mediaId = (media as any).id || (media as any).mediaId;
-    const projectId = this.property?.id;
+    const projectId = this.projectRouteId || this.property?.id; // Use route ID first
+    
+    console.log('Preview media:', { media, mediaId, projectId, routeId: this.projectRouteId }); // Debug log
     
     if (!mediaId || !projectId) {
-      alert('Cannot preview this document');
+      alert('Cannot preview this document. Missing ID or project ID.');
+      console.error('Missing IDs:', { mediaId, projectId, media });
       return;
     }
     
     this.currentPreviewMedia = media;
     this.service.downloadDocument(projectId, mediaId).subscribe({
       next: (blob) => {
+        console.log('Document loaded:', blob.size, 'bytes');
         this.currentPreviewBlob = blob;
         const url = window.URL.createObjectURL(blob);
         this.currentPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
         this.showMediaPreview = true;
       },
-      error: () => alert(`Failed to load "${media.title}". Please try again.`)
+      error: (err) => {
+        console.error('Failed to load document:', err);
+        alert(`Failed to load "${media.title}". Error: ${err.message || 'Unknown error'}`);
+      }
     });
   }
 
   downloadDocumentById(media: PropertyMedia): void {
     const mediaId = (media as any).id || (media as any).mediaId;
-    const projectId = this.property?.id;
+    const projectId = this.projectRouteId || this.property?.id; // Use route ID first
+    
+    console.log('Download document:', { media, mediaId, projectId, routeId: this.projectRouteId }); // Debug log
     
     if (!mediaId || !projectId) {
-      alert('Cannot download this document');
+      alert('Cannot download this document. Missing ID or project ID.');
+      console.error('Missing IDs:', { mediaId, projectId, media });
       return;
     }
     
     this.service.downloadDocument(projectId, mediaId).subscribe({
       next: (blob) => {
+        console.log('Document downloaded:', blob.size, 'bytes');
         const ext = this.getExtensionFromMime((media as any).mimeType || (media as any).mime_type || '');
         const fileName = media.title + (media.title.includes('.') ? '' : ext);
         const url = window.URL.createObjectURL(blob);
@@ -1589,7 +1614,10 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
         a.click();
         window.URL.revokeObjectURL(url);
       },
-      error: () => alert(`Failed to download "${media.title}". Please try again.`)
+      error: (err) => {
+        console.error('Failed to download document:', err);
+        alert(`Failed to download "${media.title}". Error: ${err.message || 'Unknown error'}`);
+      }
     });
   }
 
