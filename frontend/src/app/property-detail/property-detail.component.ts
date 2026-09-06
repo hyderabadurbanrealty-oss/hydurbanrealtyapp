@@ -910,6 +910,10 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   }
 
   hasDocuments(): boolean {
+    // Check both database documents and scraped documents
+    if (this.propertyDocuments && this.propertyDocuments.length > 0) {
+      return true;
+    }
     const docs = this.getDocuments();
     return docs && Object.keys(docs).length > 0;
   }
