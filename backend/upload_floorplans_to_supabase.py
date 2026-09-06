@@ -85,45 +85,51 @@ def main():
         if not floor_plan_dir.exists():
             continue
 
-        images = (sorted(floor_plan_dir.glob("*.png")) + 
-                 sorted(floor_plan_dir.glob("*.jpg")) + 
-                 sorted(floor_plan_dir.glob("*.pdf")))
-        if not images:
+        # Get both images and PDFs
+        files = (sorted(floor_plan_dir.glob("*.png")) + 
+                sorted(floor_plan_dir.glob("*.jpg")) + 
+                sorted(floor_plan_dir.glob("*.pdf")))
+        if not files:
             continue
 
-        print(f"\n{proj_dir.name} — {len(images)} images")
+        print(f"\n{proj_dir.name} — {len(files)} files")
 
-        for img_path in images:
+        for file_path in files:
             # Check if already in project_media
             cur.execute(
                 "SELECT id FROM project_media WHERE project_id=%s AND file_name=%s",
-                (project_id, img_path.name)
+                (project_id, file_path.name)
             )
             if cur.fetchone():
                 total_skipped += 1
                 continue
 
-            # Determine media type from filename
-            fname = img_path.name.lower()
-            if "floor" in fname or "building-plan" in fname:
+            # Determine media type from filename and extension
+            fname = file_path.name.lower()
+            ext = file_path.suffix.lower()
+            
+            if ext == '.pdf':
+                # PDFs are always documents
+                media_type = "document"
+            elif "floor" in fname or "building-plan" in fname or "layout" in fname:
                 media_type = "floorplan"
-            elif "commencement" in fname or "cert" in fname:
+            elif "commencement" in fname or "cert" in fname or "completion" in fname:
                 media_type = "document"
             else:
                 media_type = "floorplan"
 
             # Upload to Supabase Storage
-            storage_path = f"{project_id}/{media_type}s/{img_path.name}"
-            public_url   = upload_to_supabase(img_path, storage_path)
+            storage_path = f"{project_id}/{media_type}s/{file_path.name}"
+            public_url   = upload_to_supabase(file_path, storage_path)
 
             if not public_url:
                 total_failed += 1
                 continue
 
             # Insert into project_media with correct MIME type
-            file_size = img_path.stat().st_size
-            title     = img_path.stem.replace("-", " ").replace("_", " ").title()
-            mime_type = mimetypes.guess_type(str(img_path))[0] or "image/png"
+            file_size = file_path.stat().st_size
+            title     = file_path.stem.replace("-", " ").replace("_", " ").title()
+            mime_type = mimetypes.guess_type(str(file_path))[0] or "image/png"
             
             cur.execute("""
                 INSERT INTO project_media
@@ -131,9 +137,9 @@ def main():
                 VALUES
                     (gen_random_uuid(), %s, %s, %s, %s, %s, %s, %s, 0)
                 ON CONFLICT DO NOTHING
-            """, (project_id, media_type, title, public_url, img_path.name, file_size, mime_type))
+            """, (project_id, media_type, title, public_url, file_path.name, file_size, mime_type))
 
-            print(f"  ✓ {img_path.name} → {public_url}")
+            print(f"  ✓ {file_path.name} → {public_url}")
             total_uploaded += 1
 
         conn.commit()

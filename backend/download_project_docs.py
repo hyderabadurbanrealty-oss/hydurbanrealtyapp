@@ -145,15 +145,27 @@ def fetch_doc_bytes(session, upid, division="1", action="PREVIEW"):
         return None
 
 
-def pdf_to_images(pdf_bytes, output_dir, label, upid):
+def pdf_to_images(pdf_bytes, output_dir, label, upid, save_original_pdf=True):
     """
-    Render each page of a PDF to PNG and save in output_dir.
-    Returns list of saved image filenames.
+    Save original PDF and optionally render each page to PNG.
+    Returns dict with pdf_file and list of saved image filenames.
     """
     output_dir = Path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    saved = []
+    result = {"pdf_file": None, "images": []}
+
+    # Save original PDF
+    if save_original_pdf:
+        pdf_filename = f"{label}-{upid}.pdf"
+        pdf_path = output_dir / pdf_filename
+        with open(pdf_path, "wb") as f:
+            f.write(pdf_bytes)
+        result["pdf_file"] = pdf_filename
+        print(f"      Saved PDF: {pdf_filename}")
+
+    # Optionally render pages to PNG for preview
+    saved_images = []
     try:
         import fitz  # pymupdf — imported lazily so missing package doesn't break app startup
         doc = fitz.open(stream=pdf_bytes, filetype="pdf")
@@ -164,13 +176,14 @@ def pdf_to_images(pdf_bytes, output_dir, label, upid):
             filename = f"{label}-{upid}-p{page_num + 1}.png"
             out_path = output_dir / filename
             pix.save(str(out_path))
-            saved.append(filename)
+            saved_images.append(filename)
             print(f"      Saved page {page_num + 1}: {filename}")
         doc.close()
+        result["images"] = saved_images
     except Exception as e:
         print(f"      [!] PDF rendering error: {e}")
 
-    return saved
+    return result
 
 
 def process_project(project_dir, session):
@@ -215,13 +228,14 @@ def process_project(project_dir, session):
             if not pdf_bytes:
                 continue
 
-            pages = pdf_to_images(pdf_bytes, output_dir, label, upid)
-            if pages:
+            result = pdf_to_images(pdf_bytes, output_dir, label, upid, save_original_pdf=True)
+            if result["pdf_file"] or result["images"]:
                 manifest[key] = {
                     "doc_name": doc_name,
                     "label": label,
                     "upid": upid,
-                    "pages": pages,
+                    "pdf_file": result["pdf_file"],
+                    "pages": result["images"],
                 }
                 updated = True
             time.sleep(1)  # polite delay between requests
