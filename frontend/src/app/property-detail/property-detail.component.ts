@@ -1402,8 +1402,28 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   loadPropertyMedia(projectId: string): void {
     this.mediaService.getMedia(projectId).pipe(catchError(() => of([]))).subscribe(items => {
       this.propertyImages    = items.filter((m: any) => (m.mediaType || m.media_type) === 'image');
-      this.propertyFloorplans = items.filter((m: any) => (m.mediaType || m.media_type) === 'floorplan');
-      this.propertyDocuments = items.filter((m: any) => (m.mediaType || m.media_type) === 'document');
+      
+      // Floor plans - set thumbnailUrl for display
+      this.propertyFloorplans = items.filter((m: any) => {
+        const isFloorplan = (m.mediaType || m.media_type) === 'floorplan';
+        if (isFloorplan) {
+          (m as any).thumbnailUrl = m.fileUrl || m.file_url;
+        }
+        return isFloorplan;
+      });
+      
+      // Documents - set thumbnailUrl if document is an image
+      this.propertyDocuments = items.filter((m: any) => {
+        const isDoc = (m.mediaType || m.media_type) === 'document';
+        if (isDoc) {
+          const mimeType = m.mimeType || m.mime_type || '';
+          if (mimeType.includes('image')) {
+            (m as any).thumbnailUrl = m.fileUrl || m.file_url;
+          }
+        }
+        return isDoc;
+      });
+      
       this.propertyVideos    = items.filter((m: any) => (m.mediaType || m.media_type) === 'video');
       this.mediaLoaded = true;
       
@@ -1415,6 +1435,7 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
         documents: this.propertyDocuments.length,
         videos: this.propertyVideos.length
       });
+      console.log('Floor plans:', this.propertyFloorplans);
       console.log('Documents:', this.propertyDocuments);
       
       // Reset hero index when new images load
