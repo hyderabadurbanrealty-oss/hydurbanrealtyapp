@@ -73,7 +73,12 @@ export class ReraComplianceComponent implements OnInit {
     const reraReg = this.property.rawData?.['RERA Registration Details']?.['RERA Registration Number'] 
                     || this.property.rawData?.['Registration Number']
                     || this.property.id;
-    const planApproval = this.property.planApprovalNumber || this.property.rawData?.['Plan Approval Number'];
+    const planApprovalNumber = this.property.planApprovalNumber || this.property.rawData?.['Plan Approval Number'];
+    
+    // Check if plan is approved based on documents
+    const hasPlanDocs = this.hasDoc(['Sanctioned Building Plan', 'Approval Layout Plan', 'Building Permit', 'Commencement Certificate']);
+    const planApproved = planApprovalNumber || hasPlanDocs;
+    
     const regDate = this.property.approvedDate || this.property.rawData?.['Date of Registration'];
     const completionDate = this.property.completionDate || this.property.revisedCompletionDate;
     
@@ -87,10 +92,10 @@ export class ReraComplianceComponent implements OnInit {
       },
       {
         label: 'Plan Approval',
-        status: planApproval ? 'Approved' : 'Pending',
+        status: planApproved ? 'Approved' : 'Pending',
         icon: '✅',
-        value: planApproval || 'Awaiting Approval',
-        isGood: !!planApproval
+        value: planApprovalNumber || (hasPlanDocs ? 'Sanctioned Plans Available' : 'Awaiting Approval'),
+        isGood: planApproved
       },
       {
         label: 'Registration Date',
