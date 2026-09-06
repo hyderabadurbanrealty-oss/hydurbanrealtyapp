@@ -213,94 +213,161 @@
 
 <!-- District Density Visualization Section -->
 <section class="district-density-section" *ngIf="!loading && !error">
-  <div class="container">
-    <div class="locality-section-header">
-      <div class="locality-header-left">
-        <span class="locality-eyebrow">RERA Verified Data</span>
-        <h2 class="locality-title">Property Distribution by Locality</h2>
-        <p class="locality-subtitle">RERA project density across Hyderabad localities</p>
-      </div>
-      <div class="locality-header-right">
-        <div class="locality-legend">
-          <div class="ll-item">
-            <span class="ll-dot ll-high"></span>
-            <span>High Density (10+)</span>
+  <div class="container locality-container">
+    <!-- Section Header -->
+    <header class="locality-section-header">
+      <div class="locality-header-top">
+        <div class="locality-header-left">
+          <div class="header-eyebrow-row">
+            <span class="header-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+              </svg>
+            </span>
+            <span class="header-eyebrow">Micro-Market Analytics</span>
           </div>
-          <div class="ll-item">
-            <span class="ll-dot ll-medium"></span>
-            <span>Medium (5–9)</span>
-          </div>
-          <div class="ll-item">
-            <span class="ll-dot ll-low"></span>
-            <span>Low (1–4)</span>
+          <h2 class="locality-title">Property Distribution by Locality</h2>
+          <p class="locality-subtitle">RERA project density & market share across Hyderabad prime micro-markets</p>
+        </div>
+        <!-- Summary Stats Pill -->
+        <div class="summary-stats-pill">
+          <span class="pulse-dot">
+            <span class="pulse-ring"></span>
+            <span class="pulse-core"></span>
+          </span>
+          <div class="stat-dividers">
+            <span class="stat-item"><strong>{{properties.length}}</strong> Total Projects</span>
+            <span class="stat-divider"></span>
+            <span class="stat-item"><strong>{{districtData.length}}</strong> Localities</span>
           </div>
         </div>
       </div>
-    </div>
 
-    <div class="locality-grid">
-      <div *ngFor="let district of districtData; let i = index"
-           class="lc"
-           [class.lc-high]="district.count >= 10"
-           [class.lc-medium]="district.count >= 5 && district.count < 10"
-           [class.lc-low]="district.count < 5"
-           (click)="exploreLocality(district.name)"
-           role="button"
-           [attr.aria-label]="'Explore ' + district.name">
+      <!-- Filters & Legend Bar -->
+      <div class="locality-controls-bar">
+        <!-- Density Filter Tabs -->
+        <div class="density-filter-tabs">
+          <button class="filter-tab active">
+            All Localities
+            <span class="tab-badge">{{districtData.length}}</span>
+          </button>
+          <button class="filter-tab filter-high">
+            <span class="tab-dot dot-high"></span>
+            High Density (10+)
+            <span class="tab-badge">{{countByDensity('high')}}</span>
+          </button>
+          <button class="filter-tab filter-medium">
+            <span class="tab-dot dot-medium"></span>
+            Medium (5–9)
+            <span class="tab-badge">{{countByDensity('medium')}}</span>
+          </button>
+          <button class="filter-tab filter-low">
+            <span class="tab-dot dot-low"></span>
+            Low (1–4)
+            <span class="tab-badge">{{countByDensity('low')}}</span>
+          </button>
+        </div>
 
-        <!-- Density accent bar -->
-        <div class="lc-accent-bar"></div>
+        <!-- Sort Control -->
+        <div class="sort-control">
+          <span class="sort-label">Sort by:</span>
+          <select class="sort-select">
+            <option>Project Count (High to Low)</option>
+            <option>Market Share %</option>
+            <option>Total RERA Area</option>
+            <option>Alphabetical (A-Z)</option>
+          </select>
+        </div>
+      </div>
+    </header>
 
-        <div class="lc-body">
-          <!-- Header row: rank + name -->
-          <div class="lc-header">
-            <span class="lc-rank">#{{i + 1}}</span>
-            <div class="lc-density-pill"
-                 [class.lc-pill-high]="district.count >= 10"
-                 [class.lc-pill-medium]="district.count >= 5 && district.count < 10"
-                 [class.lc-pill-low]="district.count < 5">
-              <span *ngIf="district.count >= 10">High</span>
-              <span *ngIf="district.count >= 5 && district.count < 10">Medium</span>
-              <span *ngIf="district.count < 5">Low</span>
-            </div>
+    <!-- Locality Cards Grid -->
+    <div class="locality-cards-grid">
+      <article *ngFor="let district of districtData; let i = index"
+               class="locality-card"
+               [class.density-high]="district.count >= 10"
+               [class.density-medium]="district.count >= 5 && district.count < 10"
+               [class.density-low]="district.count < 5"
+               (click)="exploreLocality(district.name)"
+               role="button"
+               [attr.aria-label]="'Explore ' + district.name">
+        
+        <!-- Top Badges Row -->
+        <div class="card-badges-row">
+          <span class="rank-badge">#{{(i + 1).toString().padStart(2, '0')}}</span>
+          <span class="density-badge"
+                [class.badge-high]="district.count >= 10"
+                [class.badge-medium]="district.count >= 5 && district.count < 10"
+                [class.badge-low]="district.count < 5">
+            <span class="badge-dot"></span>
+            <span *ngIf="district.count >= 10">High Density</span>
+            <span *ngIf="district.count >= 5 && district.count < 10">Medium Density</span>
+            <span *ngIf="district.count < 5">Low Density</span>
+          </span>
+        </div>
+
+        <!-- Locality Name -->
+        <div class="card-locality-name">
+          <h3 class="locality-name">{{district.name}}</h3>
+          <p class="locality-zone">West Hyderabad Corridor</p>
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="metrics-container">
+          <div class="metric-cell">
+            <div class="metric-value">{{district.count}}</div>
+            <div class="metric-label">Projects</div>
           </div>
-
-          <!-- Locality name -->
-          <h3 class="lc-name">{{district.name}}</h3>
-
-          <!-- Key metrics row -->
-          <div class="lc-metrics">
-            <div class="lc-metric">
-              <div class="lc-metric-value">{{district.count}}</div>
-              <div class="lc-metric-label">Projects</div>
-            </div>
-            <div class="lc-metric-divider"></div>
-            <div class="lc-metric">
-              <div class="lc-metric-value lc-pct">{{district.percentage}}%</div>
-              <div class="lc-metric-label">Share</div>
-            </div>
-            <div class="lc-metric-divider" *ngIf="district.totalArea"></div>
-            <div class="lc-metric" *ngIf="district.totalArea">
-              <div class="lc-metric-value lc-area">{{formatAreaInKm(district.totalArea)}}</div>
-              <div class="lc-metric-label">km² Area</div>
-            </div>
+          <div class="metric-divider"></div>
+          <div class="metric-cell">
+            <div class="metric-value metric-share">{{district.percentage}}%</div>
+            <div class="metric-label">Share</div>
           </div>
-
-          <!-- Bar indicator -->
-          <div class="lc-bar-track">
-            <div class="lc-bar-fill" [style.width]="district.percentage + '%'"></div>
+          <div class="metric-divider" *ngIf="district.totalArea"></div>
+          <div class="metric-cell" *ngIf="district.totalArea">
+            <div class="metric-value metric-area">{{formatAreaInKm(district.totalArea)}}</div>
+            <div class="metric-label">km² Area</div>
           </div>
+        </div>
 
-          <!-- Explore CTA -->
-          <button class="lc-explore-btn" (click)="exploreLocality(district.name); $event.stopPropagation()">
+        <!-- Market Share Progress Bar -->
+        <div class="progress-section">
+          <div class="progress-header">
+            <span class="progress-label">Market share volume</span>
+            <span class="progress-percent">{{district.percentage}}%</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar" [style.width.%]="district.percentage"></div>
+          </div>
+        </div>
+
+        <!-- Explore Action Button -->
+        <div class="card-action-row">
+          <button class="btn-explore" (click)="exploreLocality(district.name); $event.stopPropagation()">
             Explore Projects
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
-              <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"/>
+            <svg viewBox="0 0 24 24" fill="currentColor">
+              <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
             </svg>
           </button>
         </div>
-      </div>
+      </article>
     </div>
+
+    <!-- Footer Note -->
+    <footer class="locality-footer">
+      <div class="footer-info">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+        <span>Data verified against Telangana State RERA public register. Updated Q1 2025.</span>
+      </div>
+      <a href="#" class="footer-export">
+        Export CSV Summary
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        </svg>
+      </a>
+    </footer>
   </div>
 </section>
 

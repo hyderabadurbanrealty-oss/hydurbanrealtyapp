@@ -218,6 +218,9 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   reviewCaptchaA: number = 0;
   reviewCaptchaB: number = 0;
   reviewCaptchaAnswer: number | string | null = null;
+  
+  // Store route ID for media operations
+  projectRouteId: string = '';
 
   refreshReviewCaptcha() {
     this.reviewCaptchaA = Math.floor(Math.random() * 9) + 1;
@@ -416,15 +419,15 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     
     // Track favorite action
     if (this.isFavorite && !wasFavorite) {
-      this.analytics.trackFavoriteAdd(
-        id,
-        this.property['Project Type'] || this.property.projectType || ''
-      );
+      this.analytics.trackFavoriteAdd({
+        property_id: id,
+        property_type: this.property['Project Type'] || this.property.projectType || ''
+      });
     } else if (!this.isFavorite && wasFavorite) {
-      this.analytics.trackFavoriteRemove(
-        id,
-        this.property['Project Type'] || this.property.projectType || ''
-      );
+      this.analytics.trackFavoriteRemove({
+        property_id: id,
+        property_type: this.property['Project Type'] || this.property.projectType || ''
+      });
     }
   }
 
@@ -1519,7 +1522,10 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     const projectId = this.property?.id || this.property?.registrationNumber || '';
     
     // Track WhatsApp click
-    this.analytics.trackWhatsAppClick(projectId, 'pricing_inquiry');
+    this.analytics.trackWhatsAppClick({
+      property_id: projectId,
+      source: 'pricing_inquiry'
+    });
     
     const message = [
       `Hi, I'm interested in getting pricing information for:`,
@@ -1542,23 +1548,23 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   }
 
   // Extract bedrooms information for tracking
-  private extractBedrooms(property: any): string {
+  private extractBedrooms(property: any): number | undefined {
     // Try to extract from available data
-    if (property.bedrooms) return property.bedrooms;
-    if (property['Bedrooms']) return property['Bedrooms'];
+    if (property.bedrooms) return Number(property.bedrooms) || undefined;
+    if (property['Bedrooms']) return Number(property['Bedrooms']) || undefined;
     
     // Try to extract from project type or name
     const projectType = property['Project Type'] || property.projectType || '';
     const projectName = property['Project Name'] || property.name || '';
     const combined = `${projectType} ${projectName}`.toLowerCase();
     
-    if (combined.includes('1 bhk') || combined.includes('1bhk')) return '1';
-    if (combined.includes('2 bhk') || combined.includes('2bhk')) return '2';
-    if (combined.includes('3 bhk') || combined.includes('3bhk')) return '3';
-    if (combined.includes('4 bhk') || combined.includes('4bhk')) return '4';
-    if (combined.includes('5 bhk') || combined.includes('5bhk')) return '5';
+    if (combined.includes('1 bhk') || combined.includes('1bhk')) return 1;
+    if (combined.includes('2 bhk') || combined.includes('2bhk')) return 2;
+    if (combined.includes('3 bhk') || combined.includes('3bhk')) return 3;
+    if (combined.includes('4 bhk') || combined.includes('4bhk')) return 4;
+    if (combined.includes('5 bhk') || combined.includes('5bhk')) return 5;
     
-    return 'mixed';
+    return undefined;
   }
 
   // Document/Image Preview Methods

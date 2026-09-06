@@ -300,4 +300,10 @@ export class HomeComponent implements OnInit, OnDestroy {
       .map(d => ({ name: d.display, count: d.count, totalArea: d.totalArea, percentage: Math.round((d.count / total) * 100) }))
       .sort((a, b) => b.count - a.count).slice(0, 10);
   }
+
+  countByDensity(type: 'high' | 'medium' | 'low'): number {
+    if (type === 'high') return this.districtData.filter(d => d.count >= 10).length;
+    if (type === 'medium') return this.districtData.filter(d => d.count >= 5 && d.count < 10).length;
+    return this.districtData.filter(d => d.count < 5).length;
+  }
 }
