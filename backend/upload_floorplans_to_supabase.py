@@ -85,7 +85,9 @@ def main():
         if not floor_plan_dir.exists():
             continue
 
-        images = sorted(floor_plan_dir.glob("*.png")) + sorted(floor_plan_dir.glob("*.jpg"))
+        images = (sorted(floor_plan_dir.glob("*.png")) + 
+                 sorted(floor_plan_dir.glob("*.jpg")) + 
+                 sorted(floor_plan_dir.glob("*.pdf")))
         if not images:
             continue
 
@@ -118,16 +120,18 @@ def main():
                 total_failed += 1
                 continue
 
-            # Insert into project_media
+            # Insert into project_media with correct MIME type
             file_size = img_path.stat().st_size
             title     = img_path.stem.replace("-", " ").replace("_", " ").title()
+            mime_type = mimetypes.guess_type(str(img_path))[0] or "image/png"
+            
             cur.execute("""
                 INSERT INTO project_media
                     (id, project_id, media_type, title, file_url, file_name, file_size, mime_type, sort_order)
                 VALUES
-                    (gen_random_uuid(), %s, %s, %s, %s, %s, %s, 'image/png', 0)
+                    (gen_random_uuid(), %s, %s, %s, %s, %s, %s, %s, 0)
                 ON CONFLICT DO NOTHING
-            """, (project_id, media_type, title, public_url, img_path.name, file_size))
+            """, (project_id, media_type, title, public_url, img_path.name, file_size, mime_type))
 
             print(f"  ✓ {img_path.name} → {public_url}")
             total_uploaded += 1
