@@ -319,6 +319,12 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
           this.averageRating = prop.averageRating || 0;
           this.loading = false;
 
+          // Update projectRouteId with the actual property ID from the response
+          // This ensures media downloads use the correct ID even when the URL contains the project name
+          if (prop.id) {
+            this.projectRouteId = prop.id;
+          }
+
           // Track property view
           this.analytics.trackPropertyView({
             property_id: prop.id || prop.registrationNumber || '',
