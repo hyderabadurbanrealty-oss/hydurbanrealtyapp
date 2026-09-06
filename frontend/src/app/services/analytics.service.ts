@@ -1,98 +1,156 @@
 import { Injectable } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { environment } from '../../environments/environment';
 
 declare global {
   interface Window {
     dataLayer: any[];
+    gtag: (...args: any[]) => void;
   }
+}
+
+export interface PropertyViewEvent {
+  property_id: string;
+  property_type?: string;
+  listing_type?: string;
+  locality?: string;
+  city?: string;
+  price_range?: string;
+  bedrooms?: number;
+}
+
+export interface PropertySearchEvent {
+  search_type?: string;
+  locality?: string;
+  property_type?: string;
+  listing_type?: string;
+  bedrooms?: number;
+  price_range?: string;
+}
+
+export interface PropertyFilterEvent {
+  filter_name: string;
+  filter_value: string;
+}
+
+export interface FavoriteEvent {
+  property_id: string;
+  property_type?: string;
+}
+
+export interface CompareEvent {
+  property_id: string;
+  property_type?: string;
+}
+
+export interface EnquiryStartEvent {
+  property_id: string;
+  property_type?: string;
+  source?: string;
+}
+
+export interface EnquirySubmitEvent {
+  property_id: string;
+  property_type?: string;
+  enquiry_type?: string;
+  source?: string;
+}
+
+export interface BuilderContactEvent {
+  builder_id: string;
+  property_id?: string;
+  contact_method: string;
+}
+
+export interface SellerContactEvent {
+  seller_listing_id: string;
+  property_id?: string;
+  contact_method: string;
+}
+
+export interface ContactClickEvent {
+  property_id: string;
+  source?: string;
+}
+
+export interface AuthEvent {
+  method: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class AnalyticsService {
-  private gtmInitialized = false;
+  private isInitialized = false;
+  private lastTrackedUrl: string | null = null;
 
   constructor(private router: Router) {
-    // Initialize dataLayer
-    window.dataLayer = window.dataLayer || [];
+    this.initializeDataLayer();
+  }
+
+  /**
+   * Initialize dataLayer if not already present
+   */
+  private initializeDataLayer(): void {
+    try {
+      if (typeof window !== 'undefined') {
+        window.dataLayer = window.dataLayer || [];
+        this.isInitialized = true;
+      }
+    } catch (error) {
+      console.warn('Analytics: Failed to initialize dataLayer', error);
+    }
+  }
+
+  /**
+   * Safely push event to dataLayer
+   */
+  private pushToDataLayer(event: any): void {
+    try {
+      if (this.isInitialized && typeof window !== 'undefined' && window.dataLayer) {
+        window.dataLayer.push(event);
+      }
+    } catch (error) {
+      console.warn('Analytics: Failed to push event', error);
+    }
   }
 
   /**
    * Initialize Google Tag Manager
-   * Call this once in app initialization
+   * Call this once in app.component.ts ngOnInit
    */
   initGTM(): void {
-    if (this.gtmInitialized || !environment.gtmId) {
-      return;
-    }
-
-    try {
-      // GTM script
-      const script = document.createElement('script');
-      script.innerHTML = `
-        (function(w,d,s,l,i){
-          w[l]=w[l]||[];
-          w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
-          var f=d.getElementsByTagName(s)[0],
-          j=d.createElement(s),
-          dl=l!='dataLayer'?'&l='+l:'';
-          j.async=true;
-          j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
-          f.parentNode.insertBefore(j,f);
-        })(window,document,'script','dataLayer','${environment.gtmId}');
-      `;
-      document.head.insertBefore(script, document.head.firstChild);
-
-      // GTM noscript fallback
-      const noscript = document.createElement('noscript');
-      noscript.innerHTML = `
-        <iframe src="https://www.googletagmanager.com/ns.html?id=${environment.gtmId}"
-          height="0" width="0" style="display:none;visibility:hidden"></iframe>
-      `;
-      document.body.insertBefore(noscript, document.body.firstChild);
-
-      this.gtmInitialized = true;
-      console.log('GTM initialized:', environment.gtmId);
-    } catch (error) {
-      console.error('GTM initialization failed:', error);
-    }
+    // GTM is initialized via index.html script tags
+    // This method is kept for consistency but GTM loads automatically
+    this.initializeDataLayer();
   }
 
   /**
-   * Track SPA page views on route changes
+   * Initialize SPA page view tracking
+   * Call this once in app.component.ts ngOnInit
    */
   trackPageViews(): void {
-    this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
-    ).subscribe((event: any) => {
-      this.trackPageView(event.urlAfterRedirects);
-    });
-  }
-
-  /**
-   * Push event to dataLayer
-   */
-  private pushToDataLayer(data: any): void {
     try {
-      if (window.dataLayer) {
-        window.dataLayer.push(data);
-      }
+      this.router.events
+        .pipe(filter(event => event instanceof NavigationEnd))
+        .subscribe((event: NavigationEnd) => {
+          // Prevent duplicate tracking
+          if (event.urlAfterRedirects !== this.lastTrackedUrl) {
+            this.trackPageView(event.urlAfterRedirects);
+            this.lastTrackedUrl = event.urlAfterRedirects;
+          }
+        });
     } catch (error) {
-      console.error('DataLayer push failed:', error);
+      console.warn('Analytics: Failed to initialize page view tracking', error);
     }
   }
 
   /**
-   * Track generic event
+   * Legacy method name - use trackPageViews() instead
+   * @deprecated
    */
-  trackEvent(eventName: string, parameters?: any): void {
-    this.pushToDataLayer({
-      event: eventName,
-      ...parameters
-    });
+  initPageViewTracking(): void {
+    this.trackPageViews();
   }
 
   /**
@@ -109,189 +167,160 @@ export class AnalyticsService {
   /**
    * Track property view
    */
-  trackPropertyView(params: {
-    property_id: string;
-    property_type?: string;
-    listing_type?: string;
-    locality?: string;
-    city?: string;
-    price_range?: string;
-    bedrooms?: string;
-  }): void {
+  trackPropertyView(data: PropertyViewEvent): void {
     this.pushToDataLayer({
       event: 'property_view',
-      ...params
+      ...data
     });
   }
 
   /**
    * Track property search
    */
-  trackPropertySearch(params: {
-    search_type?: string;
-    locality?: string;
-    property_type?: string;
-    listing_type?: string;
-    bedrooms?: string;
-    price_range?: string;
-  }): void {
+  trackPropertySearch(data: PropertySearchEvent): void {
     this.pushToDataLayer({
       event: 'property_search',
-      ...params
+      ...data
     });
   }
 
   /**
    * Track property filter
    */
-  trackPropertyFilter(filter_name: string, filter_value: string): void {
+  trackPropertyFilter(data: PropertyFilterEvent): void {
     this.pushToDataLayer({
       event: 'property_filter',
-      filter_name,
-      filter_value
+      ...data
     });
   }
 
   /**
-   * Track favorite add
+   * Track adding favorite
    */
-  trackFavoriteAdd(property_id: string, property_type?: string): void {
+  trackFavoriteAdd(data: FavoriteEvent): void {
     this.pushToDataLayer({
       event: 'favorite_add',
-      property_id,
-      property_type
+      ...data
     });
   }
 
   /**
-   * Track favorite remove
+   * Track removing favorite
    */
-  trackFavoriteRemove(property_id: string, property_type?: string): void {
+  trackFavoriteRemove(data: FavoriteEvent): void {
     this.pushToDataLayer({
       event: 'favorite_remove',
-      property_id,
-      property_type
+      ...data
     });
   }
 
   /**
-   * Track comparison add
+   * Track adding to comparison
    */
-  trackCompareAdd(property_id: string, property_type?: string): void {
+  trackCompareAdd(data: CompareEvent): void {
     this.pushToDataLayer({
       event: 'compare_add',
-      property_id,
-      property_type
+      ...data
     });
   }
 
   /**
-   * Track comparison remove
+   * Track removing from comparison
    */
-  trackCompareRemove(property_id: string, property_type?: string): void {
+  trackCompareRemove(data: CompareEvent): void {
     this.pushToDataLayer({
       event: 'compare_remove',
-      property_id,
-      property_type
+      ...data
     });
   }
 
   /**
    * Track enquiry start
    */
-  trackEnquiryStart(params: {
-    property_id: string;
-    property_type?: string;
-    source?: string;
-  }): void {
+  trackEnquiryStart(data: EnquiryStartEvent): void {
     this.pushToDataLayer({
       event: 'enquiry_start',
-      ...params
+      ...data
     });
   }
 
   /**
    * Track enquiry submit
    */
-  trackEnquirySubmit(params: {
-    property_id: string;
-    property_type?: string;
-    enquiry_type?: string;
-    source?: string;
-  }): void {
+  trackEnquirySubmit(data: EnquirySubmitEvent): void {
     this.pushToDataLayer({
       event: 'enquiry_submit',
-      ...params
+      ...data
     });
   }
 
   /**
    * Track builder contact
    */
-  trackBuilderContact(params: {
-    builder_id?: string;
-    property_id: string;
-    contact_method: string;
-  }): void {
+  trackBuilderContact(data: BuilderContactEvent): void {
     this.pushToDataLayer({
       event: 'builder_contact',
-      ...params
+      ...data
     });
   }
 
   /**
    * Track seller contact
    */
-  trackSellerContact(params: {
-    seller_listing_id?: string;
-    property_id: string;
-    contact_method: string;
-  }): void {
+  trackSellerContact(data: SellerContactEvent): void {
     this.pushToDataLayer({
       event: 'seller_contact',
-      ...params
+      ...data
     });
   }
 
   /**
    * Track WhatsApp click
    */
-  trackWhatsAppClick(property_id: string, source?: string): void {
+  trackWhatsAppClick(data: ContactClickEvent): void {
     this.pushToDataLayer({
       event: 'whatsapp_click',
-      property_id,
-      source
+      ...data
     });
   }
 
   /**
    * Track phone click
    */
-  trackPhoneClick(property_id: string, source?: string): void {
+  trackPhoneClick(data: ContactClickEvent): void {
     this.pushToDataLayer({
       event: 'phone_click',
-      property_id,
-      source
+      ...data
     });
   }
 
   /**
    * Track signup
    */
-  trackSignup(signup_method: string): void {
+  trackSignup(data: AuthEvent): void {
     this.pushToDataLayer({
       event: 'signup',
-      signup_method
+      signup_method: data.method
     });
   }
 
   /**
    * Track login
    */
-  trackLogin(login_method: string): void {
+  trackLogin(data: AuthEvent): void {
     this.pushToDataLayer({
       event: 'login',
-      login_method
+      login_method: data.method
+    });
+  }
+
+  /**
+   * Generic event tracking
+   */
+  trackEvent(eventName: string, parameters?: Record<string, any>): void {
+    this.pushToDataLayer({
+      event: eventName,
+      ...parameters
     });
   }
 }
