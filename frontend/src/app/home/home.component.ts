@@ -45,6 +45,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   private toastTimer: any;
 
   districtData: Array<{name: string, count: number, percentage: number, totalArea: number}> = [];
+  filteredDistrictData: Array<{name: string, count: number, percentage: number, totalArea: number}> = [];
+  localityDensityFilter: 'all' | 'high' | 'medium' | 'low' = 'all';
+  localitySortBy: 'count' | 'percentage' | 'area' | 'name' = 'count';
   private searchSubject = new Subject<string>();
 
   constructor(
@@ -299,11 +302,45 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.districtData = Array.from(districtMap.values())
       .map(d => ({ name: d.display, count: d.count, totalArea: d.totalArea, percentage: Math.round((d.count / total) * 100) }))
       .sort((a, b) => b.count - a.count).slice(0, 10);
+    this.applyLocalityFilters();
   }
 
   countByDensity(type: 'high' | 'medium' | 'low'): number {
     if (type === 'high') return this.districtData.filter(d => d.count >= 10).length;
     if (type === 'medium') return this.districtData.filter(d => d.count >= 5 && d.count < 10).length;
     return this.districtData.filter(d => d.count < 5).length;
+  }
+
+  filterLocalityByDensity(type: 'all' | 'high' | 'medium' | 'low') {
+    this.localityDensityFilter = type;
+    this.applyLocalityFilters();
+  }
+
+  sortLocalityBy(sortBy: 'count' | 'percentage' | 'area' | 'name') {
+    this.localitySortBy = sortBy;
+    this.applyLocalityFilters();
+  }
+
+  private applyLocalityFilters() {
+    // Filter by density
+    let filtered = [...this.districtData];
+    if (this.localityDensityFilter === 'high') {
+      filtered = filtered.filter(d => d.count >= 10);
+    } else if (this.localityDensityFilter === 'medium') {
+      filtered = filtered.filter(d => d.count >= 5 && d.count < 10);
+    } else if (this.localityDensityFilter === 'low') {
+      filtered = filtered.filter(d => d.count < 5);
+    }
+
+    // Sort
+    filtered.sort((a, b) => {
+      if (this.localitySortBy === 'count') return b.count - a.count;
+      if (this.localitySortBy === 'percentage') return b.percentage - a.percentage;
+      if (this.localitySortBy === 'area') return b.totalArea - a.totalArea;
+      if (this.localitySortBy === 'name') return a.name.localeCompare(b.name);
+      return 0;
+    });
+
+    this.filteredDistrictData = filtered;
   }
 }

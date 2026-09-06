@@ -214,160 +214,170 @@
 <!-- District Density Visualization Section -->
 <section class="district-density-section" *ngIf="!loading && !error">
   <div class="container locality-container">
-    <!-- Section Header -->
-    <header class="locality-section-header">
-      <div class="locality-header-top">
-        <div class="locality-header-left">
-          <div class="header-eyebrow-row">
-            <span class="header-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-              </svg>
+    <!-- White Container Wrapper -->
+    <div class="locality-white-wrapper">
+      <!-- Section Header -->
+      <header class="locality-section-header-new">
+        <div class="locality-header-top-new">
+          <div class="locality-header-left-new">
+            <div class="header-eyebrow-row-new">
+              <span class="header-icon-new">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                </svg>
+              </span>
+              <span class="header-eyebrow-new">Micro-Market Analytics</span>
+            </div>
+            <h2 class="locality-title-new">Property Distribution by Locality</h2>
+            <p class="locality-subtitle-new">RERA project density & market share across Hyderabad prime micro-markets</p>
+          </div>
+          <!-- Summary Stats Pill -->
+          <div class="summary-stats-pill-new">
+            <span class="pulse-dot-new">
+              <span class="pulse-ring-new"></span>
+              <span class="pulse-core-new"></span>
             </span>
-            <span class="header-eyebrow">Micro-Market Analytics</span>
-          </div>
-          <h2 class="locality-title">Property Distribution by Locality</h2>
-          <p class="locality-subtitle">RERA project density & market share across Hyderabad prime micro-markets</p>
-        </div>
-        <!-- Summary Stats Pill -->
-        <div class="summary-stats-pill">
-          <span class="pulse-dot">
-            <span class="pulse-ring"></span>
-            <span class="pulse-core"></span>
-          </span>
-          <div class="stat-dividers">
-            <span class="stat-item"><strong>{{properties.length}}</strong> Total Projects</span>
-            <span class="stat-divider"></span>
-            <span class="stat-item"><strong>{{districtData.length}}</strong> Localities</span>
+            <div class="stat-dividers-new">
+              <span class="stat-item-new"><strong>{{properties.length}}</strong> Total Projects</span>
+              <span class="stat-divider-new"></span>
+              <span class="stat-item-new"><strong>{{districtData.length}}</strong> Localities</span>
+            </div>
           </div>
         </div>
+
+        <!-- Filters & Legend Bar -->
+        <div class="locality-controls-bar-new">
+          <!-- Density Filter Tabs -->
+          <div class="density-filter-tabs-new">
+            <button class="filter-tab-new" 
+                    [class.active-tab]="localityDensityFilter === 'all'"
+                    (click)="filterLocalityByDensity('all')">
+              All Localities
+              <span class="tab-badge-new">{{districtData.length}}</span>
+            </button>
+            <button class="filter-tab-new filter-high-new" 
+                    [class.active-tab]="localityDensityFilter === 'high'"
+                    (click)="filterLocalityByDensity('high')">
+              <span class="tab-dot-new dot-high-new"></span>
+              High Density (10+)
+              <span class="tab-badge-new">{{countByDensity('high')}}</span>
+            </button>
+            <button class="filter-tab-new filter-medium-new" 
+                    [class.active-tab]="localityDensityFilter === 'medium'"
+                    (click)="filterLocalityByDensity('medium')">
+              <span class="tab-dot-new dot-medium-new"></span>
+              Medium (5–9)
+              <span class="tab-badge-new tab-badge-amber">{{countByDensity('medium')}}</span>
+            </button>
+            <button class="filter-tab-new filter-low-new" 
+                    [class.active-tab]="localityDensityFilter === 'low'"
+                    (click)="filterLocalityByDensity('low')">
+              <span class="tab-dot-new dot-low-new"></span>
+              Low (1–4)
+              <span class="tab-badge-new">{{countByDensity('low')}}</span>
+            </button>
+          </div>
+
+          <!-- Sort Control -->
+          <div class="sort-control-new">
+            <span class="sort-label-new">Sort by:</span>
+            <select class="sort-select-new" [(ngModel)]="localitySortBy" (change)="sortLocalityBy(localitySortBy)">
+              <option value="count">Project Count (High to Low)</option>
+              <option value="percentage">Market Share %</option>
+              <option value="area">Total RERA Area</option>
+              <option value="name">Alphabetical (A-Z)</option>
+            </select>
+          </div>
+        </div>
+      </header>
+
+      <!-- Locality Cards Grid -->
+      <div class="locality-cards-grid-new">
+        <article *ngFor="let district of filteredDistrictData; let i = index"
+                 class="locality-card-new"
+                 [class.density-high-card]="district.count >= 10"
+                 [class.density-medium-card]="district.count >= 5 && district.count < 10"
+                 [class.density-low-card]="district.count < 5"
+                 (click)="exploreLocality(district.name)">
+          
+          <!-- Card Content -->
+          <div class="card-content-wrapper">
+            <!-- Top Badges Row -->
+            <div class="card-badges-row-new">
+              <span class="rank-badge-new">#{{(i + 1).toString().padStart(2, '0')}}</span>
+              <span class="density-badge-new"
+                    [class.badge-high-new]="district.count >= 10"
+                    [class.badge-medium-new]="district.count >= 5 && district.count < 10"
+                    [class.badge-low-new]="district.count < 5">
+                <span class="badge-dot-new"></span>
+                <span *ngIf="district.count >= 10">High Density</span>
+                <span *ngIf="district.count >= 5 && district.count < 10">Medium Density</span>
+                <span *ngIf="district.count < 5">Low Density</span>
+              </span>
+            </div>
+
+            <!-- Locality Name -->
+            <div class="card-locality-name-new">
+              <h3 class="locality-name-new">{{district.name}}</h3>
+              <p class="locality-zone-new">Hyderabad Corridor</p>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-container-new">
+              <div class="metric-cell-new">
+                <div class="metric-value-new">{{district.count}}</div>
+                <div class="metric-label-new">Projects</div>
+              </div>
+              <div class="metric-divider-new"></div>
+              <div class="metric-cell-new">
+                <div class="metric-value-new metric-share-new">{{district.percentage}}%</div>
+                <div class="metric-label-new">Share</div>
+              </div>
+              <div class="metric-divider-new" *ngIf="district.totalArea"></div>
+              <div class="metric-cell-new" *ngIf="district.totalArea">
+                <div class="metric-value-new">{{formatAreaInKm(district.totalArea)}}</div>
+                <div class="metric-label-new">km² Area</div>
+              </div>
+            </div>
+
+            <!-- Market Share Progress Bar -->
+            <div class="progress-section-new">
+              <div class="progress-header-new">
+                <span class="progress-label-new">Market share volume</span>
+                <span class="progress-percent-new">{{district.percentage}}%</span>
+              </div>
+              <div class="progress-track-new">
+                <div class="progress-bar-new"
+                     [class.bar-high]="district.count >= 10"
+                     [class.bar-medium]="district.count >= 5 && district.count < 10"
+                     [class.bar-low]="district.count < 5"
+                     [style.width.%]="district.percentage"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Explore Action Button -->
+          <div class="card-action-row-new">
+            <button class="btn-explore-new" (click)="exploreLocality(district.name); $event.stopPropagation()">
+              Explore Projects
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+              </svg>
+            </button>
+          </div>
+        </article>
       </div>
 
-      <!-- Filters & Legend Bar -->
-      <div class="locality-controls-bar">
-        <!-- Density Filter Tabs -->
-        <div class="density-filter-tabs">
-          <button class="filter-tab active">
-            All Localities
-            <span class="tab-badge">{{districtData.length}}</span>
-          </button>
-          <button class="filter-tab filter-high">
-            <span class="tab-dot dot-high"></span>
-            High Density (10+)
-            <span class="tab-badge">{{countByDensity('high')}}</span>
-          </button>
-          <button class="filter-tab filter-medium">
-            <span class="tab-dot dot-medium"></span>
-            Medium (5–9)
-            <span class="tab-badge">{{countByDensity('medium')}}</span>
-          </button>
-          <button class="filter-tab filter-low">
-            <span class="tab-dot dot-low"></span>
-            Low (1–4)
-            <span class="tab-badge">{{countByDensity('low')}}</span>
-          </button>
+      <!-- Footer Note -->
+      <footer class="locality-footer-new">
+        <div class="footer-info-new">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+          <span>Data verified against Telangana State RERA public register. Updated Q1 2025.</span>
         </div>
-
-        <!-- Sort Control -->
-        <div class="sort-control">
-          <span class="sort-label">Sort by:</span>
-          <select class="sort-select">
-            <option>Project Count (High to Low)</option>
-            <option>Market Share %</option>
-            <option>Total RERA Area</option>
-            <option>Alphabetical (A-Z)</option>
-          </select>
-        </div>
-      </div>
-    </header>
-
-    <!-- Locality Cards Grid -->
-    <div class="locality-cards-grid">
-      <article *ngFor="let district of districtData; let i = index"
-               class="locality-card"
-               [class.density-high]="district.count >= 10"
-               [class.density-medium]="district.count >= 5 && district.count < 10"
-               [class.density-low]="district.count < 5"
-               (click)="exploreLocality(district.name)"
-               role="button"
-               [attr.aria-label]="'Explore ' + district.name">
-        
-        <!-- Top Badges Row -->
-        <div class="card-badges-row">
-          <span class="rank-badge">#{{(i + 1).toString().padStart(2, '0')}}</span>
-          <span class="density-badge"
-                [class.badge-high]="district.count >= 10"
-                [class.badge-medium]="district.count >= 5 && district.count < 10"
-                [class.badge-low]="district.count < 5">
-            <span class="badge-dot"></span>
-            <span *ngIf="district.count >= 10">High Density</span>
-            <span *ngIf="district.count >= 5 && district.count < 10">Medium Density</span>
-            <span *ngIf="district.count < 5">Low Density</span>
-          </span>
-        </div>
-
-        <!-- Locality Name -->
-        <div class="card-locality-name">
-          <h3 class="locality-name">{{district.name}}</h3>
-          <p class="locality-zone">West Hyderabad Corridor</p>
-        </div>
-
-        <!-- Metrics Grid -->
-        <div class="metrics-container">
-          <div class="metric-cell">
-            <div class="metric-value">{{district.count}}</div>
-            <div class="metric-label">Projects</div>
-          </div>
-          <div class="metric-divider"></div>
-          <div class="metric-cell">
-            <div class="metric-value metric-share">{{district.percentage}}%</div>
-            <div class="metric-label">Share</div>
-          </div>
-          <div class="metric-divider" *ngIf="district.totalArea"></div>
-          <div class="metric-cell" *ngIf="district.totalArea">
-            <div class="metric-value metric-area">{{formatAreaInKm(district.totalArea)}}</div>
-            <div class="metric-label">km² Area</div>
-          </div>
-        </div>
-
-        <!-- Market Share Progress Bar -->
-        <div class="progress-section">
-          <div class="progress-header">
-            <span class="progress-label">Market share volume</span>
-            <span class="progress-percent">{{district.percentage}}%</span>
-          </div>
-          <div class="progress-track">
-            <div class="progress-bar" [style.width.%]="district.percentage"></div>
-          </div>
-        </div>
-
-        <!-- Explore Action Button -->
-        <div class="card-action-row">
-          <button class="btn-explore" (click)="exploreLocality(district.name); $event.stopPropagation()">
-            Explore Projects
-            <svg viewBox="0 0 24 24" fill="currentColor">
-              <path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-            </svg>
-          </button>
-        </div>
-      </article>
+      </footer>
     </div>
-
-    <!-- Footer Note -->
-    <footer class="locality-footer">
-      <div class="footer-info">
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-        </svg>
-        <span>Data verified against Telangana State RERA public register. Updated Q1 2025.</span>
-      </div>
-      <a href="#" class="footer-export">
-        Export CSV Summary
-        <svg viewBox="0 0 24 24" fill="currentColor">
-          <path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-        </svg>
-      </a>
-    </footer>
   </div>
 </section>
 
