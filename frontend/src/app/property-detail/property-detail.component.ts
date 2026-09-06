@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription, forkJoin } from 'rxjs';
 import { catchError, of } from 'rxjs';
 import { Property } from '../map/map.component';
@@ -45,6 +46,12 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   showImageLightbox = false;
   lightboxImages: PropertyMedia[] = [];
   lightboxIndex = 0;
+  
+  // ── Document/Image Preview Modal ──────────────────────────────────────────
+  showMediaPreview = false;
+  currentPreviewMedia: PropertyMedia | null = null;
+  currentPreviewUrl: any = null;
+  currentPreviewBlob: Blob | null = null;
 
   // ── Latest Properties ─────────────────────────────────────────────────────
   latestProperties: Property[] = [];
@@ -277,7 +284,8 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     private favoriteService: FavoriteService,
     public auth: AuthService,
     private userData: UserDataService,
-    private mediaService: MediaService
+    private mediaService: MediaService,
+    private sanitizer: DomSanitizer
   ) {}
 
   ngOnInit(): void {
@@ -1464,5 +1472,113 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     }
     
     return Math.abs(hash).toString(36);
+  }
+
+  // Contact for Pricing via WhatsApp
+  contactForPricing(): void {
+    const projectName = this.property?.name || this.property?.['Project Name'] || 'this project';
+    const projectId = this.property?.id || this.property?.registrationNumber || '';
+    
+    const message = [
+      `Hi, I'm interested in getting pricing information for:`,
+      ``,
+      `Project: ${projectName}`,
+      projectId ? `RERA ID: ${projectId}` : '',
+      ``,
+      `Please share:`,
+      `• Current pricing and unit configurations`,
+      `• Payment plans and EMI options`,
+      `• Available offers and discounts`,
+      `• Possession timeline`,
+      ``,
+      `Thank you!`
+    ].filter(l => l !== null).join('\n');
+    
+    const whatsappNumber = '918977367700'; // Business WhatsApp number
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    window.open(url, '_blank');
+  }
+
+  // Document/Image Preview Methods
+  previewMedia(media: PropertyMedia): void {
+    const mediaId = (media as any).id || (media as any).mediaId;
+    const projectId = this.property?.id;
+    
+    if (!mediaId || !projectId) {
+      alert('Cannot preview this document');
+      return;
+    }
+    
+    this.currentPreviewMedia = media;
+    this.service.downloadDocument(projectId, mediaId).subscribe({
+      next: (blob) => {
+        this.currentPreviewBlob = blob;
+        const url = window.URL.createObjectURL(blob);
+        this.currentPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+        this.showMediaPreview = true;
+      },
+      error: () => alert(`Failed to load "${media.title}". Please try again.`)
+    });
+  }
+
+  downloadDocumentById(media: PropertyMedia): void {
+    const mediaId = (media as any).id || (media as any).mediaId;
+    const projectId = this.property?.id;
+    
+    if (!mediaId || !projectId) {
+      alert('Cannot download this document');
+      return;
+    }
+    
+    this.service.downloadDocument(projectId, mediaId).subscribe({
+      next: (blob) => {
+        const ext = this.getExtensionFromMime((media as any).mimeType || (media as any).mime_type || '');
+        const fileName = media.title + (media.title.includes('.') ? '' : ext);
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: () => alert(`Failed to download "${media.title}". Please try again.`)
+    });
+  }
+
+  closeMediaPreview(): void {
+    this.showMediaPreview = false;
+    if (this.currentPreviewUrl) {
+      const urlString = (this.currentPreviewUrl as any).changingThisBreaksApplicationSecurity;
+      if (urlString) {
+        window.URL.revokeObjectURL(urlString);
+      }
+    }
+    this.currentPreviewUrl = null;
+    this.currentPreviewBlob = null;
+    this.currentPreviewMedia = null;
+  }
+
+  downloadCurrentMedia(): void {
+    if (this.currentPreviewBlob && this.currentPreviewMedia) {
+      const url = window.URL.createObjectURL(this.currentPreviewBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      const ext = this.getExtensionFromMime((this.currentPreviewMedia as any).mimeType || (this.currentPreviewMedia as any).mime_type || '');
+      a.download = this.currentPreviewMedia.title + (this.currentPreviewMedia.title.includes('.') ? '' : ext);
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+  }
+
+  isPreviewPDF(): boolean {
+    if (!this.currentPreviewMedia) return false;
+    const mime = (this.currentPreviewMedia as any).mimeType || (this.currentPreviewMedia as any).mime_type || '';
+    return mime.includes('pdf');
+  }
+
+  isPreviewImage(): boolean {
+    if (!this.currentPreviewMedia) return false;
+    const mime = (this.currentPreviewMedia as any).mimeType || (this.currentPreviewMedia as any).mime_type || '';
+    return mime.includes('image');
   }
 }
