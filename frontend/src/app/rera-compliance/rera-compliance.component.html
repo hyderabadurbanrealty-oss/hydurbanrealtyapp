@@ -125,11 +125,30 @@
             <h5>{{ doc.name }}</h5>
             <span class="document-status">{{ doc.status }}</span>
           </div>
-          <div class="document-indicator">
-            <svg *ngIf="doc.isAvailable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-            </svg>
-            <svg *ngIf="!doc.isAvailable" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+          <div class="document-actions" *ngIf="doc.isAvailable">
+            <button 
+              class="btn-preview" 
+              (click)="previewDocument(doc.name)"
+              title="Preview Document"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+              </svg>
+              Preview
+            </button>
+            <button 
+              class="btn-download" 
+              (click)="downloadDocument(doc.name)"
+              title="Download Document"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/>
+              </svg>
+              Download
+            </button>
+          </div>
+          <div class="document-indicator" *ngIf="!doc.isAvailable">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
             </svg>
           </div>
@@ -179,6 +198,36 @@
         Please verify directly with RERA authorities for the most current information. Visit 
         <a href="https://rera.telangana.gov.in" target="_blank">rera.telangana.gov.in</a> for official records.
       </small>
+    </div>
+  </div>
+</div>
+
+<!-- PDF Preview Modal -->
+<div class="pdf-modal-overlay" *ngIf="showPdfModal" (click)="closePdfModal()">
+  <div class="pdf-modal-container" (click)="$event.stopPropagation()">
+    <div class="pdf-modal-header">
+      <h3>{{ currentDocumentName }}</h3>
+      <div class="pdf-modal-actions">
+        <button class="btn-modal-download" (click)="downloadCurrentDocument()" title="Download PDF">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"/>
+          </svg>
+          Download
+        </button>
+        <button class="btn-modal-close" (click)="closePdfModal()" title="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
+            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+    <div class="pdf-modal-body">
+      <iframe 
+        *ngIf="pdfPreviewUrl" 
+        [src]="pdfPreviewUrl" 
+        class="pdf-iframe"
+        frameborder="0"
+      ></iframe>
     </div>
   </div>
 </div>

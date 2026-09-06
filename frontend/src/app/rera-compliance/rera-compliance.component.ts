@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { PropertyService } from '../services/property.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   standalone: false,
@@ -16,6 +18,17 @@ export class ReraComplianceComponent implements OnInit {
   fundUtilization: number = 0;
   complaintsCount: number = 0;
   overallStatus: string = '';
+  
+  // PDF Preview Modal
+  showPdfModal: boolean = false;
+  pdfPreviewUrl: SafeResourceUrl | null = null;
+  currentDocumentName: string = '';
+  currentDocumentBlob: Blob | null = null;
+  
+  constructor(
+    private propertyService: PropertyService,
+    private sanitizer: DomSanitizer
+  ) {}
   
   ngOnInit(): void {
     if (this.property) {
@@ -273,5 +286,110 @@ export class ReraComplianceComponent implements OnInit {
 
   getDocumentStatusClass(isAvailable: boolean): string {
     return isAvailable ? 'available' : 'pending';
+  }
+
+  // PDF Preview and Download Methods
+  previewDocument(docName: string): void {
+    const matchingDbDoc = this.getMatchingDocument(docName);
+    
+    if (matchingDbDoc) {
+      const mediaId = (matchingDbDoc as any).id || (matchingDbDoc as any).mediaId;
+      const projectId = this.property?.id;
+      
+      if (mediaId && projectId) {
+        this.currentDocumentName = docName;
+        this.propertyService.downloadDocument(projectId, mediaId).subscribe({
+          next: (blob) => {
+            this.currentDocumentBlob = blob;
+            const url = window.URL.createObjectURL(blob);
+            this.pdfPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+            this.showPdfModal = true;
+          },
+          error: () => alert(`Failed to load "${docName}". Please try again.`)
+        });
+        return;
+      }
+    }
+    
+    alert(`Document "${docName}" is not available for preview.`);
+  }
+
+  downloadDocument(docName: string): void {
+    const matchingDbDoc = this.getMatchingDocument(docName);
+    
+    if (matchingDbDoc) {
+      const mediaId = (matchingDbDoc as any).id || (matchingDbDoc as any).mediaId;
+      const projectId = this.property?.id;
+      
+      if (mediaId && projectId) {
+        this.propertyService.downloadDocument(projectId, mediaId).subscribe({
+          next: (blob) => {
+            const ext = this.getExtensionFromMime((matchingDbDoc as any).mimeType || (matchingDbDoc as any).mime_type || '');
+            const fileName = docName + (docName.includes('.') ? '' : ext);
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            a.click();
+            window.URL.revokeObjectURL(url);
+          },
+          error: () => alert(`Failed to download "${docName}". Please try again.`)
+        });
+        return;
+      }
+    }
+    
+    alert(`Document "${docName}" is not available for download.`);
+  }
+
+  closePdfModal(): void {
+    this.showPdfModal = false;
+    if (this.pdfPreviewUrl) {
+      // Clean up the blob URL
+      const urlString = (this.pdfPreviewUrl as any).changingThisBreaksApplicationSecurity;
+      if (urlString) {
+        window.URL.revokeObjectURL(urlString);
+      }
+    }
+    this.pdfPreviewUrl = null;
+    this.currentDocumentBlob = null;
+    this.currentDocumentName = '';
+  }
+
+  downloadCurrentDocument(): void {
+    if (this.currentDocumentBlob && this.currentDocumentName) {
+      const url = window.URL.createObjectURL(this.currentDocumentBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = this.currentDocumentName + '.pdf';
+      a.click();
+      window.URL.revokeObjectURL(url);
+    }
+  }
+
+  private getMatchingDocument(docName: string): any {
+    // Get all available documents from the property
+    const allDocs = [
+      ...(this.property?.availableDocuments || []),
+      ...(this.property?.scrapedDocuments || []),
+      ...(this.property?.documents || [])
+    ];
+    
+    // Find matching document by title or name
+    return allDocs.find((d: any) => {
+      const title = (d.title || d.name || '').toLowerCase();
+      return title.includes(docName.toLowerCase()) || docName.toLowerCase().includes(title);
+    });
+  }
+
+  private getExtensionFromMime(mime: string): string {
+    const map: Record<string, string> = {
+      'application/pdf': '.pdf',
+      'application/msword': '.doc',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+      'image/jpeg': '.jpg',
+      'image/png': '.png',
+    };
+    return map[mime] || '';
   }
 }
