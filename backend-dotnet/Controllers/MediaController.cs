@@ -198,11 +198,20 @@ namespace HyderabadUrbanReality.Controllers
             if (item is null) return NotFound(new { error = "not_found" });
 
             var itemDict = (IDictionary<string, object?>)item;
+            var fileUrl   = itemDict.TryGetValue("file_url",   out var fu) ? fu?.ToString() : null;
             var fileName  = itemDict.TryGetValue("file_name",  out var fn) ? fn?.ToString() : null;
             var mediaType = itemDict.TryGetValue("media_type", out var mt) ? mt?.ToString() : null;
             var title     = itemDict.TryGetValue("title",      out var tt) ? tt?.ToString() : fileName;
             var mimeType  = itemDict.TryGetValue("mime_type",  out var mm) ? mm?.ToString() : "application/octet-stream";
 
+            // If file is stored in Supabase (has file_url starting with http), redirect to it
+            if (!string.IsNullOrEmpty(fileUrl) && (fileUrl.StartsWith("http://") || fileUrl.StartsWith("https://")))
+            {
+                _logger.LogInformation("Redirecting to Supabase Storage URL: project={Project} mediaId={MediaId}", projectId, mediaId);
+                return Redirect(fileUrl);
+            }
+
+            // Fallback: serve from local filesystem (legacy uploads)
             if (string.IsNullOrEmpty(fileName))
                 return BadRequest(new { error = "no_file", message = "This media item has no downloadable file." });
 
