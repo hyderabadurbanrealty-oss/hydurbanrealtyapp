@@ -10,6 +10,7 @@ import { UserDataService } from '../services/user-data.service';
 import { AuthService } from '../services/auth.service';
 import { MediaService, PropertyMedia } from '../services/media.service';
 import { LoadingService } from '../services/loading.service';
+import { AnalyticsService } from '../services/analytics.service';
 import { ChartData, ChartOptions } from 'chart.js';
 import { environment } from '../../environments/environment';
 
@@ -285,7 +286,8 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     public auth: AuthService,
     private userData: UserDataService,
     private mediaService: MediaService,
-    private sanitizer: DomSanitizer
+    private sanitizer: DomSanitizer,
+    private analytics: AnalyticsService
   ) {}
 
   ngOnInit(): void {
@@ -310,6 +312,15 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
           this.property = prop;
           this.averageRating = prop.averageRating || 0;
           this.loading = false;
+
+          // Track property view
+          this.analytics.trackPropertyView({
+            property_id: prop.id || prop.registrationNumber || '',
+            property_type: prop['Project Type'] || prop.projectType || '',
+            locality: prop['Locality'] || prop.locality || '',
+            city: prop['District'] || prop.district || 'Hyderabad',
+            bedrooms: this.extractBedrooms(prop)
+          });
 
           // Synchronize favorite state for current property
           const propId = this.getItemId(prop);
@@ -397,7 +408,21 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     if (!id) return;
 
     const prop = { ...this.property, id };
+    const wasFavorite = this.isFavorite;
     this.isFavorite = this.favoriteService.toggleFavorite(prop);
+    
+    // Track favorite action
+    if (this.isFavorite && !wasFavorite) {
+      this.analytics.trackFavoriteAdd(
+        id,
+        this.property['Project Type'] || this.property.projectType || ''
+      );
+    } else if (!this.isFavorite && wasFavorite) {
+      this.analytics.trackFavoriteRemove(
+        id,
+        this.property['Project Type'] || this.property.projectType || ''
+      );
+    }
   }
 
   toggleSaveProperty() {
@@ -1479,6 +1504,9 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     const projectName = this.property?.name || this.property?.['Project Name'] || 'this project';
     const projectId = this.property?.id || this.property?.registrationNumber || '';
     
+    // Track WhatsApp click
+    this.analytics.trackWhatsAppClick(projectId, 'pricing_inquiry');
+    
     const message = [
       `Hi, I'm interested in getting pricing information for:`,
       ``,
@@ -1497,6 +1525,26 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     const whatsappNumber = '918977367700'; // Business WhatsApp number
     const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
     window.open(url, '_blank');
+  }
+
+  // Extract bedrooms information for tracking
+  private extractBedrooms(property: any): string {
+    // Try to extract from available data
+    if (property.bedrooms) return property.bedrooms;
+    if (property['Bedrooms']) return property['Bedrooms'];
+    
+    // Try to extract from project type or name
+    const projectType = property['Project Type'] || property.projectType || '';
+    const projectName = property['Project Name'] || property.name || '';
+    const combined = `${projectType} ${projectName}`.toLowerCase();
+    
+    if (combined.includes('1 bhk') || combined.includes('1bhk')) return '1';
+    if (combined.includes('2 bhk') || combined.includes('2bhk')) return '2';
+    if (combined.includes('3 bhk') || combined.includes('3bhk')) return '3';
+    if (combined.includes('4 bhk') || combined.includes('4bhk')) return '4';
+    if (combined.includes('5 bhk') || combined.includes('5bhk')) return '5';
+    
+    return 'mixed';
   }
 
   // Document/Image Preview Methods

@@ -2,6 +2,7 @@ import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular
 import { Router, NavigationEnd } from '@angular/router';
 import { Observable } from 'rxjs';
 import { AuthService, UserProfile } from './services/auth.service';
+import { AnalyticsService } from './services/analytics.service';
 
 @Component({
   standalone: false,
@@ -31,7 +32,11 @@ export class AppComponent implements OnInit {
 
   @ViewChild('navWrapper', { static: true }) navWrapper!: ElementRef<HTMLElement>;
 
-  constructor(private router: Router, public auth: AuthService) {
+  constructor(
+    private router: Router, 
+    public auth: AuthService,
+    private analytics: AnalyticsService
+  ) {
     this.router.events.subscribe(event => {
       if (event instanceof NavigationEnd) {
         this.currentRoute = event.urlAfterRedirects;
@@ -44,6 +49,12 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.currentUser$ = this.auth.currentUser$;
     this.isLoggedIn$ = this.auth.isLoggedIn$;
+    
+    // Initialize Google Tag Manager
+    this.analytics.initGTM();
+    
+    // Track page views on route changes
+    this.analytics.trackPageViews();
   }
 
   @HostListener('document:click', ['$event'])
