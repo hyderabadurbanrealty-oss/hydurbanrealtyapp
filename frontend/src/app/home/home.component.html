@@ -119,7 +119,7 @@
               <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
             </svg>
           </div>
-          <div *ngIf="p['Project Status']" class="status-badge-overlay"
+          <div *ngIf="p['Project Status'] && !p['Project Status'].toLowerCase().includes('new')" class="status-badge-overlay"
                [ngClass]="getStatusBadgeClass(p['Project Status'])">
             {{ getStatusLabel(p['Project Status']) }}
           </div>
@@ -325,7 +325,7 @@
             </svg>
             {{selected['Locality'] || selected['Village/City/Town']}}, {{selected['District']}}
           </div>
-          <div *ngIf="selected['Project Status']" class="status-badge" [ngClass]="getStatusBadgeClass(selected['Project Status'])" style="margin-top:8px;display:inline-block">
+          <div *ngIf="selected['Project Status'] && !selected['Project Status'].toLowerCase().includes('new')" class="status-badge" [ngClass]="getStatusBadgeClass(selected['Project Status'])" style="margin-top:8px;display:inline-block">
             {{selected['Project Status']}}
           </div>
         </div>

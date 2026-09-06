@@ -788,6 +788,17 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     return num.toLocaleString('en-IN', { maximumFractionDigits: 2 }) + ' sq.m';
   }
 
+  formatPropertyDate(value: string | undefined): string {
+    if (!value) return 'N/A';
+    const datePart = value.split('T')[0];
+    const parts = datePart.split('-').map(Number);
+    const date = parts.length === 3 && parts.every(Number.isFinite)
+      ? new Date(parts[0], parts[1] - 1, parts[2])
+      : new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+  }
+
   getMembers(): any[] {
     if (!this.property) return [];
     const members = this.property['Member Information'];

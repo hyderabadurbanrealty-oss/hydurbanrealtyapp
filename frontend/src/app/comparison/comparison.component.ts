@@ -30,8 +30,8 @@ export class ComparisonComponent implements OnInit, OnDestroy {
     { key: 'Locality', label: 'Locality', type: 'text', fallback: 'locality' },
     { key: 'District', label: 'District', type: 'text', fallback: 'district' },
     { key: 'Plan Approval Number', label: 'RERA Number', type: 'text', fallback: 'registrationNumber' },
-    { key: 'Approved Date', label: 'Registered On', type: 'text', fallback: 'dateOfRegistration' },
-    { key: 'Proposed Date of Completion', label: 'Expected Completion', type: 'text', fallback: 'proposedDateOfCompletion' },
+    { key: 'Approved Date', label: 'Registered On', type: 'date', fallback: 'dateOfRegistration' },
+    { key: 'Proposed Date of Completion', label: 'Expected Completion', type: 'date', fallback: 'proposedDateOfCompletion' },
   ];
   areaFields: any[] = [
     { key: 'Total Area(In sqmts)', label: 'Total Area', type: 'area', higherIsBetter: true, fallback: 'plotArea' },
@@ -414,6 +414,17 @@ export class ComparisonComponent implements OnInit, OnDestroy {
   formatArea(value: any): string {
     if (!value || value === 'N/A') return 'N/A';
     return `${value} sq.m`;
+  }
+
+  formatPropertyDate(value: string | undefined): string {
+    if (!value) return 'N/A';
+    const datePart = value.split('T')[0];
+    const parts = datePart.split('-').map(Number);
+    const date = parts.length === 3 && parts.every(Number.isFinite)
+      ? new Date(parts[0], parts[1] - 1, parts[2])
+      : new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
   }
 
   getRatingStars(rating: number): string[] {

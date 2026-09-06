@@ -188,7 +188,7 @@
             </span>
           </div>
           <div class="prop-meta-row">
-            <span class="prop-status" [class]="getStatusClass(p['Project Status'])">
+            <span class="prop-status" *ngIf="!p['Project Status']?.toLowerCase()?.includes('new')" [class]="getStatusClass(p['Project Status'])">
               {{ p['Project Status'] || 'Unknown' }}
             </span>
             <span class="prop-type" *ngIf="p['Project Type']">{{ p['Project Type'] }}</span>

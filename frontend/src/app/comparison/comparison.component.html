@@ -154,7 +154,10 @@
           <div class="compare-row-label">{{ field.label }}</div>
           <div class="compare-row-values">
             <div class="compare-cell" *ngFor="let p of selectedProperties">
-              <span class="compare-cell-val">{{ getFieldValue(p, field) || 'N/A' }}</span>
+              <span class="compare-cell-val">
+                <ng-container *ngIf="field.type === 'date'">{{ formatPropertyDate(getFieldValue(p, field)) }}</ng-container>
+                <ng-container *ngIf="field.type !== 'date'">{{ getFieldValue(p, field) || 'N/A' }}</ng-container>
+              </span>
             </div>
           </div>
         </div>
