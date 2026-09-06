@@ -106,15 +106,29 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
 
             try
             {
+                // First try direct directory lookup by ID
                 var projectPath = Path.Combine(_scrapedProjectsPath, projectId);
                 
-                if (!Directory.Exists(projectPath))
+                if (Directory.Exists(projectPath))
                 {
-                    _logger.LogWarning("Project directory not found: {ProjectId}", projectId);
-                    return null;
+                    return await LoadProjectFromDirectoryAsync(projectPath);
                 }
 
-                return await LoadProjectFromDirectoryAsync(projectPath);
+                // If not found, search all projects by name
+                _logger.LogInformation("Project directory not found by ID, searching by name: {ProjectId}", projectId);
+                var allProjects = await GetAllProjectsAsync();
+                var projectByName = allProjects.FirstOrDefault(p =>
+                    (p.TryGetValue("Project Name", out var name) && name?.ToString() == projectId) ||
+                    (p.TryGetValue("projectName", out var name2) && name2?.ToString() == projectId));
+
+                if (projectByName != null)
+                {
+                    _logger.LogInformation("Found project by name: {ProjectId}", projectId);
+                    return projectByName;
+                }
+
+                _logger.LogWarning("Project not found by ID or name: {ProjectId}", projectId);
+                return null;
             }
             catch (Exception ex)
             {
@@ -124,15 +138,25 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
         }
 
         /// <inheritdoc />
-        public Task<bool> ProjectExistsAsync(string projectId)
+        public async Task<bool> ProjectExistsAsync(string projectId)
         {
             if (string.IsNullOrWhiteSpace(projectId))
             {
-                return Task.FromResult(false);
+                return false;
             }
 
+            // First check by directory (ID)
             var projectPath = Path.Combine(_scrapedProjectsPath, projectId);
-            return Task.FromResult(Directory.Exists(projectPath));
+            if (Directory.Exists(projectPath))
+            {
+                return true;
+            }
+
+            // Check by name
+            var allProjects = await GetAllProjectsAsync();
+            return allProjects.Any(p =>
+                (p.TryGetValue("Project Name", out var name) && name?.ToString() == projectId) ||
+                (p.TryGetValue("projectName", out var name2) && name2?.ToString() == projectId));
         }
 
         /// <inheritdoc />

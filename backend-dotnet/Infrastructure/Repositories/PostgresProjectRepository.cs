@@ -101,7 +101,7 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
                        available_documents,
                        scraped_at, updated_at
                 FROM   projects
-                WHERE  id = @id";
+                WHERE  id = @id OR project_name = @id";
 
             try
             {
@@ -119,7 +119,7 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
         /// <inheritdoc />
         public async Task<bool> ProjectExistsAsync(string projectId)
         {
-            const string sql = "SELECT COUNT(1) FROM projects WHERE id = @id";
+            const string sql = "SELECT COUNT(1) FROM projects WHERE id = @id OR project_name = @id";
 
             try
             {
