@@ -190,10 +190,10 @@
             <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2z"/></svg>
             Download Brochure
           </a>
-          <span *ngIf="!getBrochure()" class="hqa-btn hqa-disabled">
-            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-            No Brochure Yet
-          </span>
+          <button *ngIf="!getBrochure()" class="hqa-btn" (click)="navigateToFloorPlans()">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M3 3v18h18V3H3zm10 16H5v-4h8v4zm0-6H5v-4h8v4zm6 6h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6H5V5h14v2z"/></svg>
+            View Floor Plans
+          </button>
           <button *ngIf="propertyImages.length > 0" (click)="openLightbox(propertyImages, 0); activeTab='siteimages'" class="hqa-btn">
             <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
             All Photos ({{propertyImages.length}})
@@ -256,9 +256,9 @@
         <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
         Videos <span class="tab-badge">{{propertyVideos.length}}</span>
       </button>
-      <button class="detail-tab" [class.active]="activeTab==='floorplans'" (click)="activeTab='floorplans'; loadFloorPlans()" *ngIf="floorPlansLoaded && floorPlans.length > 0">
+      <button class="detail-tab" [class.active]="activeTab==='floorplans'" (click)="activeTab='floorplans'; loadFloorPlans()">
         <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M3 3v18h18V3H3zm10 16H5v-4h8v4zm0-6H5v-4h8v4zm6 6h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6H5V5h14v2z"/></svg>
-        Floor Plans <span class="tab-badge fp-badge">{{floorPlans.length}}</span>
+        Floor Plans <span class="tab-badge fp-badge" *ngIf="floorPlans.length > 0 || propertyFloorplans.length > 0">{{(floorPlans.length || 0) + (propertyFloorplans.length || 0)}}</span>
       </button>
       <button class="detail-tab" [class.active]="activeTab==='rera'" (click)="activeTab='rera'">
         <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
@@ -1312,10 +1312,10 @@
           </div>
 
           <!-- Empty state -->
-          <div class="tab-empty-state" *ngIf="!floorPlansLoading && floorPlans.length === 0">
+          <div class="tab-empty-state" *ngIf="!floorPlansLoading && floorPlans.length === 0 && propertyFloorplans.length === 0">
             <svg viewBox="0 0 24 24" fill="currentColor" width="48" height="48"><path d="M3 3v18h18V3H3zm10 16H5v-4h8v4zm0-6H5v-4h8v4zm6 6h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6H5V5h14v2z"/></svg>
-            <p>Floor plans haven't been downloaded yet for this project.</p>
-            <p style="font-size:13px;color:#999;">Run <code>python download_project_docs.py "{{property['Project Name']}}"</code> in the backend folder to fetch them from RERA.</p>
+            <p>No floor plans available for this project yet.</p>
+            <p style="font-size:13px;color:#999;">Floor plans will be displayed here once they are available.</p>
           </div>
         </div><!-- /floorplans tab -->
 

@@ -1746,4 +1746,16 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
       }
     }, 100);
   }
+
+  navigateToFloorPlans(): void {
+    this.activeTab = 'floorplans';
+    this.loadFloorPlans();
+    // Scroll to the tabs navigation section smoothly
+    setTimeout(() => {
+      const tabsElement = document.querySelector('.detail-tabs');
+      if (tabsElement) {
+        tabsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
 }
