@@ -298,26 +298,34 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    // Subscribe to route parameter changes to reload data when navigating between properties
+    this.route.paramMap.subscribe(params => {
+      const id = params.get('id');
+      if (id) {
+        this.loadPropertyData(id);
+      }
+    });
+  }
+
+  private loadPropertyData(id: string): void {
     // Scroll to top of page
     window.scrollTo(0, 0);
     
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      // Store the route ID for media operations
-      this.projectRouteId = id;
-      
-      this.loading = true;
-      
-      // Ensure loading overlay shows for minimum duration
-      const minimumLoadingTime = 1500; // milliseconds - longer, smoother experience
-      const startTime = Date.now();
-      
-      // Generate device fingerprint
-      this.deviceFingerprint = this.generateDeviceFingerprint();
-      // Generate initial captcha challenge
-      this.refreshCaptcha();
-      
-      this.service.getPropertyById(id).subscribe({
+    // Store the route ID for media operations
+    this.projectRouteId = id;
+    
+    this.loading = true;
+    
+    // Ensure loading overlay shows for minimum duration
+    const minimumLoadingTime = 1500; // milliseconds - longer, smoother experience
+    const startTime = Date.now();
+    
+    // Generate device fingerprint
+    this.deviceFingerprint = this.generateDeviceFingerprint();
+    // Generate initial captcha challenge
+    this.refreshCaptcha();
+    
+    this.service.getPropertyById(id).subscribe({
         next: (prop) => {
           this.property = prop;
           this.averageRating = prop.averageRating || 0;
@@ -401,10 +409,6 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
       this.loadReviews(id);
       // Load price history for trend chart
       this.loadPriceHistory(id);
-    } else {
-      this.error = 'No property ID provided';
-      this.loading = false;
-    }
   }
 
   ngOnDestroy(): void {
