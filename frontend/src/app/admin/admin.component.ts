@@ -242,12 +242,26 @@ export class AdminComponent implements OnInit, OnDestroy {
   loadProperties() {
     this.loading = true;
     this.adminService.getAdminProperties().subscribe({
-      next: (props: any[]) => {
+      next: (response: any) => {
+        console.log('Raw API response:', response);
+        
+        // Handle both direct array and wrapped response
+        let props = Array.isArray(response) ? response : (response?.properties || response?.data || []);
+        
+        console.log('Parsed properties:', props);
         this.properties = props;
         this.filteredProperties = props;
         this.loading = false;
       },
-      error: () => { this.statusMsg = 'Error loading properties'; this.loading = false; }
+      error: (err) => { 
+        console.error('Error loading properties:', err);
+        this.statusMsg = 'Error loading properties: ' + (err?.message || 'Unknown error');
+        this.loading = false; 
+      },
+      complete: () => {
+        console.log('Properties loading complete');
+        this.loading = false; // Ensure loading is always set to false
+      }
     });
   }
 
