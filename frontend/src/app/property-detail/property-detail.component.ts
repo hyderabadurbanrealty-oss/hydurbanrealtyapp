@@ -1601,10 +1601,21 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   // Document/Image Preview Methods
   previewMedia(media: PropertyMedia): void {
     const mediaId = (media as any).id || (media as any).mediaId;
-    const projectId = this.projectRouteId || this.property?.id; // Use route ID first
+    const projectId = this.projectRouteId || this.property?.id;
+    const fileUrl = (media as any).fileUrl || (media as any).file_url;
+    const mimeType = (media as any).mimeType || (media as any).mime_type || '';
     
-    console.log('Preview media:', { media, mediaId, projectId, routeId: this.projectRouteId }); // Debug log
+    console.log('Preview media:', { media, mediaId, projectId, fileUrl, mimeType });
     
+    // For images, directly show the Supabase URL (no need to download)
+    if (mimeType.includes('image') && fileUrl) {
+      this.currentPreviewMedia = media;
+      this.currentPreviewUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fileUrl);
+      this.showMediaPreview = true;
+      return;
+    }
+    
+    // For PDFs or non-image files, download through backend
     if (!mediaId || !projectId) {
       alert('Cannot preview this document. Missing ID or project ID.');
       console.error('Missing IDs:', { mediaId, projectId, media });
