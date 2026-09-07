@@ -922,6 +922,12 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     return docs && Object.keys(docs).length > 0;
   }
 
+  hasScrapedDocuments(): boolean {
+    // Check only scraped documents (not database)
+    const docs = this.getDocuments();
+    return docs && Object.keys(docs).length > 0;
+  }
+
   allDocsExpanded = false;
 
   private get _fpHeroEntry(): any {
