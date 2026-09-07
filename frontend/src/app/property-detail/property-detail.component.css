@@ -2393,7 +2393,8 @@
 .btn-media-download,
 .btn-media-close,
 .btn-media-zoom,
-.btn-media-reset {
+.btn-media-reset,
+.btn-media-rotate {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -2408,13 +2409,15 @@
 }
 
 .btn-media-zoom,
-.btn-media-reset {
+.btn-media-reset,
+.btn-media-rotate {
   padding: 0.6rem;
   background: rgba(255, 255, 255, 0.15);
 }
 
 .btn-media-zoom:hover:not(:disabled),
-.btn-media-reset:hover {
+.btn-media-reset:hover,
+.btn-media-rotate:hover {
   background: rgba(255, 255, 255, 0.25);
   transform: scale(1.05);
 }

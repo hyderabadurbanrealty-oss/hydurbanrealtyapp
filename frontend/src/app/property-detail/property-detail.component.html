@@ -1557,7 +1557,7 @@
 
 <!-- Document/Image Preview Modal -->
 <div class="media-preview-modal" *ngIf="showMediaPreview" (click)="closeMediaPreview()">
-  <div class="media-preview-container" (click)="$event.stopPropagation()">
+  <div class="media-preview-container" (click)="$event.stopPropagation()" [style.max-width]="getModalMaxWidth()">
     <div class="media-preview-header">
       <h3>{{ currentPreviewMedia?.title }}</h3>
       <div class="media-preview-actions">
@@ -1578,6 +1578,11 @@
         <button *ngIf="isPreviewImage()" class="btn-media-reset" (click)="resetZoom()" title="Reset Zoom">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
             <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z"/>
+          </svg>
+        </button>
+        <button *ngIf="isPreviewImage()" class="btn-media-rotate" (click)="rotateImage()" title="Rotate 90°">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+            <path d="M15.55 5.55L11 1v3.07C7.06 4.56 4 7.92 4 12s3.05 7.44 7 7.93v-2.02c-2.84-.48-5-2.94-5-5.91s2.16-5.43 5-5.91V10l4.55-4.45zM19.93 11c-.17-1.39-.72-2.73-1.62-3.89l-1.42 1.42c.54.75.88 1.6 1.02 2.47h2.02zM13 17.9v2.02c1.39-.17 2.74-.71 3.9-1.61l-1.44-1.44c-.75.54-1.59.89-2.46 1.03zm3.89-2.42l1.42 1.41c.9-1.16 1.45-2.5 1.62-3.89h-2.02c-.14.87-.48 1.72-1.02 2.48z"/>
           </svg>
         </button>
         <button class="btn-media-download" (click)="downloadCurrentMedia()" title="Download">
@@ -1601,13 +1606,13 @@
         class="media-preview-iframe"
         frameborder="0"
       ></iframe>
-      <!-- Image Viewer with Zoom -->
+      <!-- Image Viewer with Zoom and Rotate -->
       <div *ngIf="isPreviewImage()" class="image-zoom-container">
         <img 
           [src]="currentPreviewUrl" 
           [alt]="currentPreviewMedia?.title"
           class="media-preview-image"
-          [style.transform]="'scale(' + previewZoom + ')'"
+          [style.transform]="'scale(' + previewZoom + ') rotate(' + previewRotation + 'deg)'"
           [style.cursor]="previewZoom > 1 ? 'move' : 'default'"
           (load)="onPreviewImageLoad($event)"
         />

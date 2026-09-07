@@ -54,6 +54,7 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   currentPreviewUrl: any = null;
   currentPreviewBlob: Blob | null = null;
   previewZoom: number = 1;
+  previewRotation: number = 0;
   previewImageWidth: number = 0;
   previewImageHeight: number = 0;
 
@@ -1610,8 +1611,9 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     
     console.log('Preview media:', { media, mediaId, projectId, fileUrl, mimeType });
     
-    // Reset zoom for new image
+    // Reset zoom and rotation for new image
     this.previewZoom = 1;
+    this.previewRotation = 0;
     
     // For images, directly show the Supabase URL (no need to download)
     if (mimeType.includes('image') && fileUrl) {
@@ -1686,7 +1688,8 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     this.currentPreviewUrl = null;
     this.currentPreviewBlob = null;
     this.currentPreviewMedia = null;
-    this.previewZoom = 1; // Reset zoom on close
+    this.previewZoom = 1;
+    this.previewRotation = 0; // Reset rotation on close
   }
 
   downloadCurrentMedia(): void {
@@ -1734,6 +1737,29 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     const img = event.target as HTMLImageElement;
     this.previewImageWidth = img.naturalWidth;
     this.previewImageHeight = img.naturalHeight;
+  }
+
+  rotateImage(): void {
+    this.previewRotation = (this.previewRotation + 90) % 360;
+  }
+
+  getModalMaxWidth(): string {
+    if (!this.isPreviewImage() || !this.previewImageWidth) {
+      return '1400px'; // Default max-width
+    }
+    
+    // Consider rotation (swap dimensions for 90° and 270°)
+    const isRotated = this.previewRotation === 90 || this.previewRotation === 270;
+    const effectiveWidth = isRotated ? this.previewImageHeight : this.previewImageWidth;
+    
+    // Add padding for header and controls (120px total)
+    const modalWidth = effectiveWidth + 120;
+    
+    // Cap at viewport width minus some margin (90vw)
+    const maxViewportWidth = window.innerWidth * 0.9;
+    const finalWidth = Math.min(modalWidth, maxViewportWidth);
+    
+    return `${finalWidth}px`;
   }
 
   navigateToDocuments(): void {
