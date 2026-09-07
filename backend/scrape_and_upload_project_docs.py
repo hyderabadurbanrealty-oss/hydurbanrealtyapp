@@ -165,9 +165,18 @@ def main():
     project_id = row[0]
     print(f"Found project ID: {project_id}")
     
-    # Get RERA registration number to search
-    cur.execute("SELECT registration_number FROM projects WHERE id = %s", (project_id,))
-    rera_no = cur.fetchone()[0]
+    # Get RERA registration number from raw_data JSONB
+    cur.execute("""
+        SELECT 
+            raw_data->>'Registration Number' as reg_num,
+            raw_data->>'RERA Registration Number' as rera_num,
+            id
+        FROM projects 
+        WHERE id = %s
+    """, (project_id,))
+    
+    row = cur.fetchone()
+    rera_no = row[0] or row[1] or row[2]  # Try Registration Number, RERA Registration Number, or use ID
     
     if not rera_no:
         print("ERROR: No RERA registration number found")
