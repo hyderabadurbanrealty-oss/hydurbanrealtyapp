@@ -927,9 +927,15 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   }
 
   hasScrapedDocuments(): boolean {
-    // Check only scraped documents (not database)
+    // Check only scraped documents (not database) AND if any are actually available
     const docs = this.getDocuments();
-    return docs && Object.keys(docs).length > 0;
+    if (!docs || Object.keys(docs).length === 0) {
+      return false;
+    }
+    // Check if at least one document is available (not just metadata)
+    return Object.values(docs).some((value: any) => 
+      value === 'View' || (typeof value === 'string' && value.includes('View'))
+    );
   }
 
   allDocsExpanded = false;
