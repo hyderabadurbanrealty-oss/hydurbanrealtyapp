@@ -1,0 +1,14 @@
+{
+  "igrs_username": "YOUR_IGRS_USERNAME_HERE",
+  "igrs_password": "YOUR_IGRS_PASSWORD_HERE",
+  "pincodes": [
+    "500032",
+    "500081",
+    "500084",
+    "500019"
+  ],
+  "db_connection": "postgresql://postgres.qjgwnbszmojzgwmafvuc:LZGJwY0ryKkFKH5P@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres",
+  "supabase_url": "https://qjgwnbszmojzgwmafvuc.supabase.co",
+  "supabase_service_key": "YOUR_SUPABASE_SERVICE_KEY_HERE",
+  "supabase_bucket": "property-media"
+}
