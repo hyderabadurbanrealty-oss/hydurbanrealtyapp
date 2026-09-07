@@ -53,6 +53,9 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   currentPreviewMedia: PropertyMedia | null = null;
   currentPreviewUrl: any = null;
   currentPreviewBlob: Blob | null = null;
+  previewZoom: number = 1;
+  previewImageWidth: number = 0;
+  previewImageHeight: number = 0;
 
   // ── Latest Properties ─────────────────────────────────────────────────────
   latestProperties: Property[] = [];
@@ -1607,6 +1610,9 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     
     console.log('Preview media:', { media, mediaId, projectId, fileUrl, mimeType });
     
+    // Reset zoom for new image
+    this.previewZoom = 1;
+    
     // For images, directly show the Supabase URL (no need to download)
     if (mimeType.includes('image') && fileUrl) {
       this.currentPreviewMedia = media;
@@ -1680,6 +1686,7 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     this.currentPreviewUrl = null;
     this.currentPreviewBlob = null;
     this.currentPreviewMedia = null;
+    this.previewZoom = 1; // Reset zoom on close
   }
 
   downloadCurrentMedia(): void {
@@ -1704,5 +1711,28 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     if (!this.currentPreviewMedia) return false;
     const mime = (this.currentPreviewMedia as any).mimeType || (this.currentPreviewMedia as any).mime_type || '';
     return mime.includes('image');
+  }
+
+  // Zoom functionality for image preview
+  zoomIn(): void {
+    if (this.previewZoom < 3) {
+      this.previewZoom = Math.min(3, this.previewZoom + 0.25);
+    }
+  }
+
+  zoomOut(): void {
+    if (this.previewZoom > 0.5) {
+      this.previewZoom = Math.max(0.5, this.previewZoom - 0.25);
+    }
+  }
+
+  resetZoom(): void {
+    this.previewZoom = 1;
+  }
+
+  onPreviewImageLoad(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    this.previewImageWidth = img.naturalWidth;
+    this.previewImageHeight = img.naturalHeight;
   }
 }

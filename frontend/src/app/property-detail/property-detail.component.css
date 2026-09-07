@@ -2387,10 +2387,13 @@
   display: flex;
   gap: 0.8rem;
   flex-shrink: 0;
+  align-items: center;
 }
 
 .btn-media-download,
-.btn-media-close {
+.btn-media-close,
+.btn-media-zoom,
+.btn-media-reset {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -2402,6 +2405,31 @@
   cursor: pointer;
   transition: all 0.3s;
   color: white;
+}
+
+.btn-media-zoom,
+.btn-media-reset {
+  padding: 0.6rem;
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.btn-media-zoom:hover:not(:disabled),
+.btn-media-reset:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
+
+.btn-media-zoom:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.zoom-level {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  min-width: 45px;
+  text-align: center;
 }
 
 .btn-media-download {
@@ -2425,12 +2453,27 @@
 
 .media-preview-body {
   flex: 1;
-  overflow: hidden;
+  overflow: auto;
   background: #f3f4f6;
   border-radius: 0 0 16px 16px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+.media-preview-body.zoomed {
+  overflow: auto;
+}
+
+.image-zoom-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 20px;
 }
 
 .media-preview-iframe {
@@ -2443,7 +2486,8 @@
   max-width: 100%;
   max-height: 100%;
   object-fit: contain;
-  padding: 20px;
+  transition: transform 0.2s ease;
+  transform-origin: center center;
 }
 
 /* Mobile Responsive */
