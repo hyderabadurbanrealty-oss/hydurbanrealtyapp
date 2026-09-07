@@ -1735,4 +1735,15 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     this.previewImageWidth = img.naturalWidth;
     this.previewImageHeight = img.naturalHeight;
   }
+
+  navigateToDocuments(): void {
+    this.activeTab = 'documents';
+    // Scroll to the tabs navigation section smoothly
+    setTimeout(() => {
+      const tabsElement = document.querySelector('.detail-tabs');
+      if (tabsElement) {
+        tabsElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
 }
