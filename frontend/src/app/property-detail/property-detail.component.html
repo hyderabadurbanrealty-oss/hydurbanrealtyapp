@@ -1149,7 +1149,7 @@
               <div class="doc-card-modern" *ngFor="let doc of propertyDocuments"
                    [class.clickable]="true">
                 <div class="doc-thumbnail" (click)="previewMedia(doc)">
-                  <img *ngIf="doc.thumbnailUrl" [src]="doc.thumbnailUrl" [alt]="doc.title" />
+                  <img *ngIf="doc.thumbnailUrl" [src]="doc.thumbnailUrl" [alt]="doc.title" loading="lazy" />
                   <div *ngIf="!doc.thumbnailUrl" class="doc-thumbnail-placeholder">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
                       <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
@@ -1228,7 +1228,7 @@
               <div class="doc-card-modern" *ngFor="let floorplan of propertyFloorplans"
                    [class.clickable]="true">
                 <div class="doc-thumbnail" (click)="previewMedia(floorplan)">
-                  <img *ngIf="floorplan.thumbnailUrl" [src]="floorplan.thumbnailUrl" [alt]="floorplan.title" />
+                  <img *ngIf="floorplan.thumbnailUrl" [src]="floorplan.thumbnailUrl" [alt]="floorplan.title" loading="lazy" />
                   <div *ngIf="!floorplan.thumbnailUrl" class="doc-thumbnail-placeholder">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="48" height="48">
                       <path d="M3 3v18h18V3H3zm10 16H5v-4h8v4zm0-6H5v-4h8v4zm6 6h-4v-4h4v4zm0-6h-4v-4h4v4zm0-6H5V5h14v2z"/>
