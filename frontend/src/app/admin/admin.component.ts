@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { PropertyService } from '../services/property.service';
@@ -148,7 +148,8 @@ export class AdminComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private mediaService: MediaService,
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
@@ -228,11 +229,17 @@ export class AdminComponent implements OnInit, OnDestroy {
 
   loadDashboard() {
     this.adminService.getDashboard().subscribe({
-      next: s => this.dashStats = s,
+      next: s => { 
+        this.dashStats = s;
+        this.cdr.detectChanges();
+      },
       error: () => {}
     });
     this.adminService.getUserStats().subscribe({
-      next: s => this.userStats = s,
+      next: s => { 
+        this.userStats = s;
+        this.cdr.detectChanges();
+      },
       error: () => {}
     });
   }
@@ -252,15 +259,20 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.properties = props;
         this.filteredProperties = props;
         this.loading = false;
+        
+        // Manually trigger change detection
+        this.cdr.detectChanges();
       },
       error: (err) => { 
         console.error('Error loading properties:', err);
         this.statusMsg = 'Error loading properties: ' + (err?.message || 'Unknown error');
-        this.loading = false; 
+        this.loading = false;
+        this.cdr.detectChanges();
       },
       complete: () => {
         console.log('Properties loading complete');
         this.loading = false; // Ensure loading is always set to false
+        this.cdr.detectChanges();
       }
     });
   }
@@ -286,11 +298,21 @@ export class AdminComponent implements OnInit, OnDestroy {
   }
 
   createProject() {
-    if (!this.createForm['Project Name']) { this.statusMsg = 'Project Name is required'; return; }
+    if (!this.createForm['Project Name']) { this.statusMsg = 'Project Name is required'; this.cdr.detectChanges(); return; }
     this.loading = true;
     this.adminService.createProperty(this.createForm).subscribe({
-      next: () => { this.statusMsg = '✅ Property created'; this.loading = false; this.showCreateModal = false; this.loadProperties(); },
-      error: err => { this.statusMsg = '❌ ' + (err.error?.message || 'Error creating property'); this.loading = false; }
+      next: () => { 
+        this.statusMsg = '✅ Property created'; 
+        this.loading = false; 
+        this.showCreateModal = false; 
+        this.cdr.detectChanges();
+        this.loadProperties(); 
+      },
+      error: err => { 
+        this.statusMsg = '❌ ' + (err.error?.message || 'Error creating property'); 
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -315,8 +337,18 @@ export class AdminComponent implements OnInit, OnDestroy {
     const id = this.selectedProperty.id || this.selectedProperty.projectId;
     this.loading = true;
     this.adminService.updateProperty(id, this.editForm).subscribe({
-      next: () => { this.statusMsg = '✅ Property updated'; this.loading = false; this.showEditModal = false; this.loadProperties(); },
-      error: err => { this.statusMsg = '❌ ' + (err.error?.message || 'Error updating property'); this.loading = false; }
+      next: () => { 
+        this.statusMsg = '✅ Property updated'; 
+        this.loading = false; 
+        this.showEditModal = false; 
+        this.cdr.detectChanges();
+        this.loadProperties(); 
+      },
+      error: err => { 
+        this.statusMsg = '❌ ' + (err.error?.message || 'Error updating property'); 
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -356,8 +388,18 @@ export class AdminComponent implements OnInit, OnDestroy {
     const pricing = { units: this.pricingUnits, lastUpdated: new Date().toISOString() };
     this.loading = true;
     this.adminService.updatePricing(id, pricing).subscribe({
-      next: () => { this.statusMsg = '✅ Pricing updated'; this.loading = false; this.showPricingModal = false; this.loadProperties(); },
-      error: err => { this.statusMsg = '❌ Error updating pricing'; this.loading = false; }
+      next: () => { 
+        this.statusMsg = '✅ Pricing updated'; 
+        this.loading = false; 
+        this.showPricingModal = false; 
+        this.cdr.detectChanges();
+        this.loadProperties(); 
+      },
+      error: err => { 
+        this.statusMsg = '❌ Error updating pricing'; 
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -366,8 +408,17 @@ export class AdminComponent implements OnInit, OnDestroy {
     const id = property.id || property.projectId;
     this.loading = true;
     this.adminService.deleteProperty(id).subscribe({
-      next: () => { this.statusMsg = '✅ Property deleted'; this.loading = false; this.loadProperties(); },
-      error: err => { this.statusMsg = '❌ Error deleting property'; this.loading = false; }
+      next: () => { 
+        this.statusMsg = '✅ Property deleted'; 
+        this.loading = false;
+        this.cdr.detectChanges();
+        this.loadProperties(); 
+      },
+      error: err => { 
+        this.statusMsg = '❌ Error deleting property'; 
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -381,8 +432,13 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.userTotal = res.total;
         this.filteredUsers = res.users;
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => { this.statusMsg = 'Error loading users'; this.loading = false; }
+      error: () => { 
+        this.statusMsg = 'Error loading users'; 
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -452,8 +508,12 @@ export class AdminComponent implements OnInit, OnDestroy {
         this.leadTotal = res.total;
         this.filteredLeads = res.leads;
         this.leadsLoading = false;
+        this.cdr.detectChanges();
       },
-      error: () => { this.leadsLoading = false; }
+      error: () => { 
+        this.leadsLoading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 

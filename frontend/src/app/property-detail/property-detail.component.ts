@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Subscription, forkJoin } from 'rxjs';
@@ -294,7 +294,8 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     private userData: UserDataService,
     private mediaService: MediaService,
     private sanitizer: DomSanitizer,
-    private analytics: AnalyticsService
+    private analytics: AnalyticsService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -1172,39 +1173,46 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
 
     if (!f.name || !f.email || !f.mobile || !f.visitDate || !f.visitTime) {
       this.visitError = 'Please fill all required fields';
+      this.cdr.detectChanges();
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(f.email)) {
       this.visitError = 'Please enter a valid email address';
+      this.cdr.detectChanges();
       return;
     }
 
     const mobileRegex = /^\d{10}$/;
     if (!mobileRegex.test(f.mobile)) {
       this.visitError = 'Please enter a valid 10-digit mobile number';
+      this.cdr.detectChanges();
       return;
     }
 
     const selectedDate = new Date(f.visitDate);
     if (selectedDate < new Date(new Date().toDateString())) {
       this.visitError = 'Visit date cannot be in the past';
+      this.cdr.detectChanges();
       return;
     }
 
     if (this.visitCaptchaAnswer === null || this.visitCaptchaAnswer === '') {
       this.visitError = 'Please answer the verification question';
+      this.cdr.detectChanges();
       return;
     }
     if (+this.visitCaptchaAnswer !== this.visitCaptchaA + this.visitCaptchaB) {
       this.visitError = 'Verification answer is incorrect. Please try again.';
       this.refreshVisitCaptcha();
+      this.cdr.detectChanges();
       return;
     }
 
     this.submittingVisit = true;
     this.visitError = '';
+    this.cdr.detectChanges();
 
     const payload = {
       name:              f.name,
@@ -1231,11 +1239,13 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
         };
         this.visitLocationQuery = '';
         this.locationSuggestions = [];
+        this.cdr.detectChanges();
         setTimeout(() => { this.showScheduleVisitForm = false; this.visitSuccess = ''; }, 4000);
       },
       error: (err) => {
         this.visitError = err.error?.message || 'Failed to schedule visit. Please try again.';
         this.submittingVisit = false;
+        this.cdr.detectChanges();
       }
     });
   }

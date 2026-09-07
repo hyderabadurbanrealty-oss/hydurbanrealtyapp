@@ -1,5 +1,5 @@
 import {
-  Component, Input, Output, EventEmitter, OnInit, OnDestroy
+  Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef
 } from '@angular/core';
 import { PropertyService } from '../services/property.service';
 
@@ -42,7 +42,7 @@ export class ScheduleVisitModalComponent implements OnInit, OnDestroy {
     return new Date().toISOString().split('T')[0];
   }
 
-  constructor(private svc: PropertyService) {}
+  constructor(private svc: PropertyService, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.refreshCaptcha();
@@ -118,26 +118,39 @@ export class ScheduleVisitModalComponent implements OnInit, OnDestroy {
     this.error = '';
 
     if (!f.name || !f.email || !f.mobile || !f.visitDate || !f.visitTime) {
-      this.error = 'Please fill all required fields'; return;
+      this.error = 'Please fill all required fields';
+      this.cdr.detectChanges();
+      return;
     }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) {
-      this.error = 'Please enter a valid email address'; return;
+      this.error = 'Please enter a valid email address';
+      this.cdr.detectChanges();
+      return;
     }
     if (!/^\d{10}$/.test(f.mobile)) {
-      this.error = 'Please enter a valid 10-digit mobile number'; return;
+      this.error = 'Please enter a valid 10-digit mobile number';
+      this.cdr.detectChanges();
+      return;
     }
     if (new Date(f.visitDate) < new Date(new Date().toDateString())) {
-      this.error = 'Visit date cannot be in the past'; return;
+      this.error = 'Visit date cannot be in the past';
+      this.cdr.detectChanges();
+      return;
     }
     if (this.captchaAnswer === null || this.captchaAnswer === '') {
-      this.error = 'Please answer the verification question'; return;
+      this.error = 'Please answer the verification question';
+      this.cdr.detectChanges();
+      return;
     }
     if (+this.captchaAnswer !== this.captchaA + this.captchaB) {
       this.error = 'Verification answer is incorrect.';
-      this.refreshCaptcha(); return;
+      this.refreshCaptcha();
+      this.cdr.detectChanges();
+      return;
     }
 
     this.submitting = true;
+    this.cdr.detectChanges();
 
     const payload = {
       name: f.name, email: f.email, mobile: f.mobile,
@@ -154,6 +167,7 @@ export class ScheduleVisitModalComponent implements OnInit, OnDestroy {
       next: () => {
         this.success = 'Visit scheduled! We will contact you to confirm.';
         this.submitting = false;
+        this.cdr.detectChanges();
         // Reset form
         this.form = {
           name: '', email: '', mobile: '', visitDate: '', visitTime: '', message: '',
@@ -166,6 +180,7 @@ export class ScheduleVisitModalComponent implements OnInit, OnDestroy {
       error: (err) => {
         this.error = err.error?.message || 'Failed to schedule visit. Please try again.';
         this.submitting = false;
+        this.cdr.detectChanges();
       }
     });
   }
