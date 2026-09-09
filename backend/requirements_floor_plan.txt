@@ -1,0 +1,20 @@
+# Floor Plan Analysis Dependencies
+
+# Core
+psycopg2-binary>=2.9.0
+requests>=2.31.0
+
+# AI/ML (Choose one option below)
+
+# Option 1: OpenAI GPT-4 Vision (Recommended, costs ~$0.01-0.05 per analysis)
+openai>=1.0.0
+
+# Option 2: Local LLM (Free, requires Ollama installed)
+# No additional packages needed, just install Ollama: https://ollama.com
+# Then run: ollama pull llama3.2-vision
+
+# Optional: Advanced CV (if you want custom model training later)
+# opencv-python>=4.8.0
+# torch>=2.0.0
+# transformers>=4.30.0
+# Pillow>=10.0.0

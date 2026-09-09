@@ -18,3 +18,6 @@ namespace HyderabadUrbanReality.Core.Interfaces
         void InvalidateProject(string projectId);
     }
 }
+
+        /// <summary>Get floor plan analysis for a project</summary>
+        Task<Dictionary<string, object>?> GetFloorPlanAnalysisAsync(string projectId);

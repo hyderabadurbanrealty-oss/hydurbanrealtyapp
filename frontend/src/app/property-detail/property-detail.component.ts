@@ -194,6 +194,12 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
   floorPlans: any[] = [];
   floorPlansLoading = false;
   floorPlansLoaded = false;
+  
+  // Floor Plan Analysis
+  floorPlanAnalysis: any = null;
+  floorPlanAnalysisLoading = false;
+  JSON = JSON; // Make JSON available in template
+  
   fpModalOpen = false;
   fpModalDocName = '';
   fpModalPages: string[] = [];
@@ -970,6 +976,26 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
       error: () => {
         this.floorPlansLoading = false;
         this.floorPlansLoaded = true;
+      }
+    });
+    
+    // Also load floor plan analysis if available
+    this.loadFloorPlanAnalysis();
+  }
+  
+  loadFloorPlanAnalysis(): void {
+    if (!this.property?.id) return;
+    this.floorPlanAnalysisLoading = true;
+    
+    this.service.getFloorPlanAnalysis(this.property.id).subscribe({
+      next: (analysis) => {
+        this.floorPlanAnalysis = analysis;
+        this.floorPlanAnalysisLoading = false;
+        this.cdr.detectChanges();
+      },
+      error: () => {
+        this.floorPlanAnalysisLoading = false;
+        this.cdr.detectChanges();
       }
     });
   }

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Property Distribution by Locality</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Plus Jakarta Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eef6ff',
+              100: '#dbeafe',
+              500: '#2563eb',
+              600: '#1d4ed8',
+              700: '#1e40af',
+              900: '#0f172a',
+            }
+          },
+          boxShadow: {
+            'subtle': '0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 1px 2px -1px rgba(15, 23, 42, 0.05)',
+            'card-hover': '0 12px 28px -6px rgba(15, 23, 42, 0.09), 0 4px 10px -2px rgba(15, 23, 42, 0.04)',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-scrollbar">
+    /* Subtle horizontal scrollbar for density filter pills on mobile */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased p-4 md:p-8 lg:p-10 min-h-screen flex items-center justify-center">
+<!-- BEGIN: PropertyDistributionSection -->
+<section class="w-full max-w-7xl mx-auto bg-white rounded-3xl border border-slate-200/80 shadow-sm p-6 sm:p-8 md:p-10 transition-all" data-purpose="locality-density-dashboard">
+<!-- BEGIN: HeaderAndControls -->
+<header class="flex flex-col gap-6 mb-8 border-b border-slate-100 pb-8">
+<!-- Top Title Bar with Summary Stats Badge -->
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+<div>
+<div class="flex items-center gap-2.5 mb-1.5">
+<span class="inline-flex items-center justify-center w-6 h-6 rounded-md bg-blue-50 text-blue-600">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</span>
+<span class="text-xs font-bold uppercase tracking-wider text-blue-600">Micro-Market Analytics</span>
+</div>
+<h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 tracking-tight">Property Distribution by Locality</h2>
+<p class="text-sm md:text-base text-slate-500 mt-1">RERA project density &amp; market share across Hyderabad prime micro-markets</p>
+</div>
+<!-- Overall Summary Stat Pill -->
+<div class="inline-flex items-center gap-3 px-4 py-2.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-xs sm:text-sm text-slate-600 self-start lg:self-center">
+<span class="flex h-2.5 w-2.5 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+</span>
+<div class="flex items-center divide-x divide-slate-200 gap-3">
+<span class="font-medium text-slate-700"><strong class="font-bold text-slate-900">18</strong> Total Projects</span>
+<span class="pl-3 font-medium text-slate-700"><strong class="font-bold text-slate-900">8</strong> Localities</span>
+<span class="pl-3 font-medium text-slate-700"><strong class="font-bold text-slate-900">0.35 km²</strong> RERA Footprint</span>
+</div>
+</div>
+</div>
+<!-- Filters, Legend, and Sorting Toolbars -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pt-2">
+<!-- Density Filter Tabs -->
+<div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-0.5" data-purpose="density-filters">
+<button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-900 text-white shadow-sm transition-colors" type="button">
+            All Localities
+            <span class="px-1.5 py-0.5 text-[11px] bg-slate-700 text-white rounded-full">8</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors" type="button">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            High Density (10+)
+            <span class="px-1.5 py-0.5 text-[11px] bg-slate-200/80 text-slate-600 rounded-full">0</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-amber-50 hover:bg-amber-100/80 text-amber-800 border border-amber-200/60 transition-colors" type="button">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+            Medium (5–9)
+            <span class="px-1.5 py-0.5 text-[11px] bg-amber-200 text-amber-900 rounded-full font-bold">1</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors" type="button">
+<span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+            Low (1–4)
+            <span class="px-1.5 py-0.5 text-[11px] bg-slate-200/80 text-slate-600 rounded-full font-bold">7</span>
+</button>
+</div>
+<!-- Sorting and Presentation Controls -->
+<div class="flex items-center gap-3">
+<div class="relative inline-block text-left text-xs">
+<span class="text-slate-400 mr-1.5">Sort by:</span>
+<select class="rounded-xl border-slate-200 text-slate-700 font-semibold text-xs py-1.5 pl-2.5 pr-8 focus:border-blue-500 focus:ring-blue-500 bg-white">
+<option>Project Count (High to Low)</option>
+<option>Market Share %</option>
+<option>Total RERA Area</option>
+<option>Alphabetical (A-Z)</option>
+</select>
+</div>
+</div>
+</div>
+</header>
+<!-- END: HeaderAndControls -->
+<!-- BEGIN: LocalityCardsGrid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5" data-purpose="locality-cards-container">
+<!-- Card 1: Kokapet (Medium Density) -->
+<article class="relative flex flex-col justify-between bg-white rounded-2xl border border-amber-200/80 p-5 shadow-subtle hover:shadow-card-hover hover:border-amber-400 transition-all duration-300 group">
+<!-- Top Banner / Badges -->
+<div>
+<div class="flex items-center justify-between gap-2 mb-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200/70">
+              #01
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+              Medium Density
+            </span>
+</div>
+<!-- Locality Name -->
+<div class="mb-4">
+<h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Kokapet</h3>
+<p class="text-xs text-slate-400">West Hyderabad Corridor</p>
+</div>
+<!-- Metrics Container -->
+<div class="grid grid-cols-3 gap-2 p-3 bg-slate-50/90 rounded-xl border border-slate-100 mb-4 text-center">
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">7</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Projects</div>
+</div>
+<div class="border-x border-slate-200/70">
+<div class="text-lg font-extrabold text-emerald-600 leading-tight">33%</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Share</div>
+</div>
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">0.14</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">km² Area</div>
+</div>
+</div>
+<!-- Relative Market Weight Bar -->
+<div class="space-y-1.5 mb-5">
+<div class="flex justify-between text-[11px] font-medium text-slate-500">
+<span>Market share volume</span>
+<span class="font-semibold text-slate-700">33%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-amber-500 rounded-full" style="width: 33%"></div>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<a class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-blue-600 text-xs font-semibold transition-colors duration-200 group-hover:shadow-sm" href="#">
+            Explore Projects
+            <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+</article>
+<!-- Card 2: Narsingi (Low Density) -->
+<article class="relative flex flex-col justify-between bg-white rounded-2xl border border-slate-200/80 p-5 shadow-subtle hover:shadow-card-hover hover:border-blue-400 transition-all duration-300 group">
+<div>
+<div class="flex items-center justify-between gap-2 mb-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200/70">
+              #02
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              Low Density
+            </span>
+</div>
+<div class="mb-4">
+<h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Narsingi</h3>
+<p class="text-xs text-slate-400">Outer Ring Road Hub</p>
+</div>
+<div class="grid grid-cols-3 gap-2 p-3 bg-slate-50/90 rounded-xl border border-slate-100 mb-4 text-center">
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">4</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Projects</div>
+</div>
+<div class="border-x border-slate-200/70">
+<div class="text-lg font-extrabold text-emerald-600 leading-tight">19%</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Share</div>
+</div>
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">0.11</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">km² Area</div>
+</div>
+</div>
+<div class="space-y-1.5 mb-5">
+<div class="flex justify-between text-[11px] font-medium text-slate-500">
+<span>Market share volume</span>
+<span class="font-semibold text-slate-700">19%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-blue-600 rounded-full" style="width: 19%"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<a class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-blue-600 text-xs font-semibold transition-colors duration-200" href="#">
+            Explore Projects
+            <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+</article>
+<!-- Card 3: Manchirevula -->
+<article class="relative flex flex-col justify-between bg-white rounded-2xl border border-slate-200/80 p-5 shadow-subtle hover:shadow-card-hover hover:border-blue-400 transition-all duration-300 group">
+<div>
+<div class="flex items-center justify-between gap-2 mb-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200/70">
+              #03
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              Low Density
+            </span>
+</div>
+<div class="mb-4">
+<h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Manchirevula</h3>
+<p class="text-xs text-slate-400">Gandipet Zone</p>
+</div>
+<div class="grid grid-cols-3 gap-2 p-3 bg-slate-50/90 rounded-xl border border-slate-100 mb-4 text-center">
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">2</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Projects</div>
+</div>
+<div class="border-x border-slate-200/70">
+<div class="text-lg font-extrabold text-emerald-600 leading-tight">10%</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Share</div>
+</div>
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">&lt;0.01</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">km² Area</div>
+</div>
+</div>
+<div class="space-y-1.5 mb-5">
+<div class="flex justify-between text-[11px] font-medium text-slate-500">
+<span>Market share volume</span>
+<span class="font-semibold text-slate-700">10%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-blue-600 rounded-full" style="width: 10%"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<a class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-blue-600 text-xs font-semibold transition-colors duration-200" href="#">
+            Explore Projects
+            <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+</article>
+<!-- Card 4: Serilingampally -->
+<article class="relative flex flex-col justify-between bg-white rounded-2xl border border-slate-200/80 p-5 shadow-subtle hover:shadow-card-hover hover:border-blue-400 transition-all duration-300 group">
+<div>
+<div class="flex items-center justify-between gap-2 mb-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200/70">
+              #04
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              Low Density
+            </span>
+</div>
+<div class="mb-4">
+<h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Serilingampally</h3>
+<p class="text-xs text-slate-400">IT Corridor Fringe</p>
+</div>
+<div class="grid grid-cols-3 gap-2 p-3 bg-slate-50/90 rounded-xl border border-slate-100 mb-4 text-center">
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">1</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Projects</div>
+</div>
+<div class="border-x border-slate-200/70">
+<div class="text-lg font-extrabold text-emerald-600 leading-tight">5%</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Share</div>
+</div>
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">0.04</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">km² Area</div>
+</div>
+</div>
+<div class="space-y-1.5 mb-5">
+<div class="flex justify-between text-[11px] font-medium text-slate-500">
+<span>Market share volume</span>
+<span class="font-semibold text-slate-700">5%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-blue-500 rounded-full" style="width: 5%"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<a class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-blue-600 text-xs font-semibold transition-colors duration-200" href="#">
+            Explore Projects
+            <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+</article>
+<!-- Card 5: Madhapur -->
+<article class="relative flex flex-col justify-between bg-white rounded-2xl border border-slate-200/80 p-5 shadow-subtle hover:shadow-card-hover hover:border-blue-400 transition-all duration-300 group">
+<div>
+<div class="flex items-center justify-between gap-2 mb-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200/70">
+              #05
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              Low Density
+            </span>
+</div>
+<div class="mb-4">
+<h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Madhapur</h3>
+<p class="text-xs text-slate-400">HITEC City Central</p>
+</div>
+<div class="grid grid-cols-3 gap-2 p-3 bg-slate-50/90 rounded-xl border border-slate-100 mb-4 text-center">
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">1</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Projects</div>
+</div>
+<div class="border-x border-slate-200/70">
+<div class="text-lg font-extrabold text-emerald-600 leading-tight">5%</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Share</div>
+</div>
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">0.01</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">km² Area</div>
+</div>
+</div>
+<div class="space-y-1.5 mb-5">
+<div class="flex justify-between text-[11px] font-medium text-slate-500">
+<span>Market share volume</span>
+<span class="font-semibold text-slate-700">5%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-blue-500 rounded-full" style="width: 5%"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<a class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-blue-600 text-xs font-semibold transition-colors duration-200" href="#">
+            Explore Projects
+            <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+</article>
+<!-- Card 6: Journalist Colony -->
+<article class="relative flex flex-col justify-between bg-white rounded-2xl border border-slate-200/80 p-5 shadow-subtle hover:shadow-card-hover hover:border-blue-400 transition-all duration-300 group">
+<div>
+<div class="flex items-center justify-between gap-2 mb-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200/70">
+              #06
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              Low Density
+            </span>
+</div>
+<div class="mb-4">
+<h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Journalist Colony</h3>
+<p class="text-xs text-slate-400">Jubilee Hills Extension</p>
+</div>
+<div class="grid grid-cols-3 gap-2 p-3 bg-slate-50/90 rounded-xl border border-slate-100 mb-4 text-center">
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">1</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Projects</div>
+</div>
+<div class="border-x border-slate-200/70">
+<div class="text-lg font-extrabold text-emerald-600 leading-tight">5%</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Share</div>
+</div>
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">0.01</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">km² Area</div>
+</div>
+</div>
+<div class="space-y-1.5 mb-5">
+<div class="flex justify-between text-[11px] font-medium text-slate-500">
+<span>Market share volume</span>
+<span class="font-semibold text-slate-700">5%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-blue-500 rounded-full" style="width: 5%"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<a class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-blue-600 text-xs font-semibold transition-colors duration-200" href="#">
+            Explore Projects
+            <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+</article>
+<!-- Card 7: Nanakramguda -->
+<article class="relative flex flex-col justify-between bg-white rounded-2xl border border-slate-200/80 p-5 shadow-subtle hover:shadow-card-hover hover:border-blue-400 transition-all duration-300 group">
+<div>
+<div class="flex items-center justify-between gap-2 mb-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200/70">
+              #07
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              Low Density
+            </span>
+</div>
+<div class="mb-4">
+<h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Nanakramguda</h3>
+<p class="text-xs text-slate-400">Financial District Prime</p>
+</div>
+<div class="grid grid-cols-3 gap-2 p-3 bg-slate-50/90 rounded-xl border border-slate-100 mb-4 text-center">
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">1</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Projects</div>
+</div>
+<div class="border-x border-slate-200/70">
+<div class="text-lg font-extrabold text-emerald-600 leading-tight">5%</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Share</div>
+</div>
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">0.05</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">km² Area</div>
+</div>
+</div>
+<div class="space-y-1.5 mb-5">
+<div class="flex justify-between text-[11px] font-medium text-slate-500">
+<span>Market share volume</span>
+<span class="font-semibold text-slate-700">5%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-blue-500 rounded-full" style="width: 5%"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<a class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-blue-600 text-xs font-semibold transition-colors duration-200" href="#">
+            Explore Projects
+            <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+</article>
+<!-- Card 8: Bandlaguda -->
+<article class="relative flex flex-col justify-between bg-white rounded-2xl border border-slate-200/80 p-5 shadow-subtle hover:shadow-card-hover hover:border-blue-400 transition-all duration-300 group">
+<div>
+<div class="flex items-center justify-between gap-2 mb-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-extrabold bg-slate-100 text-slate-700 border border-slate-200/70">
+              #08
+            </span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-indigo-50 text-indigo-700 border border-indigo-100">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+              Low Density
+            </span>
+</div>
+<div class="mb-4">
+<h3 class="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">Bandlaguda</h3>
+<p class="text-xs text-slate-400">South-West Residential</p>
+</div>
+<div class="grid grid-cols-3 gap-2 p-3 bg-slate-50/90 rounded-xl border border-slate-100 mb-4 text-center">
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">1</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Projects</div>
+</div>
+<div class="border-x border-slate-200/70">
+<div class="text-lg font-extrabold text-emerald-600 leading-tight">5%</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">Share</div>
+</div>
+<div>
+<div class="text-lg font-extrabold text-slate-900 leading-tight">&lt;0.01</div>
+<div class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">km² Area</div>
+</div>
+</div>
+<div class="space-y-1.5 mb-5">
+<div class="flex justify-between text-[11px] font-medium text-slate-500">
+<span>Market share volume</span>
+<span class="font-semibold text-slate-700">5%</span>
+</div>
+<div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+<div class="h-full bg-blue-500 rounded-full" style="width: 5%"></div>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-2 border-t border-slate-100">
+<a class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-900 text-white hover:bg-blue-600 text-xs font-semibold transition-colors duration-200" href="#">
+            Explore Projects
+            <svg class="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</div>
+</article>
+</div>
+<!-- END: LocalityCardsGrid -->
+<!-- BEGIN: FooterNote -->
+<footer class="mt-8 pt-5 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-3">
+<div class="flex items-center gap-2">
+<svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Data verified against Telangana State RERA public register. Updated Q1 2025.</span>
+</div>
+<a class="text-blue-600 hover:text-blue-700 font-semibold inline-flex items-center gap-1 transition-colors" href="#">
+        Export CSV Summary
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</a>
+</footer>
+<!-- END: FooterNote -->
+</section>
+<!-- END: PropertyDistributionSection -->
+</body></html>

@@ -1098,6 +1098,40 @@ namespace HyderabadUrbanReality.Controllers
         public async Task<IActionResult> DeleteScrapedFloorPlan(string id, string filename)
         {
             try
+
+        /// <summary>
+        /// Get AI-generated floor plan analysis for a project
+        /// Returns scores, findings, and recommendations
+        /// </summary>
+        [HttpGet("projects/{id}/floor-plan-analysis")]
+        [ProducesResponseType(typeof(object), 200)]
+        [ProducesResponseType(404)]
+        public async Task<IActionResult> GetFloorPlanAnalysis(string id)
+        {
+            try
+            {
+                var analysis = await _projectService.GetFloorPlanAnalysisAsync(id);
+                
+                if (analysis == null)
+                    return NotFound(new { message = "No floor plan analysis available for this project" });
+                
+                return Ok(analysis);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching floor plan analysis for project {Id}", id);
+                return StatusCode(500, new { error = "Error fetching floor plan analysis" });
+            }
+        }
+
+        /// <summary>
+        /// Deletes a single scraped floor-plan image and removes it from manifest.json.
+        /// </summary>
+        [HttpDelete("projects/{id}/floor-plans/{filename}")]
+        [Authorize]
+        public async Task<IActionResult> DeleteScrapedFloorPlan(string id, string filename)
+        {
+            try
             {
                 var sanitizedId   = Path.GetFileName(id.Replace('/', '_').Replace('\\', '_'));
                 var sanitizedFile = Path.GetFileName(filename);

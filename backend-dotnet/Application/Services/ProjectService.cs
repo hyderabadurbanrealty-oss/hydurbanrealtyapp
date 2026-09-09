@@ -107,3 +107,12 @@ namespace HyderabadUrbanReality.Application.Services
         }
     }
 }
+
+        public async Task<Dictionary<string, object>?> GetFloorPlanAnalysisAsync(string projectId)
+        {
+            if (_usePostgresRepo && _postgresRepo != null)
+            {
+                return await _postgresRepo.GetFloorPlanAnalysisAsync(projectId);
+            }
+            return null;
+        }

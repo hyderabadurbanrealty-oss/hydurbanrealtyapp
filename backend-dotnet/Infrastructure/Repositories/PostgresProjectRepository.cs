@@ -385,3 +385,65 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
         public ServiceUnavailableException(string message) : base(message) { }
     }
 }
+
+namespace HyderabadUrbanReality.Infrastructure.Repositories
+{
+    public partial class PostgresProjectRepository
+    {
+        /// <summary>
+        /// Get AI-generated floor plan analysis for a project
+        /// </summary>
+        public async Task<Dictionary<string, object>?> GetFloorPlanAnalysisAsync(string projectId)
+        {
+            const string sql = @"
+                SELECT 
+                    id, project_id, plan_url,
+                    overall_score, flow_score, privacy_score, light_score,
+                    space_efficiency_score, storage_score, vastu_score,
+                    bedroom_count, bathroom_count, balcony_count,
+                    total_area_sqft, carpet_area_sqft, efficiency_ratio,
+                    findings::text, highlights::text, concerns::text, 
+                    vastu_analysis::text, recommendations::text,
+                    analyzed_at, analysis_version
+                FROM floor_plan_analysis
+                WHERE project_id = @ProjectId
+                ORDER BY analyzed_at DESC
+                LIMIT 1";
+
+            try
+            {
+                return await WithRetryAsync(async () =>
+                {
+                    await using var conn = new NpgsqlConnection(_connectionString);
+                    var row = await conn.QueryFirstOrDefaultAsync<dynamic>(sql, new { ProjectId = projectId });
+                    
+                    if (row == null)
+                        return null;
+
+                    var dict = new Dictionary<string, object>();
+                    foreach (var prop in (IDictionary<string, object>)row)
+                    {
+                        var key = ToCamelCase(prop.Key);
+                        dict[key] = prop.Value ?? "";
+                    }
+                    return dict;
+                }, nameof(GetFloorPlanAnalysisAsync));
+            }
+            catch (ServiceUnavailableException) { throw; }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching floor plan analysis for project {ProjectId}", projectId);
+                return null;
+            }
+        }
+
+        private string ToCamelCase(string snakeCase)
+        {
+            var parts = snakeCase.Split('_');
+            if (parts.Length == 1)
+                return snakeCase;
+            return parts[0] + string.Concat(parts.Skip(1).Select(p => 
+                char.ToUpper(p[0]) + p.Substring(1).ToLower()));
+        }
+    }
+}

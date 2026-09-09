@@ -87,7 +87,7 @@ def fetch_document_from_rera(session: requests.Session, upid: str, division: str
         url1 = f"{RERA_BASE}/Preview/GetUserDocumentIframe"
         data = {"UPID": upid, "ProjectID": f"0/{division}"}
         
-        resp1 = session.post(url1, data=data, timeout=30)
+        resp1 = session.post(url1, data=data, timeout=30, verify=False)
         if resp1.status_code != 200:
             return None
             
@@ -105,7 +105,7 @@ def fetch_document_from_rera(session: requests.Session, upid: str, division: str
         elif src.startswith("/Preview/"):
             # Relative URL - fetch it
             url2 = RERA_BASE + src
-            resp2 = session.get(url2, timeout=30)
+            resp2 = session.get(url2, timeout=30, verify=False)
             if resp2.status_code == 200:
                 return resp2.content
                 
@@ -197,7 +197,7 @@ def main():
     search_url = f"{RERA_BASE}/Search/Hosteldetails?id={rera_no}"
     
     try:
-        resp = session.get(search_url, timeout=30)
+        resp = session.get(search_url, timeout=30, verify=False)
         if resp.status_code != 200:
             print(f"ERROR: Failed to load RERA page: {resp.status_code}")
             exit(1)
