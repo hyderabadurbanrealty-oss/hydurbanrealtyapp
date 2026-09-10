@@ -8,6 +8,7 @@ import { FavoriteService } from '../services/favorite.service';
 import { CompareService, COMPARE_MAX } from '../services/compare.service';
 import { AuthService } from '../services/auth.service';
 import { MediaService } from '../services/media.service';
+import { SeoService } from '../services/seo.service';
 import { environment } from '../../environments/environment';
 import { Subject, Subscription, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, catchError } from 'rxjs/operators';
@@ -59,7 +60,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     public compareService: CompareService,
     public auth: AuthService,
     private mediaService: MediaService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private seoService: SeoService
   ) {
     this.searchSubject.pipe(
       debounceTime(300),
@@ -68,6 +70,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    // Set SEO meta tags for home page
+    this.seoService.updateTags({
+      title: 'Hyderabad Urban Realty - Premium Real Estate Properties in Hyderabad',
+      description: 'Discover premium residential and commercial properties in Hyderabad. Browse 500+ RERA approved projects with verified information, floor plans, amenities, and transparent pricing. Your trusted real estate partner.',
+      keywords: 'hyderabad real estate, properties in hyderabad, apartments hyderabad, villas hyderabad, RERA approved projects, residential properties, commercial properties, gated communities, property search hyderabad, real estate investment',
+      url: 'https://www.hyderabadurbanrealty.com/',
+      image: 'https://www.hyderabadurbanrealty.com/assets/blue-Logo.png',
+      type: 'website',
+      structuredData: this.seoService.generateOrganizationStructuredData()
+    });
+
     this.compareSub = this.compareService.list$.subscribe(list => {
       this.compareList = list;
       this.showComparePanel = list.length > 0;

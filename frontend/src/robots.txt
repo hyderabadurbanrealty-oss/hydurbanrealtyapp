@@ -1,0 +1,43 @@
+# Robots.txt for Hyderabad Urban Realty
+# Updated: September 10, 2026
+
+# Allow all search engines
+User-agent: *
+
+# Allow all public pages
+Allow: /
+Allow: /properties
+Allow: /consultancy
+Allow: /market-intelligence
+Allow: /map-view
+Allow: /about
+Allow: /blog
+Allow: /loan-calculator
+Allow: /social-feeds
+Allow: /favorites
+Allow: /comparison
+
+# Disallow private/user pages
+Disallow: /admin
+Disallow: /admin/*
+Disallow: /profile
+Disallow: /saved-searches
+Disallow: /resale/submit
+Disallow: /resale/my-listings
+
+# Disallow auth pages (no SEO value)
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+
+# Disallow API endpoints
+Disallow: /api/
+Disallow: /api/*
+
+# Sitemap location
+Sitemap: https://www.hyderabadurbanrealty.com/sitemap.xml
+
+# Crawl-delay for polite crawling (optional)
+Crawl-delay: 1

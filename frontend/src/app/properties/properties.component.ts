@@ -9,6 +9,7 @@ import { FavoriteService } from '../services/favorite.service';
 import { CompareService, COMPARE_MAX } from '../services/compare.service';
 import { AuthService } from '../services/auth.service';
 import { MediaService } from '../services/media.service';
+import { SeoService } from '../services/seo.service';
 
 @Component({
   standalone: false,
@@ -57,10 +58,28 @@ export class PropertiesComponent implements OnInit, OnDestroy {
     public compareService: CompareService,
     public auth: AuthService,
     private mediaService: MediaService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private seoService: SeoService
   ) {}
 
   ngOnInit() {
+    // Set SEO meta tags for properties search page
+    this.seoService.updateTags({
+      title: 'Search Properties in Hyderabad - RERA Approved Projects | Hyderabad Urban Realty',
+      description: 'Search and filter from 500+ verified RERA approved properties in Hyderabad. Find apartments, villas, plots with detailed floor plans, amenities, pricing, and location information. Compare properties and make informed decisions.',
+      keywords: 'property search hyderabad, apartments in hyderabad, villas in hyderabad, RERA projects, residential properties search, commercial properties hyderabad, gated communities, property filter, compare properties, hyderabad real estate listings',
+      url: 'https://www.hyderabadurbanrealty.com/properties',
+      image: 'https://www.hyderabadurbanrealty.com/assets/blue-Logo.png',
+      type: 'website',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        name: 'Properties in Hyderabad',
+        description: 'Browse premium residential and commercial properties in Hyderabad',
+        url: 'https://www.hyderabadurbanrealty.com/properties'
+      }
+    });
+
     // Subscribe to compare list changes
     this.compareSub = this.compareService.list$.subscribe(list => {
       this.compareList = list;

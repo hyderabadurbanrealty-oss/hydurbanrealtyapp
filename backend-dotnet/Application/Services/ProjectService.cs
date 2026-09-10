@@ -105,14 +105,10 @@ namespace HyderabadUrbanReality.Application.Services
             _cache.Remove(ALL_PROJECTS_KEY); // list is now stale too
             _logger.LogInformation("Project cache invalidated for {Id}", projectId);
         }
-    }
-}
 
         public async Task<Dictionary<string, object>?> GetFloorPlanAnalysisAsync(string projectId)
         {
-            if (_usePostgresRepo && _postgresRepo != null)
-            {
-                return await _postgresRepo.GetFloorPlanAnalysisAsync(projectId);
-            }
-            return null;
+            return await _repo.GetFloorPlanAnalysisAsync(projectId);
         }
+    }
+}

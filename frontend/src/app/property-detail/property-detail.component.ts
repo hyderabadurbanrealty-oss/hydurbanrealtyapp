@@ -11,6 +11,7 @@ import { AuthService } from '../services/auth.service';
 import { MediaService, PropertyMedia } from '../services/media.service';
 import { LoadingService } from '../services/loading.service';
 import { AnalyticsService } from '../services/analytics.service';
+import { SeoService } from '../services/seo.service';
 import { ChartData, ChartOptions } from 'chart.js';
 import { environment } from '../../environments/environment';
 
@@ -301,7 +302,8 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
     private mediaService: MediaService,
     private sanitizer: DomSanitizer,
     private analytics: AnalyticsService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private seoService: SeoService
   ) {}
 
   ngOnInit(): void {
@@ -343,6 +345,9 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
           if (prop.id) {
             this.projectRouteId = prop.id;
           }
+
+          // Update SEO meta tags for this specific property
+          this.updatePropertySEO(prop);
 
           // Track property view
           this.analytics.trackPropertyView({
@@ -1836,4 +1841,47 @@ export class PropertyDetailComponent implements OnInit, OnDestroy {
       }
     }, 100);
   }
+
+  /**
+   * Update SEO meta tags for individual property page
+   */
+  private updatePropertySEO(property: any): void {
+    const projectName = property['Project Name'] || property.projectName || 'Property';
+    const locality = property['Locality'] || property.locality || '';
+    const district = property['District'] || property.district || 'Hyderabad';
+    const propertyType = property['Project Type'] || property.projectType || 'Property';
+    const developer = property['Developer Name'] || property.developerName || '';
+    const reraNumber = property['RERA Registration Number'] || property.reraRegistrationNumber || '';
+    
+    // Get the first available image or use default logo
+    let ogImage = 'https://www.hyderabadurbanrealty.com/assets/blue-Logo.png';
+    if (this.propertyImages && this.propertyImages.length > 0) {
+      ogImage = this.propertyImages[0].fileUrl;
+    } else if (property.thumbnail) {
+      ogImage = property.thumbnail;
+    }
+
+    // Build comprehensive description
+    const description = `${projectName} in ${locality}, ${district} - ${propertyType} by ${developer}. ` +
+      `${reraNumber ? `RERA: ${reraNumber}. ` : ''}` +
+      `View floor plans, amenities, pricing, location map, and complete project details. ` +
+      `Verified information from official RERA records.`;
+
+    // Build keywords
+    const keywords = `${projectName}, ${locality} properties, ${district} real estate, ${propertyType} ${locality}, ` +
+      `${developer} projects, RERA approved ${locality}, apartments ${locality}, villas ${locality}, ` +
+      `${projectName} reviews, ${projectName} floor plans, ${projectName} price, properties in ${locality}`;
+
+    // Update SEO tags
+    this.seoService.updateTags({
+      title: `${projectName} in ${locality}, ${district} - Floor Plans, Price & Reviews | Hyderabad Urban Realty`,
+      description: description,
+      keywords: keywords,
+      url: `https://www.hyderabadurbanrealty.com/property/${property.id || property.projectId}`,
+      image: ogImage,
+      type: 'article',
+      structuredData: this.seoService.generatePropertyStructuredData(property)
+    });
+  }
 }
+

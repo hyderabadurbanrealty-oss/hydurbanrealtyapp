@@ -213,9 +213,9 @@ export class PropertyService {
       { responseType: 'blob' }
     );
   }
-}
 
   // Floor Plan Analysis
   getFloorPlanAnalysis(projectId: string): Observable<any> {
     return this.http.get(`${API}/projects/${projectId}/floor-plan-analysis`);
   }
+}

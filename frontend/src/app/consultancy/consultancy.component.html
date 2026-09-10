@@ -1,0 +1,400 @@
+<div class="consultancy-page">
+  
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <div class="hero-badge">🏆 Hyderabad's Trusted Real Estate Advisors</div>
+      <h1 class="hero-title">Expert Property Consultancy<br><span class="highlight">for Smarter Investments</span></h1>
+      <p class="hero-subtitle">Data-driven insights • RERA verified properties • End-to-end support</p>
+      <p class="hero-description">Navigate Hyderabad's dynamic real estate market with confidence. Get personalized guidance from market specialists backed by Q4 2025 research.</p>
+      
+      <div class="hero-cta">
+        <button class="btn btn-primary-large" (click)="openEnquiryModal()">
+          <span>Get Free Consultation</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <button class="btn btn-secondary-large" (click)="scrollToForm()">
+          <span>View Market Insights</span>
+        </button>
+      </div>
+
+      <div class="hero-trust-signals">
+        <div class="trust-item">
+          <span class="trust-number">500+</span>
+          <span class="trust-label">Properties Analyzed</span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-number">100%</span>
+          <span class="trust-label">RERA Verified</span>
+        </div>
+        <div class="trust-item">
+          <span class="trust-number">24/7</span>
+          <span class="trust-label">Expert Support</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Bar -->
+  <section class="stats-bar">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-card" *ngFor="let stat of stats">
+          <div class="stat-icon">{{stat.icon}}</div>
+          <div class="stat-value">{{stat.value}}</div>
+          <div class="stat-label">{{stat.label}}</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Expertise Section -->
+  <section class="expertise-section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Our Services</span>
+        <h2 class="section-title">Comprehensive Property Consultancy Solutions</h2>
+        <p class="section-subtitle">From investment strategy to final purchase - we guide you at every step</p>
+      </div>
+
+      <div class="expertise-grid">
+        <div class="expertise-card" *ngFor="let item of expertiseAreas">
+          <div class="expertise-icon">{{item.icon}}</div>
+          <h3 class="expertise-title">{{item.title}}</h3>
+          <p class="expertise-description">{{item.description}}</p>
+          <button class="btn-learn-more" (click)="openEnquiryModal()">Consult Now →</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Market Insights Section -->
+  <section class="market-insights-section">
+    <div class="container">
+      <div class="insights-header">
+        <span class="section-badge">📊 Q4 2025 Market Data</span>
+        <h2 class="section-title">Hyderabad Real Estate Market Insights</h2>
+        <p class="section-subtitle">Backed by comprehensive research from 1 Finance Q4 2025 Report</p>
+        <a href="/assets/Hyderabad-Housing-Market-Q4-2025.pdf" target="_blank" class="source-link">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          Source: 1 Finance Research Report - Hyderabad Housing Market Oct-Dec 2025
+        </a>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="metrics-grid">
+        <div class="metric-card highlight">
+          <div class="metric-icon">₹</div>
+          <div class="metric-value">₹{{marketInsights.avgPSF}}</div>
+          <div class="metric-label">Avg. PSF Rate</div>
+          <div class="metric-change positive">+{{marketInsights.yoyGrowth}}% YoY</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon">📈</div>
+          <div class="metric-value">{{marketInsights.rentalYield}}%</div>
+          <div class="metric-label">Rental Yield Range</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon">🏘️</div>
+          <div class="metric-value">{{marketInsights.q4Sales | number}}</div>
+          <div class="metric-label">Units Sold Q4 2025</div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon">⏱️</div>
+          <div class="metric-value">{{marketInsights.inventoryMonths}}</div>
+          <div class="metric-label">Months Inventory</div>
+        </div>
+      </div>
+
+      <!-- Expert Analysis -->
+      <div class="expert-analysis">
+        <div class="analysis-card">
+          <h3>📌 Current Market Phase</h3>
+          <p><strong>Healthy Correction Phase:</strong> The market is experiencing a natural recalibration after strong growth. This is strengthening long-term fundamentals and creating opportunities for buyers at more balanced price points.</p>
+          <div class="analysis-highlight">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            <span>Buyers are becoming more active as affordability improves</span>
+          </div>
+        </div>
+
+        <div class="analysis-card">
+          <h3>🎯 Demand Trends Q4 2025</h3>
+          <p><strong>Mid-to-Large Configurations Leading:</strong></p>
+          <ul class="config-list">
+            <li><span class="config-badge">3/3.5 BHK</span> <strong>5,275 units</strong> - Highest demand</li>
+            <li><span class="config-badge">2/2.5 BHK</span> <strong>2,451 units</strong> - Strong absorption</li>
+            <li><span class="config-badge">4+ BHK</span> <strong>2,055 units</strong> - Premium segment growth</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Top Performing Locations -->
+      <div class="locations-section">
+        <h3 class="locations-title">Top Performing Micro-Markets</h3>
+        <div class="locations-grid">
+          <div class="location-card" *ngFor="let loc of marketInsights.topLocations">
+            <div class="location-header">
+              <h4>{{loc.name}}</h4>
+              <span class="growth-badge" [class.high-growth]="loc.growth > 10">+{{loc.growth}}%</span>
+            </div>
+            <div class="location-psf">
+              <span class="psf-label">PSF Rate:</span>
+              <span class="psf-value">₹{{loc.psf}}</span>
+            </div>
+            <div class="location-bar">
+              <div class="bar-fill" [style.width.%]="(loc.psf / 11000) * 100"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Growth Corridors -->
+      <div class="corridors-section">
+        <h3 class="corridors-title">High-Potential Growth Corridors</h3>
+        <div class="corridors-grid">
+          <div class="corridor-card" *ngFor="let corridor of growthCorridors">
+            <div class="corridor-header">
+              <h4>{{corridor.name}}</h4>
+              <div class="rating">
+                <span class="star" *ngFor="let i of [1,2,3,4,5]" [class.filled]="i <= corridor.rating">★</span>
+              </div>
+            </div>
+            <p class="corridor-areas"><strong>Key Areas:</strong> {{corridor.areas}}</p>
+            <p class="corridor-strength"><strong>Growth Drivers:</strong> {{corridor.strength}}</p>
+            <button class="btn-explore" (click)="openEnquiryModal()">Explore Opportunities</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Infrastructure Impact -->
+      <div class="infrastructure-section">
+        <h3>🚧 Infrastructure Pipeline Impact</h3>
+        <div class="infra-grid">
+          <div class="infra-card">
+            <div class="infra-icon">🛣️</div>
+            <h4>H-Citi Programme</h4>
+            <p>38 innovative traffic projects improving connectivity across key corridors through 2028-29</p>
+          </div>
+          <div class="infra-card">
+            <div class="infra-icon">✈️</div>
+            <h4>Airport Connectivity</h4>
+            <p>Shamshabad-Budvel belt witnessing major development backed by airport proximity</p>
+          </div>
+          <div class="infra-card">
+            <div class="infra-icon">🏗️</div>
+            <h4>ORR Expansion</h4>
+            <p>Enhanced connectivity driving demand in Tellapur, Kollur, and emerging corridors</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Why Choose Us -->
+  <section class="why-choose-section">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-badge">Why Hyderabad Urban Realty</span>
+        <h2 class="section-title">Your Trusted Real Estate Partner</h2>
+      </div>
+
+      <div class="why-grid">
+        <div class="why-card" *ngFor="let item of whyChooseUs">
+          <div class="why-icon">{{item.icon}}</div>
+          <h3 class="why-title">{{item.title}}</h3>
+          <p class="why-description">{{item.description}}</p>
+        </div>
+      </div>
+
+      <div class="testimonial-section">
+        <div class="testimonial-card">
+          <div class="quote-mark">"</div>
+          <p class="testimonial-text">The market insights and personalized guidance helped us make an informed investment decision. Their expertise in Hyderabad's western corridor was invaluable.</p>
+          <div class="testimonial-author">
+            <strong>Rajesh Kumar</strong>
+            <span>Property Investor, Kokapet</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Form Section -->
+  <section class="cta-form-section">
+    <div class="container">
+      <div class="cta-content">
+        <div class="cta-left">
+          <h2>Ready to Make Your Next Smart Property Move?</h2>
+          <p>Get personalized consultancy from Hyderabad's real estate experts. Whether you're buying your first home or expanding your investment portfolio, we're here to guide you.</p>
+          
+          <div class="cta-benefits">
+            <div class="benefit-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <span>Free initial consultation</span>
+            </div>
+            <div class="benefit-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <span>Customized property shortlist</span>
+            </div>
+            <div class="benefit-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <span>Market analysis report</span>
+            </div>
+            <div class="benefit-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <span>RERA verification assistance</span>
+            </div>
+          </div>
+
+          <div class="cta-contact">
+            <div class="contact-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              <span>Call: <a href="tel:+918977367700" style="color: inherit; text-decoration: none;">+91 8977 367700</a></span>
+            </div>
+            <div class="contact-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+              <span><a href="mailto:hyderabadurbanrealty@gmail.com" style="color: inherit; text-decoration: none;">hyderabadurbanrealty@gmail.com</a></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="cta-right">
+          <div class="inline-form">
+            <h3>Request Free Consultation</h3>
+            <form (ngSubmit)="submitEnquiry()" #consultForm="ngForm">
+              <div class="form-group">
+                <input type="text" [(ngModel)]="enquiryForm.name" name="name" placeholder="Full Name *" required class="form-control">
+              </div>
+              <div class="form-group">
+                <input type="tel" [(ngModel)]="enquiryForm.phone" name="phone" placeholder="Phone Number *" required class="form-control">
+              </div>
+              <div class="form-group">
+                <input type="email" [(ngModel)]="enquiryForm.email" name="email" placeholder="Email Address" class="form-control">
+              </div>
+              <div class="form-group">
+                <select [(ngModel)]="enquiryForm.consultationType" name="consultationType" class="form-control">
+                  <option value="investment">Investment Advisory</option>
+                  <option value="home_purchase">Home Purchase</option>
+                  <option value="market_research">Market Research</option>
+                  <option value="portfolio">Portfolio Management</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <input type="text" [(ngModel)]="enquiryForm.budget" name="budget" placeholder="Budget Range" class="form-control">
+              </div>
+              <div class="form-group">
+                <textarea [(ngModel)]="enquiryForm.message" name="message" placeholder="Your Requirements" rows="3" class="form-control"></textarea>
+              </div>
+
+              <button type="submit" class="btn-submit" [disabled]="enquirySubmitting || !consultForm.valid">
+                <span *ngIf="!enquirySubmitting">Get Free Consultation</span>
+                <span *ngIf="enquirySubmitting">Submitting...</span>
+              </button>
+
+              <p class="form-note">We respect your privacy. Your information is secure and won't be shared.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final CTA Banner -->
+  <section class="final-cta-banner">
+    <div class="container">
+      <h2>Don't Navigate the Market Alone</h2>
+      <p>Join hundreds of smart buyers who made informed decisions with our expert guidance</p>
+      <button class="btn btn-primary-large" (click)="openEnquiryModal()">
+        <span>Start Your Journey Today</span>
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </section>
+
+</div>
+
+<!-- Enquiry Modal -->
+<div class="modal-overlay" *ngIf="showEnquiryModal" (click)="closeEnquiryModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <button class="modal-close" (click)="closeEnquiryModal()">×</button>
+    
+    <div class="modal-header">
+      <h2>Request Free Consultation</h2>
+      <p>Fill in your details and our expert will contact you within 24 hours</p>
+    </div>
+
+    <div *ngIf="enquirySuccess" class="success-message">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+      <h3>Thank You!</h3>
+      <p>Your consultation request has been received. We'll contact you shortly.</p>
+    </div>
+
+    <form *ngIf="!enquirySuccess" (ngSubmit)="submitEnquiry()" #modalForm="ngForm">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" [(ngModel)]="enquiryForm.name" name="name" required class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Phone Number *</label>
+          <input type="tel" [(ngModel)]="enquiryForm.phone" name="phone" required class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Email Address</label>
+        <input type="email" [(ngModel)]="enquiryForm.email" name="email" class="form-control">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Service Required</label>
+          <select [(ngModel)]="enquiryForm.consultationType" name="consultationType" class="form-control">
+            <option value="investment">Investment Advisory</option>
+            <option value="home_purchase">Home Purchase Consulting</option>
+            <option value="market_research">Market Research</option>
+            <option value="rera_compliance">RERA Compliance</option>
+            <option value="portfolio">Portfolio Management</option>
+            <option value="exit_strategy">Exit Strategy</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Property Type</label>
+          <select [(ngModel)]="enquiryForm.propertyType" name="propertyType" class="form-control">
+            <option value="residential">Residential</option>
+            <option value="commercial">Commercial</option>
+            <option value="plot">Plot/Land</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Budget Range</label>
+          <input type="text" [(ngModel)]="enquiryForm.budget" name="budget" placeholder="e.g., 50L - 1Cr" class="form-control">
+        </div>
+        <div class="form-group">
+          <label>Preferred Location</label>
+          <input type="text" [(ngModel)]="enquiryForm.location" name="location" placeholder="e.g., Financial District" class="form-control">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Additional Details</label>
+        <textarea [(ngModel)]="enquiryForm.message" name="message" rows="3" placeholder="Tell us about your requirements..." class="form-control"></textarea>
+      </div>
+
+      <div *ngIf="enquiryError" class="error-message">{{enquiryError}}</div>
+
+      <button type="submit" class="btn-submit-modal" [disabled]="enquirySubmitting || !modalForm.valid">
+        <span *ngIf="!enquirySubmitting">Submit Request</span>
+        <span *ngIf="enquirySubmitting">Submitting...</span>
+      </button>
+    </form>
+  </div>
+</div>

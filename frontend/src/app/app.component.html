@@ -16,6 +16,7 @@
       <a [routerLink]="['/properties']" class="nav-link" *ngIf="!currentRoute.startsWith('/properties')" (click)="closeMobileMenu()">Properties</a>
       <a [routerLink]="['/favorites']" class="nav-link" *ngIf="!currentRoute.startsWith('/favorites')" (click)="closeMobileMenu()">Favorites</a>
       <a [routerLink]="['/comparison']" class="nav-link" *ngIf="!currentRoute.startsWith('/comparison')" (click)="closeMobileMenu()">Compare</a>
+      
       <a [routerLink]="['/market-intelligence']" class="nav-link" *ngIf="!currentRoute.startsWith('/market-intelligence')" (click)="closeMobileMenu()">Market IQ</a>
       <a [routerLink]="['/map-view']" class="nav-link nav-link-map" *ngIf="!currentRoute.startsWith('/map-view')" (click)="closeMobileMenu()">
         <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="margin-right:4px;vertical-align:-2px"><path d="M20.5 3l-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"/></svg>
@@ -25,7 +26,10 @@
       <a [routerLink]="['/blog']" class="nav-link" *ngIf="!currentRoute.startsWith('/blog')" (click)="closeMobileMenu()">Insights</a>
       <a [routerLink]="['/social-feeds']" class="nav-link" *ngIf="!currentRoute.startsWith('/social-feeds')" (click)="closeMobileMenu()">Social</a>
       <a [routerLink]="['/loan-calculator']" class="nav-link" *ngIf="!currentRoute.startsWith('/loan-calculator')" (click)="closeMobileMenu()">Loan Calc</a>
-
+<a [routerLink]="['/consultancy']" class="nav-link nav-link-consultancy" *ngIf="!currentRoute.startsWith('/consultancy')" (click)="closeMobileMenu()">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="margin-right:4px;vertical-align:-2px"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.31-0.91-6-4.14-6-8V9h12v3c0 3.86-2.69 7.09-6 8z"/><circle cx="12" cy="12" r="2"/></svg>
+        Consultancy
+      </a>
       <!-- Auth: Not logged in -->
       <ng-container *ngIf="!(isLoggedIn$ | async)">
         <a [routerLink]="['/login']" class="nav-link nav-signin-btn" (click)="closeMobileMenu()">Sign In</a>

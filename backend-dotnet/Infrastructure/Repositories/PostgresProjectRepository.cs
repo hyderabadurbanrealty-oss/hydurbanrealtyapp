@@ -11,7 +11,7 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
     /// Returns 503 Service Unavailable (via ServiceUnavailableException) when the
     /// database cannot be reached, so the controller layer can return the appropriate HTTP status.
     /// </summary>
-    public class PostgresProjectRepository : IProjectRepository
+    public partial class PostgresProjectRepository : IProjectRepository
     {
         private readonly string _connectionString;
         private readonly ILogger<PostgresProjectRepository> _logger;

@@ -1256,6 +1256,7 @@
           </div>
           
           <!-- ===== AI FLOOR PLAN ANALYSIS ===== -->
+          <!-- HIDDEN: Uncomment to enable AI Floor Plan Insights
           <div class="fp-analysis-section" *ngIf="floorPlanAnalysis && propertyFloorplans.length > 0">
             <h2 class="section-title">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
@@ -1265,7 +1266,6 @@
             </h2>
             
             <div class="fp-analysis-grid">
-              <!-- Overall Score Card -->
               <div class="fp-score-card overall">
                 <div class="fp-score-value" [class.score-high]="floorPlanAnalysis.overallScore >= 70" 
                      [class.score-medium]="floorPlanAnalysis.overallScore >= 50 && floorPlanAnalysis.overallScore < 70"
@@ -1275,7 +1275,6 @@
                 <div class="fp-score-label">Livability Score</div>
               </div>
               
-              <!-- Category Scores -->
               <div class="fp-score-categories">
                 <div class="fp-score-item">
                   <span class="fp-score-cat-label">Flow & Circulation</span>
@@ -1322,7 +1321,6 @@
               </div>
             </div>
             
-            <!-- Highlights & Concerns -->
             <div class="fp-analysis-content">
               <div class="fp-highlights" *ngIf="floorPlanAnalysis.highlights && JSON.parse(floorPlanAnalysis.highlights).length > 0">
                 <h3>✨ Highlights</h3>
@@ -1343,6 +1341,7 @@
               <small>AI-generated analysis based on floor plan layout. For detailed assessment, please consult with our property experts.</small>
             </div>
           </div>
+          -->
           
         </div><!-- /floorplans tab -->
 

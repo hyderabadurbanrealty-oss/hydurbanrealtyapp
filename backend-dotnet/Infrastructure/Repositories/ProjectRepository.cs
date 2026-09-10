@@ -737,5 +737,11 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
 
         public Task<string> CreateProjectAsync(Dictionary<string, object> projectData)
             => throw new NotSupportedException("CreateProject is only supported with PostgreSQL repository.");
+        
+        /// <summary>
+        /// Get floor plan analysis - only supported in PostgreSQL repository
+        /// </summary>
+        public Task<Dictionary<string, object>?> GetFloorPlanAnalysisAsync(string projectId)
+            => throw new NotSupportedException("GetFloorPlanAnalysis is only supported with PostgreSQL repository.");
     }
 }

@@ -21,15 +21,35 @@ img, video, canvas {
   height: auto;
 }
 
-/* Navigation Bar */
+/* Navigation Bar - Branded Theme */
 .navbar {
-background: white;
-box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+background: linear-gradient(135deg, #ffffff 0%, #f8fcff 100%);
+box-shadow: 0 2px 16px rgba(13, 59, 115, 0.08);
+border-bottom: 1px solid rgba(13, 59, 115, 0.06);
 position: sticky;
 top: 0;
 z-index: 100;
 padding: 16px 0;
+backdrop-filter: blur(10px);
+transition: all 0.3s ease;
 }
+
+.navbar::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00bcd4 50%, transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.navbar:hover::before {
+  opacity: 0.3;
+}
+
 .nav-container {
 max-width: 1400px;
 margin: 0 auto;
@@ -48,7 +68,24 @@ align-items: center;
 display: flex;
 align-items: center;
 gap: 12px;
+transition: transform 0.3s ease;
 }
+
+.nav-brand:hover {
+  transform: scale(1.05);
+}
+
+.nav-logo-img {
+  height: 48px;
+  width: auto;
+  filter: drop-shadow(0 2px 8px rgba(13, 59, 115, 0.15));
+  transition: filter 0.3s ease;
+}
+
+.nav-logo-img:hover {
+  filter: drop-shadow(0 4px 12px rgba(0, 188, 212, 0.3));
+}
+
 .nav-logo {
 width: 48px;
 height: 48px;
@@ -72,16 +109,62 @@ display: flex;
 gap: 32px;
 align-items: center;
 }
+
 .nav-link {
 color: #333;
 text-decoration: none;
 font-weight: 500;
 font-size: 15px;
-transition: color 0.2s;
+transition: all 0.3s ease;
+position: relative;
+padding: 4px 0;
 }
+
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background: linear-gradient(90deg, #0d3b73, #00bcd4);
+  transition: width 0.3s ease;
+}
+
 .nav-link:hover {
-color: var(--primary);
+color: #0d3b73;
 }
+
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Consultancy Link - Special Branded Style */
+.nav-link-consultancy {
+  background: linear-gradient(135deg, #0d3b73 0%, #00bcd4 100%);
+  color: white !important;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(13, 59, 115, 0.2);
+  transition: all 0.3s ease;
+}
+
+.nav-link-consultancy::after {
+  display: none;
+}
+
+.nav-link-consultancy:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 188, 212, 0.4);
+  color: white !important;
+}
+
+/* Map View Link - Special Style */
+.nav-link-map {
+  color: #0d3b73;
+}
+
 .nav-link-btn {
 background: var(--primary);
 color: white;

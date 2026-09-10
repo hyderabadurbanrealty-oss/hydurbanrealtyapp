@@ -30,5 +30,10 @@ namespace HyderabadUrbanReality.Core.Interfaces
         Task<bool> UpdateProjectAsync(string projectId, Dictionary<string, object> updates);
         Task<bool> DeleteProjectAsync(string projectId);
         Task<string> CreateProjectAsync(Dictionary<string, object> projectData);
+        
+        /// <summary>
+        /// Get floor plan analysis for a project
+        /// </summary>
+        Task<Dictionary<string, object>?> GetFloorPlanAnalysisAsync(string projectId);
     }
 }

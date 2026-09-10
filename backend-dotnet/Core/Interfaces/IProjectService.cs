@@ -16,8 +16,8 @@ namespace HyderabadUrbanReality.Core.Interfaces
 
         /// <summary>Invalidates cache for a single project and the list.</summary>
         void InvalidateProject(string projectId);
-    }
-}
-
+        
         /// <summary>Get floor plan analysis for a project</summary>
         Task<Dictionary<string, object>?> GetFloorPlanAnalysisAsync(string projectId);
+    }
+}

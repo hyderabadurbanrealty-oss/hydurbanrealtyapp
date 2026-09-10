@@ -1091,15 +1091,6 @@ namespace HyderabadUrbanReality.Controllers
         }
 
         /// <summary>
-        /// Deletes a single scraped floor-plan image and removes it from manifest.json.
-        /// </summary>
-        [HttpDelete("projects/{id}/floor-plans/{filename}")]
-        [Authorize]
-        public async Task<IActionResult> DeleteScrapedFloorPlan(string id, string filename)
-        {
-            try
-
-        /// <summary>
         /// Get AI-generated floor plan analysis for a project
         /// Returns scores, findings, and recommendations
         /// </summary>
