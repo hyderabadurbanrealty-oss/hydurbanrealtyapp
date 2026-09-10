@@ -279,6 +279,14 @@ export class ConsultancyComponent implements OnInit {
     };
   }
 
+  scrollToMarketReport(): void {
+    const el = document.getElementById('market-report');
+    if (el) {
+      const top = el.getBoundingClientRect().top + window.pageYOffset - 80;
+      window.scrollTo({ top, behavior: 'smooth' });
+    }
+  }
+
   scrollToForm(): void {
     const formElement = document.querySelector('.cta-form-section');
     if (formElement) {

@@ -28,7 +28,7 @@
       <a [routerLink]="['/loan-calculator']" class="nav-link" *ngIf="!currentRoute.startsWith('/loan-calculator')" (click)="closeMobileMenu()">Loan Calc</a>
       <a [routerLink]="['/consultancy']" class="nav-link nav-link-consultancy" *ngIf="!currentRoute.startsWith('/consultancy')" (click)="closeMobileMenu()">
         <svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14" style="margin-right:4px;vertical-align:-2px"><path d="M12 2L2 7v10c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V7l-10-5zm0 18c-3.31-0.91-6-4.14-6-8V9h12v3c0 3.86-2.69 7.09-6 8z"/><circle cx="12" cy="12" r="2"/></svg>
-        Consultancy
+        Contact Us
       </a>
       <!-- Auth: Not logged in -->
       <ng-container *ngIf="!(isLoggedIn$ | async)">
