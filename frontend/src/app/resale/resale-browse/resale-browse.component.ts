@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -19,7 +19,7 @@ export class ResaleBrowseComponent implements OnInit {
   pageSize  = 12;
 
   // Schedule visit modal
-  showVisit       = false;
+  showVisit        = false;
   visitProjectName = '';
   visitProjectId   = '';
 
@@ -43,7 +43,7 @@ export class ResaleBrowseComponent implements OnInit {
     '1 BHK', '2 BHK', '3 BHK', '4 BHK', '4+ BHK / Penthouse', 'Villa / Independent House'
   ];
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void { this.load(); }
 
@@ -55,20 +55,22 @@ export class ResaleBrowseComponent implements OnInit {
       .set('page',     this.page)
       .set('pageSize', this.pageSize);
 
-    if (this.filterLocation.trim())      params = params.set('location',      this.filterLocation.trim());
-    if (this.filterConfiguration)        params = params.set('configuration',  this.filterConfiguration);
-    if (this.filterMinPrice != null)     params = params.set('minPrice',       this.filterMinPrice);
-    if (this.filterMaxPrice != null)     params = params.set('maxPrice',       this.filterMaxPrice);
+    if (this.filterLocation.trim())  params = params.set('location',     this.filterLocation.trim());
+    if (this.filterConfiguration)    params = params.set('configuration', this.filterConfiguration);
+    if (this.filterMinPrice != null) params = params.set('minPrice',      this.filterMinPrice);
+    if (this.filterMaxPrice != null) params = params.set('maxPrice',      this.filterMaxPrice);
 
     this.http.get<any>(`${API}/resale/public`, { params }).subscribe({
       next: res => {
         this.listings = res.listings ?? [];
         this.total    = res.total    ?? 0;
         this.loading  = false;
+        this.cdr.markForCheck();
       },
       error: () => {
         this.error   = 'Failed to load listings. Please try again.';
         this.loading = false;
+        this.cdr.markForCheck();
       }
     });
   }

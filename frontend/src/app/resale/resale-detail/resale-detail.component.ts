@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
@@ -31,7 +31,8 @@ export class ResaleDetailComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
-    private seo: SeoService
+    private seo: SeoService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -57,14 +58,14 @@ export class ResaleDetailComponent implements OnInit, OnDestroy {
         this.activeImage = 0;
         this.loading     = false;
         this.updateSeo(data, slug);
+        this.cdr.markForCheck();
       },
       error: err => {
         this.loading = false;
-        if (err.status === 404) {
-          this.error = 'This listing is no longer available or has been removed.';
-        } else {
-          this.error = 'Failed to load listing. Please try again.';
-        }
+        this.error = err.status === 404
+          ? 'This listing is no longer available or has been removed.'
+          : 'Failed to load listing. Please try again.';
+        this.cdr.markForCheck();
       }
     });
   }
