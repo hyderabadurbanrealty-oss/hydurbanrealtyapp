@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Npgsql;
 using System.Security.Claims;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace HyderabadUrbanReality.Controllers
 {
@@ -30,6 +31,110 @@ namespace HyderabadUrbanReality.Controllers
             _config      = config;
             _fileService = fileService;
             _logger      = logger;
+        }
+
+        // ── GET /api/resale/public ───────────────────────────────────────────
+        // Returns all active (approved) listings — no auth required
+        [HttpGet("public")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetPublic(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 20,
+            [FromQuery] string? location = null,
+            [FromQuery] string? configuration = null,
+            [FromQuery] long? minPrice = null,
+            [FromQuery] long? maxPrice = null)
+        {
+            await using var conn = new NpgsqlConnection(ConnStr);
+
+            var conditions = new List<string> { "status = 'active'" };
+            if (!string.IsNullOrWhiteSpace(location))
+                conditions.Add("location ILIKE @location");
+            if (!string.IsNullOrWhiteSpace(configuration))
+                conditions.Add("configuration = @configuration");
+            if (minPrice.HasValue)
+                conditions.Add("expected_price >= @minPrice");
+            if (maxPrice.HasValue)
+                conditions.Add("expected_price <= @maxPrice");
+
+            var where = "WHERE " + string.Join(" AND ", conditions);
+
+            var rows = await conn.QueryAsync<dynamic>(
+                $@"SELECT id, project_name, builder_name, location,
+                          configuration, super_built_up_area, age_of_property,
+                          expected_price, features, images, created_at
+                   FROM resale_listings
+                   {where}
+                   ORDER BY created_at DESC
+                   LIMIT @pageSize OFFSET @offset",
+                new
+                {
+                    location  = $"%{location}%",
+                    configuration,
+                    minPrice,
+                    maxPrice,
+                    pageSize,
+                    offset    = (page - 1) * pageSize
+                });
+
+            var total = await conn.ExecuteScalarAsync<int>(
+                $"SELECT COUNT(*) FROM resale_listings {where}",
+                new { location = $"%{location}%", configuration, minPrice, maxPrice });
+
+            // Attach computed slug: {project-name}-{location-word1}-{id-first8}
+            var listings = ((IEnumerable<dynamic>)rows).Select(r =>
+            {
+                string slug = BuildSlug((string?)r.project_name, (string?)r.location, (Guid)r.id);
+                return new
+                {
+                    r.id, slug,
+                    r.project_name, r.builder_name, r.location,
+                    r.configuration, r.super_built_up_area, r.age_of_property,
+                    r.expected_price, r.features, r.images, r.created_at
+                };
+            });
+
+            return Ok(new { listings, total, page, pageSize });
+        }
+
+        // ── GET /api/resale/public/{slug} ────────────────────────────────────
+        // Slug format: {kebab-project}-{kebab-location}-{id-first8}
+        // The last segment is the first 8 chars of the UUID — enough to be unique
+        [HttpGet("public/{slug}")]
+        [AllowAnonymous]
+        public async Task<IActionResult> GetBySlug(string slug)
+        {
+            // Extract the id prefix (last hyphen-separated token of length 8)
+            var parts  = slug.Split('-');
+            var idPart = parts.LastOrDefault(p => p.Length == 8);
+            if (idPart == null)
+                return NotFound(new { error = "invalid_slug" });
+
+            await using var conn = new NpgsqlConnection(ConnStr);
+            var listing = await conn.QueryFirstOrDefaultAsync<dynamic>(
+                @"SELECT id, project_name, builder_name, location, configuration,
+                         super_built_up_area, age_of_property, expected_price,
+                         preferred_callback, features, images, created_at
+                  FROM resale_listings
+                  WHERE status = 'active'
+                    AND LEFT(id::text, 8) = @idPart",
+                new { idPart });
+
+            if (listing == null)
+                return NotFound(new { error = "listing_not_found" });
+
+            var slug2 = BuildSlug((string?)listing.project_name,
+                                  (string?)listing.location,
+                                  (Guid)listing.id);
+            return Ok(new
+            {
+                listing.id, slug = slug2,
+                listing.project_name, listing.builder_name, listing.location,
+                listing.configuration, listing.super_built_up_area,
+                listing.age_of_property, listing.expected_price,
+                listing.preferred_callback, listing.features, listing.images,
+                listing.created_at
+            });
         }
 
         // ── POST /api/resale ─────────────────────────────────────────────────
@@ -200,6 +305,21 @@ namespace HyderabadUrbanReality.Controllers
             var claim = User.FindFirstValue(ClaimTypes.NameIdentifier)
                      ?? User.FindFirstValue("sub");
             return claim != null && Guid.TryParse(claim, out var id) ? id : null;
+        }
+
+        private static string BuildSlug(string? projectName, string? location, Guid id)
+        {
+            static string Kebab(string? s) =>
+                string.IsNullOrWhiteSpace(s) ? "" :
+                Regex.Replace(
+                    Regex.Replace(s.ToLowerInvariant().Trim(), @"[^a-z0-9\s-]", ""),
+                    @"[\s-]+", "-").Trim('-');
+
+            var locFirst = location?.Split(',').FirstOrDefault()?.Trim();
+            var parts    = new[] { Kebab(projectName), Kebab(locFirst) }
+                           .Where(p => !string.IsNullOrEmpty(p));
+            var idPart   = id.ToString("N")[..8]; // first 8 hex chars — always unique
+            return string.Join("-", parts.Append(idPart));
         }
     }
 

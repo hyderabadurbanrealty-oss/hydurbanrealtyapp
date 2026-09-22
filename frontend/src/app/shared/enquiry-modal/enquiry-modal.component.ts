@@ -17,6 +17,9 @@ export interface EnquiryFormData {
 export class EnquiryModalComponent {
   @Input() show = false;
   @Input() source = 'modal';
+  @Input() set propertyLabel(val: string) {
+    if (val) this.enquiryForm.interest = val;
+  }
   @Output() close = new EventEmitter<void>();
 
   enquiryForm: EnquiryFormData = { name: '', email: '', mobile: '', interest: '' };

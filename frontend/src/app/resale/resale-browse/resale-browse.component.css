@@ -1,0 +1,361 @@
+/* ── Page shell ───────────────────────────────────────────────────────── */
+.rb-page {
+  min-height: 100vh;
+  background: #f4f7fb;
+  padding-bottom: 60px;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────── */
+.rb-header {
+  background: linear-gradient(135deg, #0d3b73 0%, #00bcd4 100%);
+  color: #fff;
+  padding: 40px 0 36px;
+}
+.rb-header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.rb-title    { font-size: 28px; font-weight: 700; margin: 0 0 6px; }
+.rb-subtitle { font-size: 14px; opacity: .85; margin: 0; }
+
+.rb-list-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .2s;
+  white-space: nowrap;
+}
+.rb-list-btn:hover { background: rgba(255,255,255,0.25); }
+
+/* ── Filters ──────────────────────────────────────────────────────────── */
+.rb-filters {
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  padding: 20px 0;
+  position: sticky;
+  top: 64px;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.rb-filters-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.rb-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  flex: 1;
+  min-width: 140px;
+}
+.rb-filter-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.rb-filter-input,
+.rb-filter-select {
+  border: 1.5px solid #e2e8f0;
+  border-radius: 7px;
+  padding: 9px 12px;
+  font-size: 13px;
+  color: #1e293b;
+  background: #f8fafc;
+  outline: none;
+  transition: border-color .2s;
+  width: 100%;
+}
+.rb-filter-input:focus,
+.rb-filter-select:focus { border-color: #00bcd4; background: #fff; }
+
+.rb-filter-actions { display: flex; gap: 8px; align-items: flex-end; }
+.rb-btn-apply {
+  padding: 9px 22px;
+  background: linear-gradient(135deg, #0d3b73, #00bcd4);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity .2s;
+}
+.rb-btn-apply:hover { opacity: .9; }
+.rb-btn-clear {
+  padding: 9px 16px;
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 7px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .2s;
+}
+.rb-btn-clear:hover { background: #e2e8f0; }
+
+/* ── States ───────────────────────────────────────────────────────────── */
+.rb-loading, .rb-error, .rb-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  gap: 12px;
+  text-align: center;
+  color: #64748b;
+}
+.rb-spinner {
+  width: 36px; height: 36px;
+  border: 3px solid #e2e8f0;
+  border-top-color: #00bcd4;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.rb-error { color: #dc2626; }
+.rb-retry {
+  padding: 8px 18px;
+  background: #fee2e2;
+  color: #dc2626;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.rb-empty h3 { font-size: 18px; font-weight: 600; color: #1e293b; margin: 0; }
+.rb-empty p  { font-size: 14px; margin: 0; }
+
+/* ── Grid ─────────────────────────────────────────────────────────────── */
+.rb-grid {
+  max-width: 1200px;
+  margin: 32px auto 0;
+  padding: 0 24px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────── */
+.rb-card {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  transition: transform .2s, box-shadow .2s;
+}
+.rb-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.11);
+}
+
+/* Link wrapper covers image + body, no underline */
+.rb-card-link {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.rb-card-img-wrap {
+  position: relative;
+  height: 200px;
+  background: #e8eef8;
+  overflow: hidden;
+}
+.rb-card-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.rb-no-img {
+  width: 100%; height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+}
+.rb-photo-count {
+  position: absolute;
+  bottom: 10px; right: 10px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.rb-owner-badge {
+  position: absolute;
+  top: 10px; left: 10px;
+  background: #0d3b73;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: .4px;
+  text-transform: uppercase;
+}
+
+.rb-card-body {
+  padding: 18px 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.rb-card-title  { font-size: 16px; font-weight: 700; color: #0d3b73; margin: 0; }
+.rb-card-builder { font-size: 12px; color: #64748b; margin: 0; }
+.rb-card-location {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #64748b;
+  margin: 0;
+}
+.rb-card-location svg { flex-shrink: 0; color: #00bcd4; }
+
+.rb-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.rb-meta-chip {
+  background: #f0f4ff;
+  color: #0d3b73;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 20px;
+}
+
+.rb-features {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+.rb-feat-tag {
+  background: #f0fdfa;
+  color: #0d9488;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid #ccfbf1;
+}
+.rb-feat-more {
+  font-size: 11px;
+  color: #64748b;
+  padding: 2px 6px;
+}
+
+.rb-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px 16px;
+  border-top: 1px solid #f1f5f9;
+  gap: 8px;
+}
+.rb-price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0d3b73;
+}
+.rb-card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.rb-detail-btn {
+  padding: 7px 14px;
+  background: #f0f4ff;
+  color: #0d3b73;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.rb-detail-btn:hover { background: #dbeafe; }
+.rb-enquire-btn {
+  padding: 7px 14px;
+  background: linear-gradient(135deg, #0d3b73, #00bcd4);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: opacity .2s;
+  white-space: nowrap;
+}
+.rb-enquire-btn:hover { opacity: .88; }
+
+/* ── Pagination ───────────────────────────────────────────────────────── */
+.rb-pagination {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  max-width: 1200px;
+  margin: 40px auto 0;
+  padding: 0 24px;
+  flex-wrap: wrap;
+}
+.rb-page-btn {
+  padding: 8px 14px;
+  border: 1.5px solid #e2e8f0;
+  background: #fff;
+  color: #1e293b;
+  border-radius: 7px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.rb-page-btn:hover:not(:disabled) { border-color: #00bcd4; color: #0d3b73; }
+.rb-page-btn.active { background: #0d3b73; color: #fff; border-color: #0d3b73; }
+.rb-page-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Responsive ───────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .rb-header-inner { flex-direction: column; align-items: flex-start; }
+  .rb-filters { position: static; }
+  .rb-filters-inner { flex-direction: column; }
+  .rb-filter-group { min-width: 100%; }
+  .rb-filter-actions { width: 100%; }
+  .rb-btn-apply, .rb-btn-clear { flex: 1; text-align: center; }
+  .rb-grid { grid-template-columns: 1fr; }
+}

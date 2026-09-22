@@ -139,6 +139,145 @@ color: #0d3b73;
   width: 100%;
 }
 
+/* ── Resale Dropdown ─────────────────────────────────────────────────── */
+.nav-dropdown-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-dropdown-trigger {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0,0,0,0.12);
+  border: 1px solid rgba(0,0,0,0.07);
+  min-width: 190px;
+  padding: 6px 0;
+  z-index: 200;
+  animation: dropdownFade .15s ease;
+}
+
+@keyframes dropdownFade {
+  from { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Small triangle pointer */
+.nav-dropdown-menu::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid #fff;
+  filter: drop-shadow(0 -1px 1px rgba(0,0,0,0.06));
+}
+
+/* Remove the old CSS-hover rule — now controlled by *ngIf in template */
+
+.nav-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+  text-decoration: none;
+  transition: background .15s, color .15s;
+}
+.nav-dropdown-item svg { color: #0d3b73; flex-shrink: 0; }
+.nav-dropdown-item:hover { background: #f0f4ff; color: #0d3b73; }
+
+/* Active state when on a /resale route */
+.nav-dropdown-wrap.active .nav-dropdown-trigger {
+  color: #0d3b73;
+  font-weight: 600;
+}
+
+/* Mobile-only flat links hidden on desktop */
+.nav-link-mobile-only { display: none; }
+
+/* Icon-only nav links (Favorites heart, Map View map) */
+.nav-link-icon {
+  padding: 6px 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: background .15s, color .15s;
+  color: #555;
+  position: relative;
+}
+
+.nav-link-icon:hover {
+  background: rgba(13, 59, 115, 0.07);
+  color: #0d3b73;
+}
+
+/* Favorites — always pink */
+.nav-link-fav {
+  color: #e91e63;
+}
+.nav-link-fav:hover {
+  background: rgba(233, 30, 99, 0.08);
+  color: #c2185b;
+}
+
+/* Tooltip via title attribute */
+.nav-link-icon::after {
+  content: attr(title);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.85);
+  color: #fff;
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 3px 8px;
+  border-radius: 5px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .15s;
+}
+.nav-link-icon:hover::after { opacity: 1; }
+
+/* On mobile show label text next to icon */
+@media (max-width: 768px) {
+  .nav-link-icon {
+    width: 100%;
+    padding: 12px 4px;
+    border-radius: 0;
+    border-bottom: 1px solid rgba(0,0,0,0.08);
+    justify-content: flex-start;
+    gap: 10px;
+    color: #333;
+  }
+  .nav-link-fav { color: #e91e63; }
+  .nav-link-icon::before {
+    content: attr(title);
+    font-size: 14px;
+    order: 2;
+  }
+  .nav-link-icon::after { display: none; }
+  .nav-link-icon svg { order: 1; }
+}
+
 /* Consultancy Link - Special Branded Style */
 .nav-link-consultancy {
   background: linear-gradient(135deg, #0d3b73 0%, #00bcd4 100%);
@@ -621,6 +760,10 @@ padding: 24px;
     display: flex;
     align-items: center;
   }
+
+  /* Hide hover dropdown on mobile — use flat links instead */
+  .nav-dropdown-wrap    { display: none; }
+  .nav-link-mobile-only { display: flex; }
 
   .nav-link-btn {
     width: 100%;

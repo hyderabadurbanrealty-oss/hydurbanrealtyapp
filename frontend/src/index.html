@@ -41,6 +41,14 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/assets/blue-Logo.png" />
     <link rel="apple-touch-icon" href="/assets/blue-Logo.png" />
+
+    <!-- Resource hints: preconnect for above-the-fold critical origins -->
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+    <link rel="preconnect" href="https://www.google-analytics.com" crossorigin />
+    <link rel="preconnect" href="https://accounts.google.com" crossorigin />
+    <!-- dns-prefetch for origins loaded lazily (map page only) -->
+    <link rel="dns-prefetch" href="https://unpkg.com" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
     
     <!-- Structured Data - Organization -->
     <script type="application/ld+json">
@@ -78,32 +86,55 @@
     
     <!-- Google Tag Manager -->
     <script>
+      // Single dataLayer initialisation — gtag reuses the same array
+      window.dataLayer = window.dataLayer || [];
       (function(w,d,s,l,i){
-        w[l]=w[l]||[];
-        w[l].push({'gtm.start': new Date().getTime(),event:'gtm.js'});
+        w[l].push({'gtm.start': new Date().getTime(), event:'gtm.js'});
         var f=d.getElementsByTagName(s)[0],
-        j=d.createElement(s),
-        dl=l!='dataLayer'?'&l='+l:'';
+            j=d.createElement(s),
+            dl=l!='dataLayer'?'&l='+l:'';
         j.async=true;
         j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
         f.parentNode.insertBefore(j,f);
       })(window,document,'script','dataLayer','GTM-TGZ9ZL9K');
     </script>
     <!-- End Google Tag Manager -->
-    
-    <!-- Google tag (gtag.js) -->
+
+    <!-- Google tag (gtag.js) — async, reuses dataLayer initialised above -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-9WEPYXSXVC"></script>
     <script>
-      window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-9WEPYXSXVC');
     </script>
-    
-    <!-- MapLibre GL JS (used for map-view page — no API key required) -->
-    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
-    <!-- Google Identity Services (Sign In With Google) -->
+
+    <!-- MapLibre GL — loaded only when the map-view route is visited -->
+    <script>
+      (function(){
+        var loaded = false;
+        function loadMapLibre(){
+          if (loaded) return;
+          loaded = true;
+          var css = document.createElement('link');
+          css.rel = 'stylesheet';
+          css.href = 'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css';
+          document.head.appendChild(css);
+          var js = document.createElement('script');
+          js.src = 'https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js';
+          document.head.appendChild(js);
+        }
+        // Load when the browser is idle, or immediately on map-view route
+        if (window.location.pathname.startsWith('/map-view')) {
+          loadMapLibre();
+        } else if ('requestIdleCallback' in window) {
+          requestIdleCallback(loadMapLibre, { timeout: 4000 });
+        } else {
+          setTimeout(loadMapLibre, 3000);
+        }
+      })();
+    </script>
+
+    <!-- Google Identity Services — deferred, not needed at parse time -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
   </head>
   <body>
