@@ -1,0 +1,164 @@
+<div class="rb-page">
+
+  <!-- Page Header -->
+  <div class="rb-header">
+    <div class="rb-header-inner">
+      <div>
+        <h1 class="rb-title">Resale Properties</h1>
+        <p class="rb-subtitle">
+          {{ total > 0 ? (total + ' verified resale propert' + (total === 1 ? 'y' : 'ies') + ' listed by owners') : 'Browse owner-listed resale properties in Hyderabad' }}
+        </p>
+      </div>
+      <a routerLink="/resale/submit" class="rb-list-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+        List Your Property
+      </a>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="rb-filters">
+    <div class="rb-filters-inner">
+      <div class="rb-filter-group">
+        <label>Location</label>
+        <input type="text" [(ngModel)]="filterLocation" placeholder="e.g. Kokapet, Gachibowli…"
+               class="rb-filter-input" (keyup.enter)="applyFilters()" />
+      </div>
+      <div class="rb-filter-group">
+        <label>Configuration</label>
+        <select [(ngModel)]="filterConfiguration" class="rb-filter-select">
+          <option value="">All</option>
+          <option *ngFor="let c of configurations" [value]="c">{{ c }}</option>
+        </select>
+      </div>
+      <div class="rb-filter-group">
+        <label>Min Price (₹)</label>
+        <input type="number" [(ngModel)]="filterMinPrice" placeholder="e.g. 5000000"
+               class="rb-filter-input" min="0" />
+      </div>
+      <div class="rb-filter-group">
+        <label>Max Price (₹)</label>
+        <input type="number" [(ngModel)]="filterMaxPrice" placeholder="e.g. 20000000"
+               class="rb-filter-input" min="0" />
+      </div>
+      <div class="rb-filter-actions">
+        <button class="rb-btn-apply" (click)="applyFilters()">Search</button>
+        <button class="rb-btn-clear" (click)="clearFilters()">Clear</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="rb-loading" *ngIf="loading">
+    <div class="rb-spinner"></div>
+    <p>Loading listings…</p>
+  </div>
+
+  <!-- Error -->
+  <div class="rb-error" *ngIf="error && !loading">
+    <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+    </svg>
+    {{ error }}
+    <button class="rb-retry" (click)="load()">Retry</button>
+  </div>
+
+  <!-- Empty state -->
+  <div class="rb-empty" *ngIf="!loading && !error && listings.length === 0">
+    <svg viewBox="0 0 64 64" fill="none" width="80" height="80">
+      <circle cx="32" cy="32" r="30" fill="#f0f4ff" stroke="#e2e8f0" stroke-width="2"/>
+      <path d="M20 44V28l12-10 12 10v16" stroke="#0d3b73" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <rect x="26" y="34" width="6" height="10" rx="1" fill="#00b8d4" opacity=".8"/>
+    </svg>
+    <h3>No listings found</h3>
+    <p>Try adjusting your filters, or be the first to list a property.</p>
+    <a routerLink="/resale/submit" class="rb-list-btn" style="margin-top:12px">List Your Property</a>
+  </div>
+
+  <!-- Grid -->
+  <div class="rb-grid" *ngIf="!loading && !error && listings.length > 0">
+    <div class="rb-card" *ngFor="let l of listings">
+
+      <!-- Clickable image area → detail page -->
+      <a [routerLink]="['/resale', l.slug]" class="rb-card-link" aria-label="View {{ l.project_name }}">
+
+        <!-- Image -->
+        <div class="rb-card-img-wrap">
+          <img *ngIf="getImages(l).length > 0"
+               [src]="getImages(l)[0]"
+               [alt]="l.project_name || 'Resale property'"
+               class="rb-card-img"
+               loading="lazy" />
+          <div class="rb-no-img" *ngIf="getImages(l).length === 0">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
+            </svg>
+          </div>
+          <span class="rb-photo-count" *ngIf="getImages(l).length > 1">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12">
+              <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2z"/>
+            </svg>
+            {{ getImages(l).length }}
+          </span>
+          <span class="rb-owner-badge">Owner Listed</span>
+        </div>
+
+        <!-- Body -->
+        <div class="rb-card-body">
+          <h3 class="rb-card-title">{{ l.project_name || 'Resale Property' }}</h3>
+          <p class="rb-card-builder" *ngIf="l.builder_name">{{ l.builder_name }}</p>
+
+          <p class="rb-card-location" *ngIf="l.location">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12">
+              <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+            </svg>
+            {{ l.location }}
+          </p>
+
+          <div class="rb-card-meta">
+            <span *ngIf="l.configuration" class="rb-meta-chip">{{ l.configuration }}</span>
+            <span *ngIf="l.super_built_up_area" class="rb-meta-chip">{{ l.super_built_up_area }} sq.ft</span>
+            <span *ngIf="l.age_of_property" class="rb-meta-chip">{{ l.age_of_property }}</span>
+          </div>
+
+          <div class="rb-features" *ngIf="getFeatures(l).length > 0">
+            <span class="rb-feat-tag" *ngFor="let f of getFeatures(l).slice(0, 3)">{{ f }}</span>
+            <span class="rb-feat-more" *ngIf="getFeatures(l).length > 3">
+              +{{ getFeatures(l).length - 3 }}
+            </span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Footer outside the link so Enquire button doesn't navigate -->
+      <div class="rb-card-footer">
+        <span class="rb-price">{{ formatPrice(l.expected_price) }}</span>
+        <div class="rb-card-actions">
+          <a [routerLink]="['/resale', l.slug]" class="rb-detail-btn">View Details</a>
+          <button class="rb-enquire-btn" (click)="openVisit(l)">Schedule Visit</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div class="rb-pagination" *ngIf="totalPages > 1 && !loading">
+    <button class="rb-page-btn" [disabled]="page === 1" (click)="goToPage(page - 1)">‹ Prev</button>
+    <button *ngFor="let p of pages"
+            class="rb-page-btn"
+            [class.active]="p === page"
+            (click)="goToPage(p)">{{ p }}</button>
+    <button class="rb-page-btn" [disabled]="page === totalPages" (click)="goToPage(page + 1)">Next ›</button>
+  </div>
+
+</div>
+
+<!-- Schedule visit modal -->
+<app-schedule-visit-modal
+  *ngIf="showVisit"
+  [projectName]="visitProjectName"
+  [projectId]="visitProjectId"
+  (closed)="closeVisit()">
+</app-schedule-visit-modal>

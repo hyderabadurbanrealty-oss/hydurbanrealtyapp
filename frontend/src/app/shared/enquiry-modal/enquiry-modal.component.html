@@ -37,7 +37,9 @@
 
       <div class="enq-modal-field">
         <label>Area of Interest <span style="color:#94a3b8;font-weight:400">(optional)</span></label>
-        <select [(ngModel)]="enquiryForm.interest">
+        <input *ngIf="enquiryForm.interest" type="text" [(ngModel)]="enquiryForm.interest" readonly
+               style="background:#f8fafc;cursor:default;" />
+        <select *ngIf="!enquiryForm.interest" [(ngModel)]="enquiryForm.interest">
           <option value="">Select area or project type</option>
           <option>Kokapet</option>
           <option>Narsingi</option>

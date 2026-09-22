@@ -1,6 +1,7 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { Router, NavigationEnd } from '@angular/router';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
+import { takeUntil, filter } from 'rxjs/operators';
 import { AuthService, UserProfile } from './services/auth.service';
 import { AnalyticsService } from './services/analytics.service';
 
@@ -8,54 +9,55 @@ import { AnalyticsService } from './services/analytics.service';
   standalone: false,
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.css'],
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
   title = 'Hyderabad Urban Realty';
   currentRoute = '';
   showMobileMenu = false;
   showUserMenu = false;
+  showResaleMenu = false;
 
-  // ── Enquiry modal ──────────────────────────────────────────────────────────
   showEnquiryModal = false;
-
-  openEnquiryModal(): void {
-    this.showEnquiryModal = true;
-  }
-
-  closeEnquiryModal(): void {
-    this.showEnquiryModal = false;
-  }
 
   currentUser$!: Observable<UserProfile | null>;
   isLoggedIn$!: Observable<boolean>;
 
   @ViewChild('navWrapper', { static: true }) navWrapper!: ElementRef<HTMLElement>;
 
+  private destroy$ = new Subject<void>();
+
   constructor(
-    private router: Router, 
+    private router: Router,
     public auth: AuthService,
-    private analytics: AnalyticsService
-  ) {
-    this.router.events.subscribe(event => {
-      if (event instanceof NavigationEnd) {
-        this.currentRoute = event.urlAfterRedirects;
-        this.setMobileMenu(false);
-        this.showUserMenu = false;
-      }
-    });
-  }
+    private analytics: AnalyticsService,
+  ) {}
 
   ngOnInit(): void {
     this.currentUser$ = this.auth.currentUser$;
     this.isLoggedIn$ = this.auth.isLoggedIn$;
-    
-    // Initialize Google Tag Manager
+
     this.analytics.initGTM();
-    
-    // Track page views on route changes
     this.analytics.trackPageViews();
+
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      takeUntil(this.destroy$),
+    ).subscribe(event => {
+      this.currentRoute = (event as NavigationEnd).urlAfterRedirects;
+      this.setMobileMenu(false);
+      this.showUserMenu = false;
+      this.showResaleMenu = false;
+    });
   }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  openEnquiryModal(): void  { this.showEnquiryModal = true; }
+  closeEnquiryModal(): void { this.showEnquiryModal = false; }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent) {
@@ -64,16 +66,19 @@ export class AppComponent implements OnInit {
     if (this.navWrapper && !this.navWrapper.nativeElement.contains(target)) {
       this.setMobileMenu(false);
       this.showUserMenu = false;
+      this.showResaleMenu = false;
     }
   }
 
   toggleMobileMenu() { this.setMobileMenu(!this.showMobileMenu); }
-  closeMobileMenu() { this.setMobileMenu(false); }
-  toggleUserMenu() { this.showUserMenu = !this.showUserMenu; }
+  closeMobileMenu()  { this.setMobileMenu(false); }
+  toggleUserMenu()   { this.showUserMenu = !this.showUserMenu; }
+  toggleResaleMenu() { this.showResaleMenu = !this.showResaleMenu; this.showUserMenu = false; }
+  closeResaleMenu()  { this.showResaleMenu = false; }
 
   setMobileMenu(open: boolean) {
     this.showMobileMenu = open;
-    document.body.style.overflow = this.showMobileMenu ? 'hidden' : '';
+    document.body.style.overflow = open ? 'hidden' : '';
   }
 
   logout(): void {
@@ -82,10 +87,10 @@ export class AppComponent implements OnInit {
   }
 
   isLoginOrAdminRoute(): boolean {
-    return this.currentRoute.startsWith('/login') ||
-           this.currentRoute.startsWith('/admin') ||
-           this.currentRoute.startsWith('/register') ||
-           this.currentRoute.startsWith('/forgot-password') ||
+    return this.currentRoute.startsWith('/login')          ||
+           this.currentRoute.startsWith('/admin')          ||
+           this.currentRoute.startsWith('/register')       ||
+           this.currentRoute.startsWith('/forgot-password')||
            this.currentRoute.startsWith('/reset-password') ||
            this.currentRoute.startsWith('/verify-email');
   }
