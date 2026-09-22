@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
@@ -77,7 +77,7 @@ export class ResaleSubmitComponent implements OnInit {
     return d.toISOString().split('T')[0];
   }
 
-  constructor(private http: HttpClient, private auth: AuthService) {}
+  constructor(private http: HttpClient, private auth: AuthService, private zone: NgZone) {}
 
   ngOnInit(): void {
     const user = this.auth.getCurrentUser();
@@ -108,8 +108,13 @@ export class ResaleSubmitComponent implements OnInit {
       const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)},+Hyderabad,+India&format=json&limit=6&addressdetails=0`;
       fetch(url, { headers: { 'Accept-Language': 'en' } })
         .then(r => r.json())
-        .then((res: any[]) => { this.locationSuggestions = res; this.locationSearching = false; })
-        .catch(() => { this.locationSearching = false; });
+        .then((res: any[]) => {
+          this.zone.run(() => {
+            this.locationSuggestions = res;
+            this.locationSearching = false;
+          });
+        })
+        .catch(() => this.zone.run(() => { this.locationSearching = false; }));
     }, 400);
   }
 
@@ -197,20 +202,21 @@ export class ResaleSubmitComponent implements OnInit {
     fd.append('featuresJson',      JSON.stringify(Array.from(this.selectedFeatures)));
     this.selectedFiles.forEach(f => fd.append('images', f, f.name));
 
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${API}/resale`);
-    const token = localStorage.getItem('authToken');
-    if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
-    xhr.onload = () => {
-      this.loading = false;
-      if (xhr.status === 201) { this.success = true; }
-      else {
-        try { this.error = JSON.parse(xhr.responseText).message || 'Submission failed.'; }
-        catch { this.error = 'Submission failed. Please try again.'; }
+    // Use HttpClient so ZoneInterceptor keeps change detection in sync
+    this.http.post(`${API}/resale`, fd).subscribe({
+      next: () => {
+        this.zone.run(() => {
+          this.loading = false;
+          this.success = true;
+        });
+      },
+      error: (err) => {
+        this.zone.run(() => {
+          this.loading = false;
+          this.error = err?.error?.message || 'Submission failed. Please try again.';
+        });
       }
-    };
-    xhr.onerror = () => { this.loading = false; this.error = 'Network error. Please check connection.'; };
-    xhr.send(fd);
+    });
   }
 
   resetForm(): void {
