@@ -1,5 +1,5 @@
 import {
-  Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef
+  Component, Input, Output, EventEmitter, OnInit, OnDestroy, ChangeDetectorRef, NgZone
 } from '@angular/core';
 import { PropertyService } from '../services/property.service';
 
@@ -42,7 +42,7 @@ export class ScheduleVisitModalComponent implements OnInit, OnDestroy {
     return new Date().toISOString().split('T')[0];
   }
 
-  constructor(private svc: PropertyService, private cdr: ChangeDetectorRef) {}
+  constructor(private svc: PropertyService, private cdr: ChangeDetectorRef, private zone: NgZone) {}
 
   ngOnInit(): void {
     this.refreshCaptcha();
@@ -79,10 +79,12 @@ export class ScheduleVisitModalComponent implements OnInit, OnDestroy {
       fetch(url, { headers: { 'Accept-Language': 'en' } })
         .then(r => r.json())
         .then((results: any[]) => {
-          this.locationSuggestions = results;
-          this.locationSearching = false;
+          this.zone.run(() => {
+            this.locationSuggestions = results;
+            this.locationSearching = false;
+          });
         })
-        .catch(() => { this.locationSearching = false; });
+        .catch(() => this.zone.run(() => { this.locationSearching = false; }));
     }, 400);
   }
 
