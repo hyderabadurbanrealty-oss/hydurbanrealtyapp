@@ -14,6 +14,7 @@ import { AuthGuard } from '../auth.guard';
 
 import { ResaleBrowseComponent } from '../resale/resale-browse/resale-browse.component';
 import { ResaleDetailComponent } from '../resale/resale-detail/resale-detail.component';
+import { ResaleEditComponent } from '../resale/resale-edit/resale-edit.component';
 
 const routes: Routes = [
   { path: 'profile',             component: UserProfileComponent,    canActivate: [AuthGuard] },
@@ -23,6 +24,7 @@ const routes: Routes = [
   { path: 'resale',              component: ResaleBrowseComponent },
   { path: 'resale/submit',       component: ResaleSubmitComponent,   canActivate: [AuthGuard] },
   { path: 'resale/my-listings',  component: ResaleListingsComponent, canActivate: [AuthGuard] },
+  { path: 'resale/edit/:id',     component: ResaleEditComponent,     canActivate: [AuthGuard] },
   { path: 'resale/:slug',        component: ResaleDetailComponent },
 ];
 
@@ -34,6 +36,7 @@ const routes: Routes = [
     FavoritesComponent,
     ResaleBrowseComponent,
     ResaleDetailComponent,
+    ResaleEditComponent,
     ResaleSubmitComponent,
     ResaleListingsComponent,
   ],

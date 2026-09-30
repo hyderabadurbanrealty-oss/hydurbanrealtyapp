@@ -1,0 +1,272 @@
+﻿<div class="rs-page">
+
+  <!-- Left panel (same branding as submit) -->
+  <aside class="rs-left">
+    <a routerLink="/" class="rs-brand">
+      <img src="assets/blue-Logo.png" alt="Hyderabad Urban Realty" class="rs-brand-img">
+      <span class="rs-brand-text">Hyderabad Urban<span>Real Estate Intelligence</span></span>
+    </a>
+    <div class="rs-left-body">
+      <h1 class="rs-tagline">Edit Your<br>Property<br><em>Listing</em></h1>
+      <p class="rs-desc">Update your resale details, photos or pricing. Changes go live after our team reviews them.</p>
+      <ul class="rs-bullets">
+        <li><span class="rs-check">✓</span> Update price, config or photos</li>
+        <li><span class="rs-check">✓</span> Keep or remove existing images</li>
+        <li><span class="rs-check">✓</span> Changes reviewed within 24 hrs</li>
+      </ul>
+    </div>
+    <div class="rs-city">
+      <div class="rs-b rs-b1"></div><div class="rs-b rs-b2"></div><div class="rs-b rs-b3"></div>
+      <div class="rs-b rs-b4"></div><div class="rs-b rs-b5"></div><div class="rs-b rs-b6"></div>
+      <div class="rs-city-glow"></div><div class="rs-city-ground"></div>
+    </div>
+    <div class="rs-trust">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2z"/></svg>
+      Your contact details are never shared without consent
+    </div>
+  </aside>
+
+  <!-- Right form panel -->
+  <main class="rs-right">
+
+    <!-- Page loading -->
+    <div class="re-page-loading" *ngIf="pageLoading">
+      <div class="rs-spinner"></div>
+      <p>Loading listing…</p>
+    </div>
+
+    <!-- Load error -->
+    <div class="re-load-error" *ngIf="loadError && !pageLoading">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="40" height="40"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+      <p>{{ loadError }}</p>
+      <a routerLink="/resale/my-listings" class="rs-btn-secondary">Back to My Listings</a>
+    </div>
+
+    <!-- Success -->
+    <div *ngIf="success" class="rs-success">
+      <div class="rs-success-icon">
+        <svg viewBox="0 0 24 24" fill="#10b981" width="36" height="36"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+      </div>
+      <h2>Listing Updated!</h2>
+      <p>Your changes have been saved and will be reviewed by our team.</p>
+      <div class="rs-success-actions">
+        <a routerLink="/resale/my-listings" class="rs-btn-primary">My Listings</a>
+        <a routerLink="/resale" class="rs-btn-secondary">Browse Resale</a>
+      </div>
+    </div>
+
+    <ng-container *ngIf="!pageLoading && !loadError && !success">
+
+      <div class="rs-form-header">
+        <div class="rs-form-label">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+          Edit Listing
+        </div>
+        <h2 class="rs-form-title">Update Property Details</h2>
+        <p class="rs-form-sub">Fields marked <span style="color:#ef4444">*</span> are required</p>
+      </div>
+
+      <div class="rs-error" *ngIf="error" role="alert">⚠ {{ error }}</div>
+
+      <!-- Owner Details -->
+      <div class="rs-section">Owner Details</div>
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>Owner Name <span class="rs-req">*</span></label>
+          <input type="text" [(ngModel)]="form.ownerName" placeholder="Your full name" autocomplete="name">
+        </div>
+        <div class="rs-field">
+          <label>Where Do You Stay? <span class="rs-req">*</span></label>
+          <div class="rs-radio-row">
+            <label class="rs-radio" [class.active]="form.residenceType==='india'">
+              <input type="radio" [(ngModel)]="form.residenceType" value="india" name="rt"> India
+            </label>
+            <label class="rs-radio" [class.active]="form.residenceType==='overseas'">
+              <input type="radio" [(ngModel)]="form.residenceType" value="overseas" name="rt"> Overseas
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>Contact Phone <span class="rs-req">*</span></label>
+          <input type="tel" [(ngModel)]="form.contactPhone" placeholder="10-digit mobile" maxlength="10">
+        </div>
+        <div class="rs-field">
+          <label>Email Address</label>
+          <input type="email" [(ngModel)]="form.contactEmail" placeholder="you@example.com">
+        </div>
+      </div>
+
+      <!-- Property Details -->
+      <div class="rs-section">Property Details</div>
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>Builder / Developer</label>
+          <input type="text" [(ngModel)]="form.builderName" placeholder="e.g. Prestige, My Home">
+        </div>
+        <div class="rs-field">
+          <label>Project Name</label>
+          <input type="text" [(ngModel)]="form.projectName" placeholder="e.g. Prestige Beverly Hills">
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div class="rs-field rs-field-full">
+        <label>Property Location</label>
+        <div class="rs-loc-wrap" style="position:relative">
+          <input type="text" [(ngModel)]="locationQuery"
+                 (input)="onLocationInput()" (keydown)="onLocKeydown($event)"
+                 placeholder="Search area, street or landmark…" autocomplete="off">
+          <span class="rs-loc-spin" *ngIf="locationSearching">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14">
+              <circle cx="12" cy="12" r="10" opacity=".25"/>
+              <path d="M12 2a10 10 0 0110 10" stroke-linecap="round" style="animation:rsSpin .8s linear infinite"/>
+            </svg>
+          </span>
+          <ul class="rs-suggestions" *ngIf="locationSuggestions.length > 0">
+            <li *ngFor="let s of locationSuggestions; let i=index"
+                [class.active]="i===locationSuggestionIdx"
+                (mousedown)="pickLocation(i)">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12" style="flex-shrink:0;color:#94a3b8"><path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/></svg>
+              <span>{{ s.display_name }}</span>
+            </li>
+          </ul>
+          <div class="rs-loc-chosen" *ngIf="form.location && locationSuggestions.length===0">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="12" height="12"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            {{ form.location | slice:0:80 }}{{ form.location.length > 80 ? '…' : '' }}
+            <button type="button" (click)="clearLocation()">x</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Features -->
+      <div class="rs-section">Features &amp; Amenities</div>
+      <div class="rs-features">
+        <label class="rs-feat" *ngFor="let f of features" [class.active]="isFeatureSelected(f)">
+          <input type="checkbox" [checked]="isFeatureSelected(f)" (change)="toggleFeature(f)">
+          <span class="rs-feat-box">
+            <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" width="9" height="9"><path d="M2 6l3 3 5-5"/></svg>
+          </span>
+          {{ f }}
+        </label>
+      </div>
+
+      <!-- Config & Size -->
+      <div class="rs-section">Configuration &amp; Size</div>
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>Configuration</label>
+          <div class="rs-sel-wrap">
+            <select [(ngModel)]="form.configuration">
+              <option value="">Choose</option>
+              <option *ngFor="let c of configurations" [value]="c">{{ c }}</option>
+            </select>
+            <svg class="rs-sel-arr" viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </div>
+        </div>
+        <div class="rs-field">
+          <label>Super Built-up Area (sq.ft)</label>
+          <input type="number" [(ngModel)]="form.superBuiltUpArea" placeholder="e.g. 1450" min="200">
+        </div>
+      </div>
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>Age of Property</label>
+          <div class="rs-sel-wrap">
+            <select [(ngModel)]="form.ageOfProperty">
+              <option value="">Select age</option>
+              <option *ngFor="let a of ageOptions" [value]="a">{{ a }}</option>
+            </select>
+            <svg class="rs-sel-arr" viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </div>
+        </div>
+        <div class="rs-field">
+          <label>Expected Price (INR)</label>
+          <div class="rs-price-wrap">
+            <span class="rs-rupee">Rs.</span>
+            <input type="number" [(ngModel)]="form.expectedPrice" placeholder="e.g. 8500000" min="100000">
+          </div>
+          <span class="rs-price-hint" *ngIf="form.expectedPrice">{{ formatPrice(form.expectedPrice) }}</span>
+        </div>
+      </div>
+
+      <!-- Callback -->
+      <div class="rs-section">Preferred Callback Time</div>
+      <div class="rs-row">
+        <div class="rs-field">
+          <label>Preferred Date</label>
+          <input type="date" [(ngModel)]="form.callbackDate" [min]="minCallbackDate" class="rs-date-input">
+        </div>
+        <div class="rs-field">
+          <label>Time Slot</label>
+          <div class="rs-sel-wrap">
+            <select [(ngModel)]="form.callbackSlot">
+              <option value="">Select a time slot</option>
+              <option *ngFor="let s of callbackSlots" [value]="s">{{ s }}</option>
+            </select>
+            <svg class="rs-sel-arr" viewBox="0 0 20 20" fill="currentColor" width="14" height="14"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Images -->
+      <div class="rs-section">
+        Property Photos
+        <span class="rs-section-hint">max 5 total · 10 MB each · JPEG / PNG / WebP</span>
+      </div>
+
+      <!-- Existing retained images -->
+      <div class="re-retained" *ngIf="retainedImageUrls.length > 0">
+        <p class="re-retained-label">Current photos — click X to remove</p>
+        <div class="rs-previews">
+          <div class="rs-prev" *ngFor="let url of retainedImageUrls; let i=index">
+            <img [src]="url" alt="Current photo {{i+1}}" loading="lazy">
+            <button type="button" class="rs-prev-rm" (click)="removeRetained(i)" aria-label="Remove photo">
+              <svg viewBox="0 0 20 20" fill="currentColor" width="11" height="11"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+            </button>
+            <span class="rs-prev-n re-existing-badge">Saved</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- New image upload -->
+      <div class="rs-drop" [class.over]="dragOver"
+           *ngIf="totalImages < 5"
+           (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)"
+           (click)="fileInput.click()">
+        <input #fileInput type="file" accept="image/jpeg,image/png,image/webp" multiple
+               (change)="onFileInputChange($event)" style="display:none">
+        <svg viewBox="0 0 24 24" fill="currentColor" width="28" height="28" style="color:#94a3b8"><path d="M19.35 10.04A7.49 7.49 0 0012 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 000 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+        <p><strong>Add new photos</strong> or drag &amp; drop</p>
+        <span>{{ 5 - totalImages }} slot{{ 5 - totalImages !== 1 ? 's' : '' }} remaining</span>
+      </div>
+
+      <!-- New file previews -->
+      <div class="rs-previews" *ngIf="newFiles.length > 0">
+        <div class="rs-prev" *ngFor="let url of newPreviews; let i=index">
+          <img [src]="url" [alt]="'New photo '+(i+1)">
+          <button type="button" class="rs-prev-rm" (click)="removeNew(i)">
+            <svg viewBox="0 0 20 20" fill="currentColor" width="11" height="11"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg>
+          </button>
+          <span class="rs-prev-n">New</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="re-actions">
+        <button class="rs-btn-primary rs-submit" (click)="save()" [disabled]="saving">
+          <span *ngIf="!saving">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M17 3H5a2 2 0 00-2 2v14a2 2 0 002 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+            Save Changes
+          </span>
+          <span *ngIf="saving" class="rs-loading-row">
+            <span class="rs-spinner"></span>Saving…
+          </span>
+        </button>
+        <a routerLink="/resale/my-listings" class="rs-btn-secondary">Cancel</a>
+      </div>
+
+    </ng-container>
+  </main>
+</div>
