@@ -223,7 +223,146 @@ namespace HyderabadUrbanReality.Controllers
             return StatusCode(201, new { id = insertedId, message = "Listing submitted successfully." });
         }
 
-        // ── GET /api/resale/my ───────────────────────────────────────────────
+        // ── GET /api/resale/{id}/edit ────────────────────────────────────────
+        // Fetch a single listing for editing — owner or admin only
+        [HttpGet("{id:guid}/edit")]
+        [Authorize]
+        public async Task<IActionResult> GetForEdit(Guid id)
+        {
+            var userId = GetUserId();
+            await using var conn = new NpgsqlConnection(ConnStr);
+
+            // Allow owner OR admin (role claim = "admin")
+            var isAdmin = User.FindFirstValue(ClaimTypes.Role) == "admin"
+                       || User.FindFirstValue("role") == "admin";
+
+            var sql = isAdmin
+                ? @"SELECT id, owner_name, residence_type, contact_phone, contact_email,
+                           builder_name, project_name, location, configuration,
+                           super_built_up_area, age_of_property, expected_price,
+                           preferred_callback, features, images, status
+                    FROM resale_listings WHERE id = @id"
+                : @"SELECT id, owner_name, residence_type, contact_phone, contact_email,
+                           builder_name, project_name, location, configuration,
+                           super_built_up_area, age_of_property, expected_price,
+                           preferred_callback, features, images, status
+                    FROM resale_listings WHERE id = @id AND user_id = @userId";
+
+            var listing = await conn.QueryFirstOrDefaultAsync<dynamic>(
+                sql, new { id, userId });
+
+            if (listing == null)
+                return NotFound(new { error = "not_found" });
+
+            return Ok(listing);
+        }
+
+        // ── PUT /api/resale/{id} ─────────────────────────────────────────────
+        // Edit an existing listing — owner or admin only
+        [HttpPut("{id:guid}")]
+        [Authorize]
+        [RequestSizeLimit(55 * 1024 * 1024)]
+        public async Task<IActionResult> Update(Guid id,
+            [FromForm] ResaleSubmitRequest dto,
+            [FromForm] List<IFormFile>? newImages,
+            [FromForm] string? retainedImagesJson) // JSON array of existing URLs to keep
+        {
+            var userId  = GetUserId();
+            var isAdmin = User.FindFirstValue(ClaimTypes.Role) == "admin"
+                       || User.FindFirstValue("role") == "admin";
+
+            await using var conn = new NpgsqlConnection(ConnStr);
+
+            // Verify ownership / admin access
+            var existing = await conn.QueryFirstOrDefaultAsync<dynamic>(
+                isAdmin
+                    ? "SELECT id, images FROM resale_listings WHERE id = @id"
+                    : "SELECT id, images FROM resale_listings WHERE id = @id AND user_id = @userId",
+                new { id, userId });
+
+            if (existing == null)
+                return NotFound(new { error = "not_found" });
+
+            // Build final image list: retained existing URLs + any new uploads
+            var retained = new List<string>();
+            if (!string.IsNullOrWhiteSpace(retainedImagesJson))
+            {
+                try { retained = JsonSerializer.Deserialize<List<string>>(retainedImagesJson) ?? new(); }
+                catch { retained = new(); }
+            }
+
+            var imageUrls = new List<string>(retained);
+            var files = newImages?.Where(f => f.Length > 0).Take(5 - imageUrls.Count).ToList()
+                        ?? new List<IFormFile>();
+
+            foreach (var file in files)
+            {
+                if (!AllowedImageTypes.Contains(file.ContentType.ToLower()))
+                    return BadRequest(new { error = "invalid_image_type" });
+                if (file.Length > MaxImageSize)
+                    return BadRequest(new { error = "image_too_large" });
+
+                var ext      = Path.GetExtension(file.FileName);
+                var safeName = $"{Guid.NewGuid()}{ext}";
+                try
+                {
+                    await using var stream = file.OpenReadStream();
+                    var url = await _fileService.UploadFileAsync(stream, $"resale-{id}-{safeName}");
+                    imageUrls.Add(url);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to upload resale image {File}", safeName);
+                }
+            }
+
+            List<string> featureList;
+            try { featureList = string.IsNullOrWhiteSpace(dto.FeaturesJson)
+                ? new() : JsonSerializer.Deserialize<List<string>>(dto.FeaturesJson) ?? new(); }
+            catch { featureList = new(); }
+
+            var updateSql = @"
+                UPDATE resale_listings SET
+                    owner_name        = @ownerName,
+                    residence_type    = @residenceType,
+                    contact_phone     = @contactPhone,
+                    contact_email     = @contactEmail,
+                    builder_name      = @builderName,
+                    project_name      = @projectName,
+                    location          = @location,
+                    configuration     = @configuration,
+                    super_built_up_area = @superBuiltUpArea,
+                    age_of_property   = @ageOfProperty,
+                    expected_price    = @expectedPrice,
+                    preferred_callback = @preferredCallback,
+                    features          = @features::jsonb,
+                    images            = @images::jsonb,
+                    updated_at        = NOW()
+                WHERE id = @id";
+
+            await conn.ExecuteAsync(updateSql, new
+            {
+                id,
+                ownerName         = dto.OwnerName?.Trim(),
+                residenceType     = dto.ResidenceType ?? "india",
+                contactPhone      = dto.ContactPhone?.Trim(),
+                contactEmail      = dto.ContactEmail?.Trim(),
+                builderName       = dto.BuilderName?.Trim(),
+                projectName       = dto.ProjectName?.Trim(),
+                location          = dto.Location?.Trim(),
+                configuration     = dto.Configuration?.Trim(),
+                superBuiltUpArea  = dto.SuperBuiltUpArea,
+                ageOfProperty     = dto.AgeOfProperty?.Trim(),
+                expectedPrice     = dto.ExpectedPrice,
+                preferredCallback = dto.PreferredCallback?.Trim(),
+                features          = JsonSerializer.Serialize(featureList),
+                images            = JsonSerializer.Serialize(imageUrls)
+            });
+
+            _logger.LogInformation("Resale listing {Id} updated by {Who}",
+                id, isAdmin ? "admin" : userId);
+            return Ok(new { message = "Listing updated successfully." });
+        }────
         [HttpGet("my")]
         [Authorize]
         public async Task<IActionResult> GetMy([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
