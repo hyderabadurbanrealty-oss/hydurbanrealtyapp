@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, NgZone, ViewEncapsulation } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { Subject } from 'rxjs';
@@ -31,7 +31,11 @@ const CALLBACK_SLOTS = [
   standalone: false,
   selector: 'app-resale-edit',
   templateUrl: './resale-edit.component.html',
-  styleUrls: ['./resale-edit.component.css']
+  styleUrls: [
+    '../resale-submit/resale-submit.component.css',
+    './resale-edit.component.css'
+  ],
+  encapsulation: ViewEncapsulation.None
 })
 export class ResaleEditComponent implements OnInit, OnDestroy {
 

@@ -365,6 +365,8 @@ namespace HyderabadUrbanReality.Controllers
         }
 
         // ── GET /api/resale/my ───────────────────────────────────────────
+        [HttpGet("my")]
+        [Authorize]
         public async Task<IActionResult> GetMy([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             var userId = GetUserId();
