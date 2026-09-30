@@ -362,9 +362,9 @@ namespace HyderabadUrbanReality.Controllers
             _logger.LogInformation("Resale listing {Id} updated by {Who}",
                 id, isAdmin ? "admin" : userId);
             return Ok(new { message = "Listing updated successfully." });
-        }────
-        [HttpGet("my")]
-        [Authorize]
+        }
+
+        // ── GET /api/resale/my ───────────────────────────────────────────
         public async Task<IActionResult> GetMy([FromQuery] int page = 1, [FromQuery] int pageSize = 20)
         {
             var userId = GetUserId();
