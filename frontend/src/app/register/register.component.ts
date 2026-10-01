@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -30,7 +30,8 @@ export class RegisterComponent implements OnInit {
     private fb: FormBuilder,
     private auth: AuthService,
     private router: Router,
-    private zone: NgZone
+    private zone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       fullName: ['', [Validators.required, Validators.minLength(2)]],
@@ -60,7 +61,7 @@ export class RegisterComponent implements OnInit {
   }
 
   handleGoogleResponse(response: any): void {
-    if (!response?.credential) { this.error = 'Google sign-in failed. Please try again.'; return; }
+    if (!response?.credential) { this.error = 'Google sign-in failed. Please try again.'; this.cdr.markForCheck(); return; }
     this.googleLoading = true;
     this.error = '';
     this.auth.loginWithGoogle(response.credential).subscribe({
@@ -68,6 +69,7 @@ export class RegisterComponent implements OnInit {
       error: err => {
         this.googleLoading = false;
         this.error = err.error?.message || 'Google sign-in failed. Please try again.';
+        this.cdr.markForCheck();
       }
     });
   }
@@ -80,13 +82,14 @@ export class RegisterComponent implements OnInit {
     this.error = '';
     const { fullName, email, password, mobile } = this.form.value;
     this.auth.register(fullName, email, password, mobile || undefined).subscribe({
-      next: () => { this.loading = false; this.success = true; },
+      next: () => { this.loading = false; this.success = true; this.cdr.markForCheck(); },
       error: err => {
         this.loading = false;
         const code = err.error?.error;
         this.error = code === 'email_already_exists'
           ? 'An account with this email already exists.'
           : err.error?.message || 'Registration failed. Please try again.';
+        this.cdr.markForCheck();
       }
     });
   }

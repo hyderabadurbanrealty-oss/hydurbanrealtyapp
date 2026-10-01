@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -48,7 +48,8 @@ export class ResetPasswordComponent implements OnInit {
     private fb: FormBuilder,
     private auth: AuthService,
     private route: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       newPassword: ['', [Validators.required, Validators.minLength(8)]],
@@ -68,13 +69,14 @@ export class ResetPasswordComponent implements OnInit {
     this.loading = true;
     this.error = '';
     this.auth.resetPassword(this.token, this.form.value.newPassword).subscribe({
-      next: () => { this.loading = false; this.success = true; },
+      next: () => { this.loading = false; this.success = true; this.cdr.markForCheck(); },
       error: err => {
         this.loading = false;
         const code = err.error?.error;
         this.error = code === 'token_invalid'
           ? 'This reset link has expired or already been used. Please request a new one.'
           : err.error?.message || 'Reset failed. Please try again.';
+        this.cdr.markForCheck();
       }
     });
   }

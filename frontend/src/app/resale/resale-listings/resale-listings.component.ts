@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../../environments/environment';
 
@@ -16,7 +16,7 @@ export class ResaleListingsComponent implements OnInit {
   error    = '';
   deleting: string | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void { this.load(); }
 
@@ -24,8 +24,16 @@ export class ResaleListingsComponent implements OnInit {
     this.loading = true;
     this.error   = '';
     this.http.get<any>(`${API}/resale/my`).subscribe({
-      next: res => { this.listings = res.listings || []; this.loading = false; },
-      error: () => { this.error = 'Failed to load listings. Please try again.'; this.loading = false; }
+      next: res => {
+        this.listings = res.listings || [];
+        this.loading  = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.error   = 'Failed to load listings. Please try again.';
+        this.loading = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
@@ -36,8 +44,13 @@ export class ResaleListingsComponent implements OnInit {
       next: () => {
         this.listings = this.listings.filter(l => l.id !== id);
         this.deleting = null;
+        this.cdr.markForCheck();
       },
-      error: () => { this.deleting = null; alert('Failed to delete listing.'); }
+      error: () => {
+        this.deleting = null;
+        this.cdr.markForCheck();
+        alert('Failed to delete listing.');
+      }
     });
   }
 
