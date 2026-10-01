@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { PropertyService } from '../services/property.service';
 import { LoadingService } from '../services/loading.service';
 import { CompareService } from '../services/compare.service';
@@ -113,7 +113,8 @@ export class ComparisonComponent implements OnInit, OnDestroy {
     private propertyService: PropertyService,
     private router: Router,
     private loadingService: LoadingService,
-    private compareService: CompareService
+    private compareService: CompareService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -136,16 +137,19 @@ export class ComparisonComponent implements OnInit, OnDestroy {
                 next: (history) => {
                   this.priceHistoriesMap[id] = Array.isArray(history) ? history : [];
                   this.buildComparisonChart();
+                  this.cdr.markForCheck();
                 },
                 error: () => {
                   this.priceHistoriesMap[id] = [];
                   this.buildComparisonChart();
+                  this.cdr.markForCheck();
                 }
               });
             }
           }
         });
         this.buildComparisonChart();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -159,9 +163,11 @@ export class ComparisonComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.allProperties = data;
         this.filteredProperties = data;
+        this.cdr.markForCheck();
       },
       error: (error) => {
         console.error('Error loading properties:', error);
+        this.cdr.markForCheck();
       }
     });
   }
@@ -212,10 +218,12 @@ export class ComparisonComponent implements OnInit, OnDestroy {
         next: (history) => {
           this.priceHistoriesMap[propertyIdentifier] = Array.isArray(history) ? history : [];
           this.buildComparisonChart();
+          this.cdr.markForCheck();
         },
         error: () => {
           this.priceHistoriesMap[propertyIdentifier] = [];
           this.buildComparisonChart();
+          this.cdr.markForCheck();
         }
       });
     } else {

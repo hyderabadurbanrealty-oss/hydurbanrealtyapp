@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserDataService } from '../services/user-data.service';
 
@@ -15,12 +15,12 @@ export class SavedSearchesComponent implements OnInit {
   runningId: string | null = null;
   deletingId: string | null = null;
 
-  constructor(private userData: UserDataService, private router: Router) {}
+  constructor(private userData: UserDataService, private router: Router, private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.userData.getSavedSearches().subscribe({
-      next: items => { this.items = items; this.loading = false; },
-      error: () => { this.error = 'Failed to load saved searches.'; this.loading = false; }
+      next: items => { this.items = items; this.loading = false; this.cdr.markForCheck(); },
+      error: () => { this.error = 'Failed to load saved searches.'; this.loading = false; this.cdr.markForCheck(); }
     });
   }
 
@@ -29,13 +29,12 @@ export class SavedSearchesComponent implements OnInit {
     this.userData.runSavedSearch(item.id).subscribe({
       next: result => {
         this.runningId = null;
-        // Update result count in list
         const idx = this.items.findIndex(i => i.id === item.id);
         if (idx > -1) this.items[idx].resultCount = result.resultCount;
-        // Navigate to properties (saved search results could be shown there)
+        this.cdr.markForCheck();
         this.router.navigate(['/properties']);
       },
-      error: () => this.runningId = null
+      error: () => { this.runningId = null; this.cdr.markForCheck(); }
     });
   }
 
@@ -43,8 +42,8 @@ export class SavedSearchesComponent implements OnInit {
     if (!confirm(`Delete search "${item.name}"?`)) return;
     this.deletingId = item.id;
     this.userData.deleteSavedSearch(item.id).subscribe({
-      next: () => { this.items = this.items.filter(i => i.id !== item.id); this.deletingId = null; },
-      error: () => this.deletingId = null
+      next: () => { this.items = this.items.filter(i => i.id !== item.id); this.deletingId = null; this.cdr.markForCheck(); },
+      error: () => { this.deletingId = null; this.cdr.markForCheck(); }
     });
   }
 

@@ -1,4 +1,4 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, NgZone, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from './services/auth.service';
@@ -25,7 +25,8 @@ export class LoginComponent implements OnInit {
     private auth: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private zone: NgZone
+    private zone: NgZone,
+    private cdr: ChangeDetectorRef
   ) {
     this.form = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -54,7 +55,7 @@ export class LoginComponent implements OnInit {
   }
 
   handleGoogleResponse(response: any): void {
-    if (!response?.credential) { this.error = 'Google sign-in failed. Please try again.'; return; }
+    if (!response?.credential) { this.error = 'Google sign-in failed. Please try again.'; this.cdr.markForCheck(); return; }
     this.googleLoading = true;
     this.error = '';
     this.auth.loginWithGoogle(response.credential).subscribe({
@@ -66,6 +67,7 @@ export class LoginComponent implements OnInit {
       error: err => {
         this.googleLoading = false;
         this.error = err.error?.message || 'Google sign-in failed. Please try again.';
+        this.cdr.markForCheck();
       }
     });
   }
@@ -89,6 +91,7 @@ export class LoginComponent implements OnInit {
         this.error = code === 'invalid_credentials'
           ? 'Incorrect email or password.'
           : err.error?.message || 'Login failed. Please try again.';
+        this.cdr.markForCheck();
       }
     });
   }

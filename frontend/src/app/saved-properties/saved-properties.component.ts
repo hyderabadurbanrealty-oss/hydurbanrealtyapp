@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { UserDataService } from '../services/user-data.service';
 import { LoadingService } from '../services/loading.service';
@@ -18,13 +18,14 @@ export class SavedPropertiesComponent implements OnInit {
   constructor(
     private userData: UserDataService,
     private router: Router,
-    private loadingService: LoadingService
+    private loadingService: LoadingService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.userData.getSavedProperties().subscribe({
-      next: items => { this.items = items; this.loading = false; },
-      error: () => { this.error = 'Failed to load saved properties.'; this.loading = false; }
+      next: items => { this.items = items; this.loading = false; this.cdr.markForCheck(); },
+      error: () => { this.error = 'Failed to load saved properties.'; this.loading = false; this.cdr.markForCheck(); }
     });
   }
 
@@ -37,8 +38,8 @@ export class SavedPropertiesComponent implements OnInit {
     event.stopPropagation();
     this.removingId = item.projectId;
     this.userData.removeSavedProperty(item.projectId).subscribe({
-      next: () => { this.items = this.items.filter(i => i.projectId !== item.projectId); this.removingId = null; },
-      error: () => this.removingId = null
+      next: () => { this.items = this.items.filter(i => i.projectId !== item.projectId); this.removingId = null; this.cdr.markForCheck(); },
+      error: () => { this.removingId = null; this.cdr.markForCheck(); }
     });
   }
 }
