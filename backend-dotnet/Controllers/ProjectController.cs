@@ -564,14 +564,27 @@ namespace HyderabadUrbanReality.Controllers
         }
         
         /// <summary>
-        /// Helper method to safely extract values from project dictionary
+        /// <summary>
+        /// Helper method to safely extract values from project dictionary.
+        /// Tries the exact key first, then lowercase (DB column name), then
+        /// a nested raw_data lookup — handles both scraped and manually-entered projects.
         /// </summary>
         private string? GetValueFromProject(Dictionary<string, object> project, string key)
         {
-            if (project.TryGetValue(key, out var value))
-            {
-                return value?.ToString();
-            }
+            // 1. Exact match (e.g. "Locality" from raw_data flatten)
+            if (project.TryGetValue(key, out var value) && value is not null)
+                return value.ToString();
+
+            // 2. Lowercase match (e.g. "locality" from DB column)
+            var lower = key.Replace(" ", "_").ToLowerInvariant();
+            if (project.TryGetValue(lower, out var valueLower) && valueLower is not null)
+                return valueLower.ToString();
+
+            // 3. Snake_case match for multi-word keys (e.g. "Pin Code" → "pin_code")
+            var snake = System.Text.RegularExpressions.Regex.Replace(key, @"\s+", "_").ToLowerInvariant();
+            if (project.TryGetValue(snake, out var valueSnake) && valueSnake is not null)
+                return valueSnake.ToString();
+
             return null;
         }
         

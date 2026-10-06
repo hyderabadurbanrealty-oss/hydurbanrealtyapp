@@ -300,30 +300,30 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
                         // Second pass: unpack nested section objects
                         // This surfaces "Total Area(In sqmts)", "Project Type" etc.
                         // that live inside "General Information", "Land Details" etc.
+                        // IMPORTANT: always write the original-cased key from raw_data
+                        // (e.g. "Locality", "District", "Pin Code") even if a snake_case
+                        // DB column version ("locality", "district", "pin_code") already
+                        // exists — the frontend and geocoding code reads the title-case keys.
                         foreach (var kv in parsed)
                         {
                             if (kv.Value.ValueKind == JsonValueKind.Object)
                             {
                                 foreach (var inner in kv.Value.EnumerateObject())
                                 {
-                                    if (!existingLower.Contains(inner.Name.ToLowerInvariant()))
+                                    object val = inner.Value.ValueKind switch
                                     {
-                                        // Extract primitive values as strings so Angular gets plain values
-                                        object val = inner.Value.ValueKind switch
-                                        {
-                                            JsonValueKind.String => inner.Value.GetString() ?? "",
-                                            JsonValueKind.Number => inner.Value.GetRawText(),
-                                            JsonValueKind.True   => true,
-                                            JsonValueKind.False  => false,
-                                            _                    => inner.Value
-                                        };
-                                        dict[inner.Name] = val;
-                                        existingLower.Add(inner.Name.ToLowerInvariant());
-                                    }
+                                        JsonValueKind.String => inner.Value.GetString() ?? "",
+                                        JsonValueKind.Number => inner.Value.GetRawText(),
+                                        JsonValueKind.True   => true,
+                                        JsonValueKind.False  => false,
+                                        _                    => inner.Value
+                                    };
+                                    // Always set — overwrites DB column value with raw_data value
+                                    // when they differ in casing (e.g. "locality" → "Locality")
+                                    dict[inner.Name] = val;
                                 }
                             }
-                            // Also flatten top-level primitives as plain values
-                            else if (!existingLower.Contains(kv.Key.ToLowerInvariant()))
+                            else
                             {
                                 object topVal = kv.Value.ValueKind switch
                                 {
@@ -334,7 +334,6 @@ namespace HyderabadUrbanReality.Infrastructure.Repositories
                                     _                    => kv.Value
                                 };
                                 dict[kv.Key] = topVal;
-                                existingLower.Add(kv.Key.ToLowerInvariant());
                             }
                         }
                     }

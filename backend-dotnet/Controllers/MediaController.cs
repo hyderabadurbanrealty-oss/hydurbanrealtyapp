@@ -168,12 +168,39 @@ namespace HyderabadUrbanReality.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(string projectId, Guid mediaId)
         {
+            // Fetch full item first so we have file_url for Supabase deletion
+            var item = await _media.GetByIdAsync(mediaId);
+            if (item is null) return NotFound(new { error = "not_found" });
+
+            var itemDict = (IDictionary<string, object?>)item;
+            var fileUrl  = itemDict.TryGetValue("file_url", out var fu) ? fu?.ToString() : null;
+
+            // Delete the DB row
             var fileName = await _media.DeleteAsync(mediaId);
             if (fileName == null) return NotFound(new { error = "not_found" });
 
-            // Delete physical file if it exists
-            if (!string.IsNullOrEmpty(fileName))
+            // ── Delete from Supabase Storage (if file is stored there) ─────────
+            if (!string.IsNullOrEmpty(fileUrl) &&
+                (fileUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                 fileUrl.StartsWith("http://",  StringComparison.OrdinalIgnoreCase)))
             {
+                try
+                {
+                    var deleted = await _fileService.DeleteFileAsync(fileUrl);
+                    if (deleted)
+                        _logger.LogInformation("Deleted from Supabase Storage: project={Project} url={Url}", projectId, fileUrl);
+                    else
+                        _logger.LogWarning("Supabase Storage delete returned false for: {Url}", fileUrl);
+                }
+                catch (Exception ex)
+                {
+                    // Log but don't fail — DB row is already deleted
+                    _logger.LogError(ex, "Failed to delete from Supabase Storage: {Url}", fileUrl);
+                }
+            }
+            else if (!string.IsNullOrEmpty(fileName))
+            {
+                // Fallback: delete from local disk (dev / non-Supabase deployments)
                 var uploadRoot = Path.Combine(_env.ContentRootPath, "uploads", "properties", SanitizeId(projectId));
                 foreach (var sub in new[] { "images", "floorplans", "documents" })
                 {

@@ -117,7 +117,7 @@ def save_project_to_db(conn, project_id: str, data: dict) -> None:
     locality           = _extract_flat(data, 'Locality')
     pin_code           = _extract_flat(data, 'Pin Code')
     village            = _extract_flat(data, 'Village/City/Town')
-    promoter_name      = _extract_flat(data, 'Promoter Name')
+    promoter_name      = _extract_flat(data, 'Name')           # org name sits under 'Name' not 'Promoter Name'
     org_type           = _extract_flat(data, 'Organization Type')
     bank_name          = _extract_flat(data, 'Bank Name')
     branch_name        = _extract_flat(data, 'Branch Name')
@@ -131,7 +131,7 @@ def save_project_to_db(conn, project_id: str, data: dict) -> None:
         except (TypeError, ValueError):
             return default
 
-    total_flats   = _int(data.get('totalFlats', 0))
+    total_flats   = _int(data.get('totalFlats') or _extract_flat(data, 'Total Building Units (as per approved plan)'))
     total_booked  = _int(data.get('totalBookedFlats', 0))
 
     # Numeric field
@@ -203,11 +203,12 @@ def setup_selenium():
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument("--window-size=1920,1080")
-    
-    # Optional: Disable some things to speed up
     chrome_options.add_argument("--disable-gpu")
     chrome_options.add_argument("--disable-extensions")
-    chrome_options.add_argument("--remote-debugging-port=9222") # Fix for some environment crashes
+    chrome_options.add_argument("--disable-setuid-sandbox")
+    chrome_options.add_argument("--disable-software-rasterizer")
+    chrome_options.add_argument("--disable-background-networking")
+    chrome_options.add_argument("--single-process")
     
     try:
         service = Service(ChromeDriverManager().install())
@@ -522,32 +523,33 @@ def scrape_detail_page(session, driver, detail_url, project_name):
         with open(project_folder / "view_page_data.json", "w", encoding="utf-8") as f:
             json.dump(extracted_data, f, indent=2)
 
-        # Best-effort write to PostgreSQL
-        try:
-            from db_utils import get_connection
-            _conn = get_connection()
-            save_project_to_db(_conn, sanitize_filename(project_name), extracted_data)
-            _conn.close()
-            print(f"      [DB] Upserted '{project_name}' to PostgreSQL.")
-        except Exception as _db_err:
-            print(f"      [DB] Warning: could not write to DB: {_db_err}")
-
+        # DB write is handled by main() after PIN filtering — do not write here.
         return extracted_data
         
     except Exception as e:
         print(f"      [!] Error processing detail page: {e}")
         return None
 
-def main(project_name=None, pin_code_filter=None):
-    if not project_name:
-        project_name = input("[?] Enter Project Name to search: ").strip()
-    
-    if not project_name:
-        print("[-] Project name cannot be empty.")
-        return
+def main(project_name=None, pin_codes=None, district_id="24"):
+    """
+    Args:
+        project_name: RERA project name search term. Empty = all projects.
+        pin_codes:    Set of PIN codes to save (e.g. {"500081","500075"}).
+                      None = save all PINs in the district.
+        district_id:  RERA district dropdown value.
+                      24 = Rangareddy, 25 = Hyderabad. Default: 24.
+    """
+    # None means not provided at all (interactive mode), "" means explicit "all"
+    if project_name is None:
+        project_name = input("[?] Enter Project Name to search (leave blank for all): ").strip()
 
-    if pin_code_filter:
-        print(f"[i] Pin code filter active: will only save projects with Pin Code = {pin_code_filter}")
+    # % is rejected by server validation (special char) — use empty string for all projects
+    if project_name == "%":
+        project_name = ""
+
+    if pin_codes:
+        print(f"[i] PIN filter: will only save projects whose PIN is in {sorted(pin_codes)}")
+    print(f"[i] District filter: {district_id} ({'Rangareddy' if district_id=='24' else 'Hyderabad' if district_id=='25' else district_id})")
 
     # Best-effort scrape run tracking
     _db_conn = None
@@ -561,9 +563,15 @@ def main(project_name=None, pin_code_filter=None):
 
     # Try to open DB connection (graceful degradation if not configured)
     db_conn = None
+    existing_ids = set()
     try:
         db_conn = get_connection()
         print("[DB] Connected to PostgreSQL.")
+        # Pre-load existing project IDs so we can skip already-scraped ones
+        with db_conn.cursor() as _cur:
+            _cur.execute("SELECT id FROM projects")
+            existing_ids = {row[0] for row in _cur.fetchall()}
+        print(f"[DB] {len(existing_ids)} existing projects loaded — these will be skipped.")
     except Exception as db_err:
         print(f"[DB] Warning: Could not connect to DB — {db_err}. Writes will be skipped.")
 
@@ -590,233 +598,303 @@ def main(project_name=None, pin_code_filter=None):
         print(f"Error fetching initial page: {e}")
         return
 
-    # 2. Download Captcha
-    print("[2/6] Downloading Captcha...")
-    captcha_filename = "captcha_fast.png"
-    if not solver.download_captcha(captcha_filename):
-        print("Failed to download captcha.")
-        return
-
-    # 3. Solve Captcha
-    print("[3/6] Solving Captcha...")
-    captcha_text = solver.solve_captcha(captcha_filename)
-    if not captcha_text:
-        print("Could not solve captcha automatically.")
-        return
-    print(f"      Solved: {captcha_text}")
-
-    # 4. Prepare Search POST Request
-    print(f"[4/6] Searching for '{project_name}'...")
-    
-    # Update payload with form data
-    payload.update({
-        "Type": "Promoter",
-        "Project": project_name,
-        "Promoter": "",
-        "AgentName": "",
-        "CertiNo": "",
-        "District": "",
-        "Taluka": "",
-        "Village": "",
-        "CompletionDate_From": "",
-        "CompletionDate_To": "",
-        "PType": "",
-        "PlotBearing": "",
-        "Captcha": captcha_text,
-        "Command": "Search",
-        "pageTraverse": "1"
-    })
-    
-    # 5. Execute POST
-    search_url = "https://rerait.telangana.gov.in/SearchList/Search"
+    # 2–5. Captcha retry loop (up to 5 attempts — RERA silently returns
+    #       "No Records Found" when the captcha is wrong)
+    MAX_CAPTCHA_ATTEMPTS = 10
     extracted_data = []
-    
-    try:
-        current_page = 1
-        total_pages = 1
-        
-        while current_page <= total_pages:
-            if current_page > 1:
-                print(f"      Fetching page {current_page} of {total_pages}...")
-                payload['pageTraverse'] = str(current_page)
-                # For pagination, we don't send a button Command
-                payload.pop('Command', None)
-            
-            post_resp = solver.session.post(search_url, data=payload)
-            post_resp.raise_for_status()
-            
-            result_soup = BeautifulSoup(post_resp.text, 'html.parser')
-            
-            # Update payload with hidden fields from the response (tokens, state)
-            new_hidden = get_hidden_fields(result_soup)
-            if new_hidden:
-                payload.update(new_hidden)
-            
-            # Check for TotalPages on the first page
-            if current_page == 1:
-                total_pages_input = result_soup.find('input', {'id': 'TotalPages'})
-                if total_pages_input:
-                    try:
-                        total_pages = int(total_pages_input.get('value', '1'))
-                        print(f"      Total records spread across {total_pages} pages.")
-                    except:
-                        total_pages = 1
+    search_succeeded = False
 
-            # Parse Table
-            grid_div = result_soup.find(id="gridview")
-            table = grid_div.find('table') if grid_div else result_soup.find('table')
-            
-            if not table:
-                if current_page == 1:
-                    if "No Records Found" in post_resp.text:
-                        print("[-] Search returned 'No Records Found'.")
-                    else:
-                        print("[-] No table data found in response.")
-                    return
-                else:
-                    break # End of pages
-            
-            # Extract headers (if not already done)
-            headers = []
-            thead = table.find('thead')
-            if thead:
-                headers = [th.text.strip() for th in thead.find_all('th')]
-            
-            rows = table.find_all('tr')
-            if not headers and rows:
-                 headers = [td.text.strip() for td in rows[0].find_all(['td', 'th'])]
-                 rows = rows[1:]
+    for captcha_attempt in range(1, MAX_CAPTCHA_ATTEMPTS + 1):
+        # 2. Download fresh captcha each attempt
+        print(f"[2/6] Downloading Captcha (attempt {captcha_attempt}/{MAX_CAPTCHA_ATTEMPTS})...")
+        captcha_filename = "captcha_fast.png"
+        if not solver.download_captcha(captcha_filename):
+            print("Failed to download captcha.")
+            continue
 
-            page_records = 0
-            for row in rows:
-                cols = row.find_all('td')
-                if not cols: continue
-                
-                row_data = {}
-                for idx, col in enumerate(cols):
-                    key = headers[idx] if idx < len(headers) else f"Column_{idx}"
-                    row_data[key] = col.text.strip()
-                    
-                    # Extract "View" link
-                    view_link = col.find('a', class_='btn-primary', string='View')
-                    if view_link and view_link.get('href'):
-                        row_data[f"{key}_ViewLink"] = view_link.get('href')
-                
-                extracted_data.append(row_data)
-                page_records += 1
-            
-            print(f"      Page {current_page}: Found {page_records} records.")
-            current_page += 1
-            
-            # Stop if we've reached a reasonble limit or if no records found on this page
-            if page_records == 0:
+        # 3. Solve Captcha
+        print("[3/6] Solving Captcha...")
+        captcha_text = solver.solve_captcha(captcha_filename)
+
+        # Build candidates: try I↔J swaps first since the RERA italic font
+        # makes J look identical to I — the swap is correct more often than not.
+        candidates = []
+        if captcha_text:
+            print(f"      Auto-solved: {captcha_text}")
+            alt_ij = captcha_text.replace('I', 'J') if 'I' in captcha_text else None
+            alt_ji = captcha_text.replace('J', 'I') if 'J' in captcha_text else None
+            # Try I→J first (most common confusion), then raw, then J→I
+            if alt_ij and alt_ij != captcha_text:
+                candidates.append(alt_ij)
+                print(f"      I→J variant (trying first): {alt_ij}")
+            candidates.append(captcha_text)
+            if alt_ji and alt_ji != captcha_text and alt_ji not in candidates:
+                candidates.append(alt_ji)
+                print(f"      J→I variant: {alt_ji}")
+        else:
+            print("      Auto-solve failed.")
+
+        # Manual entry fallback — show the captcha image path so user can read it
+        print(f"      [Manual fallback] Captcha saved at: {captcha_filename}")
+        print(f"      Press Enter to skip manual entry, or type the captcha text: ", end="", flush=True)
+        try:
+            import sys
+            manual = ""
+            # Only prompt if running interactively (not piped)
+            if sys.stdin.isatty():
+                manual = input().strip().upper()
+            if manual and manual not in candidates:
+                candidates.insert(0, manual)  # try manual first
+                print(f"      Using manual entry: {manual}")
+        except Exception:
+            pass
+
+        if not candidates:
+            print("      No captcha candidates — retrying...")
+            solver.initialize_session()
+            try:
+                resp2 = solver.session.get("https://rerait.telangana.gov.in/SearchList/Search")
+                resp2.raise_for_status()
+                soup2 = BeautifulSoup(resp2.text, 'html.parser')
+                payload = get_hidden_fields(soup2)
+            except Exception:
+                pass
+            continue
+
+        # 5. Execute POST — try each candidate captcha in its own POST
+        search_url = "https://rerait.telangana.gov.in/SearchList/Search"
+        extracted_data = []
+        search_found = False
+
+        for candidate in candidates:
+            print(f"[4/6] Searching '{project_name}' — captcha='{candidate}' (attempt {captcha_attempt})...")
+
+            # Build payload: start from current hidden fields then overlay form values.
+            # Division and State MUST be present — server rejects without them.
+            post_payload = dict(payload)
+            post_payload.update({
+                "Type":                "Promoter",
+                "Project":             project_name,
+                "Promoter":            "",
+                "AgentName":           "",
+                "CertiNo":             "",
+                "Division":            "",
+                "District":            district_id,
+                "Taluka":              "",
+                "Village":             "",
+                "State":               "",
+                "CompletionDate_From": "",
+                "CompletionDate_To":   "",
+                "PType":               "",
+                "PlotBearing":         "",
+                "Captcha":             candidate,
+                "Command":             "Search",
+                "pageTraverse":        "1",
+            })
+
+            try:
+                current_page = 1
+                total_pages = 1
+
+                while current_page <= total_pages:
+                    if current_page > 1:
+                        print(f"      Fetching page {current_page} of {total_pages}...")
+                        post_payload['pageTraverse'] = str(current_page)
+                        post_payload.pop('Command', None)
+
+                    post_resp = solver.session.post(search_url, data=post_payload)
+                    post_resp.raise_for_status()
+
+                    result_soup = BeautifulSoup(post_resp.text, 'html.parser')
+
+                    new_hidden = get_hidden_fields(result_soup)
+                    if new_hidden:
+                        post_payload.update(new_hidden)
+                        payload.update(new_hidden)
+
+                    if current_page == 1:
+                        total_pages_input = result_soup.find('input', {'id': 'TotalPages'})
+                        if total_pages_input:
+                            try:
+                                total_pages = int(total_pages_input.get('value', '1'))
+                                print(f"      Total records spread across {total_pages} pages.")
+                            except Exception:
+                                total_pages = 1
+
+                    grid_div = result_soup.find(id="gridview")
+                    table = grid_div.find('table') if grid_div else result_soup.find('table')
+
+                    if not table:
+                        if current_page == 1:
+                            # Check if tbody is genuinely empty (not just the always-present hidden label)
+                            tbody = result_soup.find('tbody')
+                            tbody_rows = tbody.find_all('tr') if tbody else []
+                            if len(tbody_rows) == 0:
+                                print(f"[-] Candidate '{candidate}': empty result set — trying next captcha...")
+                                # Re-init session for a fresh captcha
+                                solver.initialize_session()
+                                try:
+                                    resp3 = solver.session.get("https://rerait.telangana.gov.in/SearchList/Search")
+                                    resp3.raise_for_status()
+                                    soup3 = BeautifulSoup(resp3.text, 'html.parser')
+                                    payload = get_hidden_fields(soup3)
+                                except Exception:
+                                    pass
+                            else:
+                                print("[-] No table found but tbody has rows — unexpected state.")
+                        break
+
+                    headers = []
+                    thead = table.find('thead')
+                    if thead:
+                        headers = [th.text.strip() for th in thead.find_all('th')]
+
+                    rows = table.find_all('tr')
+                    if not headers and rows:
+                        headers = [td.text.strip() for td in rows[0].find_all(['td', 'th'])]
+                        rows = rows[1:]
+
+                    page_records = 0
+                    for row in rows:
+                        cols = row.find_all('td')
+                        if not cols:
+                            continue
+
+                        row_data = {}
+                        for col_idx, col in enumerate(cols):
+                            key = headers[col_idx] if col_idx < len(headers) else f"Column_{col_idx}"
+                            row_data[key] = col.text.strip()
+
+                            view_link = col.find('a', class_='btn-primary', string='View')
+                            if view_link and view_link.get('href'):
+                                row_data[f"{key}_ViewLink"] = view_link.get('href')
+
+                        extracted_data.append(row_data)
+                        page_records += 1
+
+                    print(f"      Page {current_page}: Found {page_records} records.")
+                    current_page += 1
+
+                if extracted_data:
+                    search_succeeded = True
+                    search_found = True
+                    break  # captcha was correct — stop trying other candidates
+
+            except Exception as search_err:
+                print(f"      Search error on attempt {captcha_attempt}: {search_err}")
+
+        if search_found:
+            break  # good captcha found — exit the outer retry loop
+
+    if not search_succeeded and not extracted_data:
+        if captcha_attempt >= MAX_CAPTCHA_ATTEMPTS:
+            print(f"[-] Failed to get search results after {MAX_CAPTCHA_ATTEMPTS} captcha attempts.")
+        return
+
+    if not extracted_data:
+        print("[-] No results found after all captcha attempts.")
+        return
+
+    print(f"[+] Successfully collected {len(extracted_data)} total results.")
+
+    # Initialize Browser for high-fidelity detail page capture
+    print("[5/6] Initializing browser for detail pages...")
+    driver = setup_selenium()
+
+    if not driver:
+        print("[-] Fatal Error: Could not initialize Selenium WebDriver. Please check if Chrome is installed and updated.")
+        print("    Saving collected search results before exiting...")
+        with open("scraped_projects/all_projects_search_results.json", "w", encoding="utf-8") as f:
+            json.dump(extracted_data, f, indent=2)
+        return
+
+    # 6. Process detail pages
+    print("[6/6] Processing detail pages...")
+    results = []
+
+    for idx, result in enumerate(extracted_data, 1):
+        proj_name = ""
+        # Try to find project name in columns like "Project Name" or similar
+        for k, v in result.items():
+            if "Project" in k and "Name" in k:
+                proj_name = v
+                break
+        if not proj_name:
+            proj_name = result.get('Project', f'Unknown_Project_{idx}')
+
+        # Skip projects already in DB (use sanitized name as ID, same as save_project_to_db)
+        proj_id = sanitize_filename(proj_name)
+
+        # Find the View link
+        view_url = None
+        for key, value in result.items():
+            if 'ViewLink' in key:
+                view_url = value
                 break
 
-        if not extracted_data:
-            print("[-] No results found.")
-            return
-        
-        print(f"[+] Successfully collected {len(extracted_data)} total results.")
-        
-        # Initialize Browser for high-fidelity detail page capture
-        print("[5/6] Initializing browser for detail pages...")
-        driver = setup_selenium()
-        
-        if not driver:
-            print("[-] Fatal Error: Could not initialize Selenium WebDriver. Please check if Chrome is installed and updated.")
-            print("    Saving collected search results before exiting...")
-            with open("scraped_projects/all_projects_search_results.json", "w", encoding="utf-8") as f:
-                json.dump(extracted_data, f, indent=2)
-            return
-        
-        # 6. Process detail pages
-        print("[6/6] Processing detail pages...")
-        results = []
-        
-        for idx, result in enumerate(extracted_data, 1):
-            proj_name = ""
-            # Try to find project name in columns like "Project Name" or similar
-            for k, v in result.items():
-                if "Project" in k and "Name" in k:
-                    proj_name = v
-                    break
-            if not proj_name:
-                proj_name = result.get('Project', f'Unknown_Project_{idx}')
-            
-            # Find the View link
-            view_url = None
-            for key, value in result.items():
-                if 'ViewLink' in key:
-                    view_url = value
-                    break
-            
-            if view_url:
-                try:
-                    data = scrape_detail_page(solver.session, driver, view_url, proj_name)
-                    if data:
-                        # Apply pin code filter if specified
-                        if pin_code_filter:
-                            scraped_pin = (
-                                data.get('Pin Code') or
-                                data.get('Address Details', {}).get('Pin Code') or
-                                data.get('General Information', {}).get('Pin Code') or ''
-                            ).strip()
-                            if scraped_pin != pin_code_filter:
-                                print(f"      [~] Skipping '{proj_name}' — Pin Code is '{scraped_pin}' (filter: {pin_code_filter})")
-                                # Remove the folder that was created
-                                import shutil
-                                proj_folder = create_project_folder(proj_name)
-                                if proj_folder.exists():
-                                    shutil.rmtree(proj_folder)
-                                continue
-                        results.append(data)
-                        if db_conn:
-                            try:
-                                save_project_to_db(db_conn, sanitize_filename(proj_name), data)
-                            except Exception as db_err:
-                                print(f"      [DB] Error saving to DB: {db_err}")
-                except Exception as e:
-                    print(f"      [!] Error processing {proj_name}: {e}")
-            else:
-                print(f"      [-] No view link found for {proj_name}")
+        if view_url:
+            try:
+                data = scrape_detail_page(solver.session, driver, view_url, proj_name)
+                if data:
+                    # PIN filter — only save if project PIN is in the target set
+                    if pin_codes:
+                        scraped_pin = (
+                            data.get('Pin Code') or
+                            _extract_flat(data, 'Pin Code') or ''
+                        ).strip()
+                        if scraped_pin not in pin_codes:
+                            print(f"      [~] Skip '{proj_name}' — PIN {scraped_pin!r} not in target set")
+                            # Clean up folder for non-target projects to save disk
+                            import shutil as _shutil
+                            _folder = create_project_folder(proj_name)
+                            if _folder.exists():
+                                _shutil.rmtree(_folder)
+                            continue
+                    results.append(data)
+                    existing_ids.add(proj_id)  # mark as done for this session
+                    if db_conn:
+                        try:
+                            save_project_to_db(db_conn, sanitize_filename(proj_name), data)
+                        except Exception as db_err:
+                            print(f"      [DB] Error saving to DB: {db_err}")
+            except Exception as e:
+                print(f"      [!] Error processing {proj_name}: {e}")
+        else:
+            print(f"      [-] No view link found for {proj_name}")
 
-        # Cleanup
-        if driver:
-            driver.quit()
-
-        # Save all results
+        # Checkpoint save after every project
         with open("scraped_projects/all_projects_data.json", "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2)
-        
-        print(f"\n[DONE] Processed {len(results)} projects. See 'scraped_projects' folder.")
+        print(f"      [checkpoint] {idx}/{len(extracted_data)} done, {len(results)} saved so far")
 
-        # Update scrape run as completed
-        if _db_conn and _run_id:
-            try:
-                from db_utils import finish_scrape_run
-                finish_scrape_run(_db_conn, _run_id, total=len(extracted_data), completed=len(results))
-                _db_conn.close()
-            except Exception:
-                pass
-            
-    except Exception as e:
-        print(f"Error during search: {e}")
-        import traceback
-        traceback.print_exc()
-        # Mark scrape run as failed
-        if _db_conn and _run_id:
-            try:
-                from db_utils import fail_scrape_run
-                fail_scrape_run(_db_conn, _run_id, str(e))
-                _db_conn.close()
-            except Exception:
-                pass
+    # ── All projects processed — cleanup ──────────────────────────────────
+    if driver:
+        driver.quit()
+
+    print(f"\n[DONE] Processed {len(results)} projects. See 'scraped_projects' folder.")
+
+    # Update scrape run as completed
+    if _db_conn and _run_id:
+        try:
+            from db_utils import finish_scrape_run
+            finish_scrape_run(_db_conn, _run_id, total=len(extracted_data), completed=len(results))
+            _db_conn.close()
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Scrape RERA project detail pages.")
-    parser.add_argument("--project", help="Project name to search for")
-    parser.add_argument("--pin-code", dest="pin_code", help="Only save projects whose detail page shows this Pin Code (e.g. 500075)")
+    parser.add_argument("--project",   help="Project name search term (omit for all)", default=None)
+    parser.add_argument("--district",  help="RERA district ID: 24=Rangareddy, 25=Hyderabad (default: 24)", default="24")
+    parser.add_argument("--pin-codes", dest="pin_codes",
+                        help="Comma-separated PIN codes to save, e.g. 500081,500075. Omit to save all.",
+                        default=None)
     args = parser.parse_args()
-    main(project_name=args.project, pin_code_filter=args.pin_code)
+
+    _pin_set = None
+    if args.pin_codes:
+        _pin_set = {p.strip() for p in args.pin_codes.split(",") if p.strip()}
+
+    main(project_name=args.project, pin_codes=_pin_set, district_id=args.district)
     
