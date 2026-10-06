@@ -337,10 +337,23 @@ def login_and_get_cookies() -> dict:
     cookies = {}
     try:
         driver.get(f"{BASE_URL}/districtList.htm")
-        # Wait up to 20s for the username field to be present
-        WebDriverWait(driver, 20).until(
-            EC.presence_of_element_located((By.ID, "username"))
+
+        # Wait for the user_type dropdown to be present
+        WebDriverWait(driver, 30).until(
+            EC.presence_of_element_located((By.ID, "user_type"))
         )
+        time.sleep(2)
+
+        # Select Citizen (value=1) using Selenium Select — this triggers username visibility
+        from selenium.webdriver.support.ui import Select as SeleniumSelect
+        SeleniumSelect(driver.find_element(By.ID, "user_type")).select_by_value('1')
+
+        # Wait for username field to become visible
+        WebDriverWait(driver, 15).until(
+            EC.visibility_of_element_located((By.ID, "username"))
+        )
+        time.sleep(1)
+
         for attempt in range(8):
             # Dismiss any lingering alert first
             try:
@@ -348,24 +361,7 @@ def login_and_get_cookies() -> dict:
             except Exception:
                 pass
 
-            # Select user type via JavaScript — value '1' = Citizen (confirmed by debug)
-            try:
-                driver.execute_script("""
-                    var sel = document.getElementById('user_type');
-                    if (sel) {
-                        sel.value = '1';
-                        sel.dispatchEvent(new Event('change'));
-                    }
-                """)
-                # Wait for username to become visible after user_type change
-                WebDriverWait(driver, 8).until(
-                    EC.visibility_of_element_located((By.ID, "username"))
-                )
-                time.sleep(1)  # extra settle time
-            except Exception as e:
-                log.warning(f"user_type JS selection failed: {e}")
-
-            # Fill fields via Selenium send_keys (more reliable than JS .value after visibility confirmed)
+            # Fill username and password
             try:
                 u_el = driver.find_element(By.ID, "username")
                 u_el.clear()
@@ -376,35 +372,45 @@ def login_and_get_cookies() -> dict:
             except Exception as e:
                 log.warning(f"Field fill failed: {e}")
                 continue
+
             cap = _ocr_captcha(driver)
             log.info(f"Login attempt {attempt+1}: captcha={cap!r}")
             if not cap:
                 driver.get(f"{BASE_URL}/districtList.htm")
-                WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "username")))
+                WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "user_type")))
+                time.sleep(2)
+                SeleniumSelect(driver.find_element(By.ID, "user_type")).select_by_value('1')
+                WebDriverWait(driver, 15).until(EC.visibility_of_element_located((By.ID, "username")))
                 continue
+
             driver.execute_script(f"document.getElementById('captcha').value = '{cap}';")
             try:
                 driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
             except Exception:
                 driver.find_element(By.ID, "myForm").submit()
             time.sleep(6)
-            # Dismiss any alert that appeared after submit
+
             try:
                 driver.switch_to.alert.accept()
                 time.sleep(2)
             except Exception:
                 pass
+
             body = driver.find_element(By.TAG_NAME, "body").text.lower()
-            if any(x in body for x in ["welcome","logout","encumbrance"]):
+            if any(x in body for x in ["welcome", "logout", "encumbrance"]):
                 log.info("Login successful")
-                cookies = {c["name"]:c["value"] for c in driver.get_cookies()}
+                cookies = {c["name"]: c["value"] for c in driver.get_cookies()}
                 return cookies
             elif "invalid captcha" in body:
                 log.warning("Invalid captcha — retrying")
                 driver.get(f"{BASE_URL}/districtList.htm")
-                WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "username")))
+                WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.ID, "user_type")))
+                time.sleep(2)
+                SeleniumSelect(driver.find_element(By.ID, "user_type")).select_by_value('1')
+                WebDriverWait(driver, 15).until(EC.visibility_of_element_located((By.ID, "username")))
             elif "invalid password" in body:
-                log.error("Invalid credentials"); return {}
+                log.error("Invalid credentials")
+                return {}
     finally:
         driver.quit()
     return cookies
@@ -630,11 +636,15 @@ def run_scraper(sros=None, years=None):
         except Exception: pass
 
     for sro in sros:
-        sro_existing_count = sum(1 for r in all_records if r.get('sro_name') == sro['name'])
-        if sro_existing_count > 0:
-            log.info(f"Skipping {sro['name']} — {sro_existing_count} records already exist")
-            continue
         for year in years:
+            # Skip only if we already have records for this specific SRO+year combination
+            year_existing_count = sum(
+                1 for r in all_records
+                if r.get('sro_name') == sro['name'] and r.get('year') == year
+            )
+            if year_existing_count > 0:
+                log.info(f"Skipping {sro['name']} {year} — {year_existing_count} records already exist")
+                continue
             log.info(f"\n--- {sro['name']} {year} ---")
             new_recs = scrape_sro_year(session, sro, year)
             for r in new_recs:

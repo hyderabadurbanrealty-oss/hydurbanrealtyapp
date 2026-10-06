@@ -44,7 +44,7 @@ print("         Expected time: 5-30 minutes depending on number of projects.\n")
 
 try:
     from rera_detail_scraper import main as scrape_main
-    scrape_main(project_name="%", pin_code_filter=PIN_CODE)
+    scrape_main(project_name="")
     print("\n[STEP 1] ✓ Scraping complete")
 except Exception as e:
     print(f"\n[STEP 1] ✗ Scraping failed: {e}")
